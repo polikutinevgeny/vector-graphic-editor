@@ -152,7 +152,7 @@ end;
 
 procedure TMainWindow.ClearMIClick(Sender: TObject);
 begin
-  Figures.Undo(true);
+  Figures.UndoAll;
   Tools[CurrentToolIndex].DoubleClick;
   Cleared := True;
   Invalidate;
@@ -187,7 +187,7 @@ begin
   will delete the last figure drawn}
   if Cleared then
     begin
-      Figures.Redo(true);
+      Figures.RedoAll;
       Cleared := false;
     end
   else Figures.Undo;

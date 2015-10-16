@@ -19,8 +19,10 @@ type
       constructor Create;
       procedure Draw(ACanvas: TCanvas);
       procedure Add(AFigure: TFigure);
-      procedure Undo(all: boolean = false);
-      procedure Redo(all: boolean = false);
+      procedure Undo;
+      procedure UndoAll;
+      procedure Redo;
+      procedure RedoAll;
       function Last: TFigure;
   end;
 
@@ -54,16 +56,24 @@ begin
   FFigures[High(FFigures)] := AFigure;
 end;
 
-procedure TFiguresList.Undo(all: boolean);
+procedure TFiguresList.Undo;
 begin
-  if all then
-  FNumberOfFiguresShown := 0 else FNumberOfFiguresShown := max(FNumberOfFiguresShown - 1, 0);
+  FNumberOfFiguresShown := max(FNumberOfFiguresShown - 1, 0);
 end;
 
-procedure TFiguresList.Redo(all: boolean);
+procedure TFiguresList.UndoAll;
 begin
-  if all then FNumberOfFiguresShown := Length(FFigures)
-  else FNumberOfFiguresShown := min(FNumberOfFiguresShown + 1, Length(FFigures));
+  FNumberOfFiguresShown := 0;
+end;
+
+procedure TFiguresList.Redo;
+begin
+  FNumberOfFiguresShown := min(FNumberOfFiguresShown + 1, Length(FFigures));
+end;
+
+procedure TFiguresList.RedoAll;
+begin
+  FNumberOfFiguresShown := Length(FFigures);
 end;
 
 function TFiguresList.Last: TFigure;
