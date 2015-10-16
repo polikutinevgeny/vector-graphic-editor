@@ -42,11 +42,7 @@ procedure TFiguresList.Draw(ACanvas: TCanvas);
 var i: integer;
 begin
   for i := 0 to FNumberOfFiguresShown - 1 do
-  begin
-    ACanvas.Pen := FFigures[i].Pen;
-    ACanvas.Brush := FFigures[i].Brush;
     FFigures[i].Draw(ACanvas);
-  end;
 end;
 
 procedure TFiguresList.Add(AFigure: TFigure);

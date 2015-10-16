@@ -19,8 +19,8 @@ type
     constructor Create(APoint: TPoint; APen: TPen; ABrush: TBrush);
       virtual; abstract;
     procedure Draw(ACanvas: TCanvas); virtual; abstract;
-    property Pen: TPen read FPen write FPen;
-    property Brush: TBrush read FBrush write FBrush;
+    property Pen: TPen read FPen;
+    property Brush: TBrush read FBrush;
   end;
 
 type
@@ -102,6 +102,8 @@ end;
 
 procedure TPencil.Draw(ACanvas: TCanvas);
 begin
+  ACanvas.Pen.Assign(FPen);
+  ACanvas.Brush.Assign(FBrush);
   ACanvas.Polyline(FPoints);
 end;
 
@@ -132,6 +134,8 @@ end;
 
 procedure TLine.Draw(ACanvas: TCanvas);
 begin
+  ACanvas.Pen.Assign(FPen);
+  ACanvas.Brush.Assign(FBrush);
   ACanvas.Line(FPoints[0], FPoints[1]);
 end;
 
@@ -144,6 +148,8 @@ end;
 
 procedure TRectangle.Draw(ACanvas: TCanvas);
 begin
+  ACanvas.Pen.Assign(FPen);
+  ACanvas.Brush.Assign(FBrush);
   ACanvas.Rectangle(FPoints[0].X, FPoints[0].Y, FPoints[1].X, FPoints[1].Y);
 end;
 
@@ -151,6 +157,8 @@ end;
 
 procedure TEllipse.Draw(ACanvas: TCanvas);
 begin
+  ACanvas.Pen.Assign(FPen);
+  ACanvas.Brush.Assign(FBrush);
   ACanvas.Ellipse(FPoints[0].X, FPoints[0].Y, FPoints[1].X, FPoints[1].Y);
 end;
 
@@ -158,6 +166,8 @@ end;
 
 procedure TRoundRect.Draw(ACanvas: TCanvas);
 begin
+  ACanvas.Pen.Assign(FPen);
+  ACanvas.Brush.Assign(FBrush);
   ACanvas.RoundRect(FPoints[0].X, FPoints[0].Y, FPoints[1].X, FPoints[1].Y,
     10, 10);
 end;
