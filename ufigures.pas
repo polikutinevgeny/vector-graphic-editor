@@ -101,12 +101,8 @@ begin
 end;
 
 procedure TPencil.Draw(ACanvas: TCanvas);
-var
-  p: TPoint;
 begin
-  ACanvas.MoveTo(FPoints[0]);
-  for p in FPoints do
-    ACanvas.LineTo(p);
+  ACanvas.Polyline(FPoints);
 end;
 
 procedure TPencil.AddPoint(APoint: TPoint);
