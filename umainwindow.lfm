@@ -116,8 +116,8 @@ object MainWindow: TMainWindow
       ItemIndex = 0
       Items.Strings = (
         'Solid'
-        'Dot'
         'Dash'
+        'Dot'
         'Dash-Dot'
         'Dash-Dot-Dot'
       )

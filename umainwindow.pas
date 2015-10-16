@@ -196,13 +196,7 @@ end;
 
 procedure TMainWindow.UpdatePen;
 begin
-  case PenStyleCB.ItemIndex of
-  0: PaintBox.Canvas.Pen.Style := psSolid;
-  1: PaintBox.Canvas.Pen.Style := psDot;
-  2: PaintBox.Canvas.Pen.Style := psDash;
-  3: PaintBox.Canvas.Pen.Style := psDashDot;
-  4: PaintBox.Canvas.Pen.Style := psDashDotDot;
-  end;
+  PaintBox.Canvas.Pen.Style := TPenStyle(PenStyleCB.ItemIndex);
   PaintBox.Canvas.Pen.Color := PenColorCB.Selected;
   PaintBox.Canvas.Pen.Width := SizeSE.Value;
   Tools[CurrentToolIndex].ChangePen(PaintBox.Canvas.Pen);
@@ -210,16 +204,7 @@ end;
 
 procedure TMainWindow.UpdateBrush;
 begin
-  case FillStyleCB.ItemIndex of
-  0: PaintBox.Canvas.Brush.Style := bsSolid;
-  1: PaintBox.Canvas.Brush.Style := bsClear;
-  2: PaintBox.Canvas.Brush.Style := bsHorizontal;
-  3: PaintBox.Canvas.Brush.Style := bsVertical;
-  4: PaintBox.Canvas.Brush.Style := bsFDiagonal;
-  5: PaintBox.Canvas.Brush.Style := bsBDiagonal;
-  6: PaintBox.Canvas.Brush.Style := bsCross;
-  7: PaintBox.Canvas.Brush.Style := bsDiagCross;
-  end;
+  PaintBox.Canvas.Brush.Style := TBrushStyle(FillStyleCB.ItemIndex);
   {If we set color while using bsClear brush style the system automatically sets
   brush style to bsSolid, so we need to avoid it}
   if PaintBox.Canvas.Brush.Style <> bsClear then
