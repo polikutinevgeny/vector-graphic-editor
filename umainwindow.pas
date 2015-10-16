@@ -15,7 +15,8 @@ type
   TMainWindow = class(TForm)
     MainMenu: TMainMenu;
     EditMI, ClearMI, FileMI, AboutMI, ExitMI, UndoMI, RedoMI: TMenuItem;
-    Label1, Label2, Label3, Label4, Label5: TLabel;
+    PenSizeLabel, PenColorLabel, LineStyleLabel, FillColorLabel,
+      FillStyleLabel: TLabel;
     ControlsPanel, ModifierPanel: TPanel;
     FillStyleCB, PenStyleCB: TComboBox;
     FillColorCB, PenColorCB: TColorBox;
@@ -42,7 +43,7 @@ type
     procedure UndoMIClick(Sender: TObject);
     procedure UpdatePen;
     procedure UpdateBrush;
-    procedure SwitchBrushModifiers(p: boolean);
+    procedure SwitchBrushModifiers(AState: boolean);
   private
     { private declarations }
   public
@@ -88,13 +89,13 @@ begin
       b.OnClick := @ToolClick;
       b.Flat := true;
       b.ShowHint := true;
-      b.Hint := Tools[i].PrettyName;
+      b.Hint := Tools[i].Caption;
     end;
 end;
 
 procedure TMainWindow.PaintBoxDblClick(Sender: TObject);
 begin
-  Tools[CurrentToolIndex].StopDrawing;
+  Tools[CurrentToolIndex].DoubleClick;
   Invalidate;
 end;
 
@@ -104,7 +105,7 @@ begin
   if Button = mbLeft then
     begin
       Cleared := False;
-      Tools[CurrentToolIndex].StartDrawing(Point(X, Y), PaintBox.Canvas.Pen,
+      Tools[CurrentToolIndex].MouseClick(Point(X, Y), PaintBox.Canvas.Pen,
         PaintBox.Canvas.Brush);
       Invalidate;
     end;
@@ -115,7 +116,7 @@ procedure TMainWindow.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
 begin
   if (ssLeft in Shift) then
     begin
-      Tools[CurrentToolIndex].ContinueDrawing(Point(X, Y));
+      Tools[CurrentToolIndex].MouseMove(Point(X, Y));
       Invalidate;
     end;
   {Showing coords on statusbar}
@@ -129,17 +130,17 @@ begin
   PaintBox.Canvas.Brush.Color := clWhite;
   PaintBox.Canvas.FillRect(0, 0, PaintBox.Width, PaintBox.Height);
   {Drawing all figures}
-  Figures.Display(PaintBox.Canvas);
+  Figures.Draw(PaintBox.Canvas);
   UpdatePen;
   UpdateBrush;
 end;
 
 procedure TMainWindow.ToolClick(Sender: TObject);
 begin
-  Tools[CurrentToolIndex].StopDrawing;
+  Tools[CurrentToolIndex].DoubleClick;
   CurrentToolIndex := TSpeedButton(Sender).Tag;
   StatusBar.Panels[2].Text := 'Current tool: '
-    + Tools[CurrentToolIndex].PrettyName;
+    + Tools[CurrentToolIndex].Caption;
   SwitchBrushModifiers(Tools[CurrentToolIndex].Fillable);
 end;
 
@@ -151,8 +152,8 @@ end;
 
 procedure TMainWindow.ClearMIClick(Sender: TObject);
 begin
-  Figures.Remove(true);
-  Tools[CurrentToolIndex].StopDrawing;
+  Figures.Undo(true);
+  Tools[CurrentToolIndex].DoubleClick;
   Cleared := True;
   Invalidate;
 end;
@@ -181,15 +182,15 @@ end;
 
 procedure TMainWindow.UndoMIClick(Sender: TObject);
 begin
-  Tools[CurrentToolIndex].StopDrawing;
+  Tools[CurrentToolIndex].DoubleClick;
   {If the previous action cleared everything we will undo it, otherwise we
   will delete the last figure drawn}
   if Cleared then
     begin
-      Figures.Restore(true);
+      Figures.Redo(true);
       Cleared := false;
     end
-  else Figures.Remove;
+  else Figures.Undo;
   Invalidate;
 end;
 
@@ -225,18 +226,18 @@ begin
     PaintBox.Canvas.Brush.Color := FillColorCB.Selected;
 end;
 
-procedure TMainWindow.SwitchBrushModifiers(p: boolean);
+procedure TMainWindow.SwitchBrushModifiers(AState: boolean);
 begin
-  Label5.Visible := p;
-  Label4.Visible := p;
-  FillStyleCB.Visible := p;
-  FillColorCB.Visible := p;
-  ModifierPanel.Height := 45 + 45 * Integer(p);
+  FillStyleLabel.Visible := AState;
+  FillColorLabel.Visible := AState;
+  FillStyleCB.Visible := AState;
+  FillColorCB.Visible := AState;
+  ModifierPanel.Height := 45 + 45 * Integer(AState);
 end;
 
 procedure TMainWindow.RedoMIClick(Sender: TObject);
 begin
-  Figures.Restore;
+  Figures.Redo;
   Invalidate;
 end;
 

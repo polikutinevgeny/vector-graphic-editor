@@ -1,9 +1,12 @@
-TODO: rename StartDrawing and etc, remove strange call at TTool.ContinueDrawing,
-remove cases in UMainWindow, add an additional class TTwoPointFigure, rename
-labels, try to unite TPencil and TPolyline, rename FLength, separate Remove(all)
-and Restore(all), rename them, maybe add perfect figures drawn by shift+click,
-move drawing with pen and brush to Draw method, rename Display into Draw, draw
-polyline and pencil with polyline method,
+TODO:
+remove strange call at TTool.ContinueDrawing,
+remove cases in UMainWindow,
+add an additional class TTwoPointFigure,
+try to unite TPencil and TPolyline,
+separate Remove(all) and Restore(all), rename them,
+maybe add perfect figures drawn by shift+click,
+move drawing with pen and brush to Draw method,
+draw polyline and pencil with polyline method,
 fix double click bug(Mousepressed variable),
 fix strange bug making line with wigth = 1 and dash-dot or etc to have background,
 add double bufferization

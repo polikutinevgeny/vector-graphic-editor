@@ -15,17 +15,17 @@ type
     private
       FIcon: TBitmap;
       FFillable: boolean;
-      FPrettyName: string;
+      FCaption: string;
     public
       constructor Create; virtual;
-      procedure StartDrawing(APoint: TPoint; APen: TPen; ABrush: TBrush);
+      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
         virtual; abstract;
-      procedure ContinueDrawing(APoint: TPoint); virtual;
-      procedure StopDrawing; virtual;
+      procedure MouseMove(APoint: TPoint); virtual;
+      procedure DoubleClick; virtual;
       procedure ChangePen(APen: TPen); virtual;
       property Icon: TBitmap read FIcon;
       property Fillable: boolean read FFillable;
-      property PrettyName: string read FPrettyName;
+      property Caption: string read FCaption;
     end;
 
 type
@@ -35,9 +35,9 @@ type
   TPenTool = Class(TTool)
     public
       constructor Create; override;
-      procedure StartDrawing(APoint: TPoint; APen: TPen; ABrush: TBrush);
+      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
         override;
-      procedure ContinueDrawing(APoint: TPoint); override;
+      procedure MouseMove(APoint: TPoint); override;
     end;
 
 type
@@ -47,7 +47,7 @@ type
   TLineTool = Class(TTool)
     public
       constructor Create; override;
-      procedure StartDrawing(APoint: TPoint; APen: TPen; ABrush: TBrush);
+      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
         override;
   end;
 
@@ -58,10 +58,10 @@ type
   TPolylineTool = Class(TTool)
     public
       constructor Create; override;
-      procedure StartDrawing(APoint: TPoint; APen: TPen; ABrush: TBrush);
+      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
         override;
-      procedure ContinueDrawing(APoint: TPoint); override;
-      procedure StopDrawing; override;
+      procedure MouseMove(APoint: TPoint); override;
+      procedure DoubleClick; override;
       procedure ChangePen(APen: TPen); override;
     private
       FDrawingNow: boolean;
@@ -75,7 +75,7 @@ type
   TRectangleTool = Class(TTool)
     public
       constructor Create; override;
-      procedure StartDrawing(APoint: TPoint; APen: TPen; ABrush: TBrush);
+      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
         override;
   end;
 
@@ -86,7 +86,7 @@ type
   TEllipseTool = Class(TTool)
     public
       constructor Create; override;
-      procedure StartDrawing(APoint: TPoint; APen: TPen; ABrush: TBrush);
+      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
         override;
   end;
 
@@ -97,7 +97,7 @@ type
   TRoundRectTool = Class(TTool)
     public
       constructor Create; override;
-      procedure StartDrawing(APoint: TPoint; APen: TPen; ABrush: TBrush);
+      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
         override;
   end;
 
@@ -115,12 +115,12 @@ begin
   FFillable := true;
 end;
 
-procedure TTool.ContinueDrawing(APoint: TPoint);
+procedure TTool.MouseMove(APoint: TPoint);
 begin
   TLine(Figures.Last).MoveSecondPoint(APoint);
 end;
 
-procedure TTool.StopDrawing;
+procedure TTool.DoubleClick;
 begin
   {Do nothing, because I need it to be called and not to throw exceptions}
 end;
@@ -135,10 +135,10 @@ end;
 constructor TRoundRectTool.Create;
 begin
   inherited Create;
-  FPrettyName := 'Rounded rectangle';
+  FCaption := 'Rounded rectangle';
 end;
 
-procedure TRoundRectTool.StartDrawing(APoint: TPoint; APen: TPen;
+procedure TRoundRectTool.MouseClick(APoint: TPoint; APen: TPen;
   ABrush: TBrush);
 begin
   Figures.Add(TRoundRect.Create(APoint, APen, ABrush));
@@ -149,10 +149,10 @@ end;
 constructor TEllipseTool.Create;
 begin
   inherited Create;
-  FPrettyName := 'Ellipse';
+  FCaption := 'Ellipse';
 end;
 
-procedure TEllipseTool.StartDrawing(APoint: TPoint; APen: TPen; ABrush: TBrush);
+procedure TEllipseTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
   Figures.Add(TEllipse.Create(APoint, APen, ABrush));
 end;
@@ -162,10 +162,10 @@ end;
 constructor TRectangleTool.Create;
 begin
   inherited Create;
-  FPrettyName := 'Rectangle';
+  FCaption := 'Rectangle';
 end;
 
-procedure TRectangleTool.StartDrawing(APoint: TPoint; APen: TPen;
+procedure TRectangleTool.MouseClick(APoint: TPoint; APen: TPen;
   ABrush: TBrush);
 begin
   Figures.Add(TRectangle.Create(APoint, APen, ABrush));
@@ -176,11 +176,11 @@ end;
 constructor TPolylineTool.Create;
 begin
   inherited Create;
-  FPrettyName := 'Polyline';
+  FCaption := 'Polyline';
   FFillable := false;
 end;
 
-procedure TPolylineTool.StartDrawing(APoint: TPoint; APen: TPen;
+procedure TPolylineTool.MouseClick(APoint: TPoint; APen: TPen;
   ABrush: TBrush);
 begin
   if not FDrawingNow then
@@ -192,12 +192,12 @@ begin
     SetPoint(APoint);
 end;
 
-procedure TPolylineTool.ContinueDrawing(APoint: TPoint);
+procedure TPolylineTool.MouseMove(APoint: TPoint);
 begin
   if FDrawingNow then TPolyline(Figures.Last).MoveNextPoint(APoint);
 end;
 
-procedure TPolylineTool.StopDrawing;
+procedure TPolylineTool.DoubleClick;
 begin
   FDrawingNow := false;
 end;
@@ -217,11 +217,11 @@ end;
 constructor TLineTool.Create;
 begin
   inherited Create;
-  FPrettyName := 'Line';
+  FCaption := 'Line';
   FFillable := false;
 end;
 
-procedure TLineTool.StartDrawing(APoint: TPoint; APen: TPen; ABrush: TBrush);
+procedure TLineTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
   Figures.Add(TLine.Create(APoint, APen, ABrush));
 end;
@@ -231,16 +231,16 @@ end;
 constructor TPenTool.Create;
 begin
   inherited Create;
-  FPrettyName := 'Pencil';
+  FCaption := 'Pencil';
   FFillable := false;
 end;
 
-procedure TPenTool.StartDrawing(APoint: TPoint; APen: TPen; ABrush: TBrush);
+procedure TPenTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
   Figures.Add(TPencil.Create(APoint, APen, ABrush));
 end;
 
-procedure TPenTool.ContinueDrawing(APoint: TPoint);
+procedure TPenTool.MouseMove(APoint: TPoint);
 begin
   TPencil(Figures.Last).AddPoint(APoint);
 end;

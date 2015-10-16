@@ -14,13 +14,13 @@ type
   TFiguresList = class
     private
       FFigures: array of TFigure;
-      FLength: integer;
+      FNumberOfFiguresShown: integer;
     public
       constructor Create;
-      procedure Display(ACanvas: TCanvas);
+      procedure Draw(ACanvas: TCanvas);
       procedure Add(AFigure: TFigure);
-      procedure Remove(all: boolean = false);
-      procedure Restore(all: boolean = false);
+      procedure Undo(all: boolean = false);
+      procedure Redo(all: boolean = false);
       function Last: TFigure;
   end;
 
@@ -33,13 +33,13 @@ implementation
 
 constructor TFiguresList.Create;
 begin
-  FLength := 0;
+  FNumberOfFiguresShown := 0;
 end;
 
-procedure TFiguresList.Display(ACanvas: TCanvas);
+procedure TFiguresList.Draw(ACanvas: TCanvas);
 var i: integer;
 begin
-  for i := 0 to FLength - 1 do
+  for i := 0 to FNumberOfFiguresShown - 1 do
   begin
     ACanvas.Pen := FFigures[i].Pen;
     ACanvas.Brush := FFigures[i].Brush;
@@ -49,25 +49,26 @@ end;
 
 procedure TFiguresList.Add(AFigure: TFigure);
 begin
-  inc(FLength);
-  SetLength(FFigures, FLength);
+  inc(FNumberOfFiguresShown);
+  SetLength(FFigures, FNumberOfFiguresShown);
   FFigures[High(FFigures)] := AFigure;
 end;
 
-procedure TFiguresList.Remove(all: boolean);
+procedure TFiguresList.Undo(all: boolean);
 begin
-  if all then FLength := 0 else FLength := max(FLength - 1, 0);
+  if all then
+  FNumberOfFiguresShown := 0 else FNumberOfFiguresShown := max(FNumberOfFiguresShown - 1, 0);
 end;
 
-procedure TFiguresList.Restore(all: boolean);
+procedure TFiguresList.Redo(all: boolean);
 begin
-  if all then FLength := Length(FFigures)
-  else FLength := min(FLength + 1, Length(FFigures));
+  if all then FNumberOfFiguresShown := Length(FFigures)
+  else FNumberOfFiguresShown := min(FNumberOfFiguresShown + 1, Length(FFigures));
 end;
 
 function TFiguresList.Last: TFigure;
 begin
-  Last := FFigures[FLength - 1];
+  Last := FFigures[FNumberOfFiguresShown - 1];
 end;
 
 initialization

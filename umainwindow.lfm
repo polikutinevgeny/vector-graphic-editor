@@ -60,7 +60,7 @@ object MainWindow: TMainWindow
     ClientHeight = 45
     ClientWidth = 800
     TabOrder = 2
-    object Label1: TLabel
+    object PenSizeLabel: TLabel
       Left = 8
       Height = 25
       Top = 8
@@ -81,7 +81,7 @@ object MainWindow: TMainWindow
       TabOrder = 0
       Value = 1
     end
-    object Label2: TLabel
+    object PenColorLabel: TLabel
       Left = 181
       Height = 25
       Top = 8
@@ -99,7 +99,7 @@ object MainWindow: TMainWindow
       OnChange = PenColorCBChange
       TabOrder = 1
     end
-    object Label3: TLabel
+    object LineStyleLabel: TLabel
       Left = 424
       Height = 25
       Top = 8
@@ -126,7 +126,7 @@ object MainWindow: TMainWindow
       TabOrder = 2
       Text = 'Solid'
     end
-    object Label4: TLabel
+    object FillColorLabel: TLabel
       Left = 8
       Height = 25
       Top = 48
@@ -148,7 +148,7 @@ object MainWindow: TMainWindow
       TabOrder = 3
       Visible = False
     end
-    object Label5: TLabel
+    object FillStyleLabel: TLabel
       Left = 240
       Height = 25
       Top = 48
