@@ -27,6 +27,8 @@ type
     procedure ClearMIClick(Sender: TObject);
     procedure FillColorCBChange(Sender: TObject);
     procedure FillStyleCBChange(Sender: TObject);
+    procedure PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure PenColorCBChange(Sender: TObject);
     procedure ExitMIClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -54,6 +56,7 @@ var
   MainWindow: TMainWindow;
   CurrentToolIndex: Integer = 0;
   Cleared: boolean = False;
+  MousePressed: boolean = False;
 implementation
 
 {$R *.lfm}
@@ -104,6 +107,7 @@ procedure TMainWindow.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
 begin
   if Button = mbLeft then
     begin
+      MousePressed := True;
       Cleared := False;
       Tools[CurrentToolIndex].MouseClick(Point(X, Y), PaintBox.Canvas.Pen,
         PaintBox.Canvas.Brush);
@@ -114,7 +118,7 @@ end;
 procedure TMainWindow.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if (ssLeft in Shift) then
+  if MousePressed then
     begin
       Tools[CurrentToolIndex].MouseMove(Point(X, Y));
       Invalidate;
@@ -180,6 +184,12 @@ begin
   UpdateBrush;
 end;
 
+procedure TMainWindow.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  MousePressed := False;
+end;
+
 procedure TMainWindow.UndoMIClick(Sender: TObject);
 begin
   Tools[CurrentToolIndex].DoubleClick;
@@ -217,7 +227,7 @@ begin
   FillColorLabel.Visible := AState;
   FillStyleCB.Visible := AState;
   FillColorCB.Visible := AState;
-  ModifierPanel.Height := 45 + 45 * Integer(AState);
+  ModifierPanel.Height := 45 + 45 * Byte(AState);
 end;
 
 procedure TMainWindow.RedoMIClick(Sender: TObject);

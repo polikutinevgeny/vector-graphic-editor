@@ -29,6 +29,7 @@ object MainWindow: TMainWindow
     OnDblClick = PaintBoxDblClick
     OnMouseDown = PaintBoxMouseDown
     OnMouseMove = PaintBoxMouseMove
+    OnMouseUp = PaintBoxMouseUp
     OnPaint = PaintBoxPaint
   end
   object StatusBar: TStatusBar
