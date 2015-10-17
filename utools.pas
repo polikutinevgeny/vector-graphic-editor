@@ -11,7 +11,7 @@ type
 
 { TTool }
 
-  TTool = Class
+  TTool = Class abstract
     private
       FIcon: TBitmap;
       FFillable: boolean;
@@ -65,7 +65,6 @@ type
       procedure ChangePen(APen: TPen); override;
     private
       FDrawingNow: boolean;
-      procedure SetPoint(APoint: TPoint);
   end;
 
 type
@@ -112,12 +111,11 @@ constructor TTool.Create;
 begin
   FIcon := TBitmap.Create;
   FIcon.LoadFromFile('icons/' + ClassName + '.bmp');
-  FFillable := true;
 end;
 
 procedure TTool.MouseMove(APoint: TPoint);
 begin
-  TLine(Figures.Last).MovePoint(APoint);
+  Figures.Last.MovePoint(APoint);
 end;
 
 procedure TTool.DoubleClick;
@@ -136,6 +134,7 @@ constructor TRoundRectTool.Create;
 begin
   inherited Create;
   FCaption := 'Rounded rectangle';
+  FFillable := true;
 end;
 
 procedure TRoundRectTool.MouseClick(APoint: TPoint; APen: TPen;
@@ -150,6 +149,7 @@ constructor TEllipseTool.Create;
 begin
   inherited Create;
   FCaption := 'Ellipse';
+  FFillable := true;
 end;
 
 procedure TEllipseTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
@@ -163,6 +163,7 @@ constructor TRectangleTool.Create;
 begin
   inherited Create;
   FCaption := 'Rectangle';
+  FFillable := true;
 end;
 
 procedure TRectangleTool.MouseClick(APoint: TPoint; APen: TPen;
@@ -189,7 +190,7 @@ begin
     FDrawingNow := true;
   end
   else
-    SetPoint(APoint);
+    TPolyline(Figures.Last).AddPoint(APoint);
 end;
 
 procedure TPolylineTool.MouseMove(APoint: TPoint);
@@ -204,12 +205,7 @@ end;
 
 procedure TPolylineTool.ChangePen(APen: TPen);
 begin
-  if FDrawingNow then Figures.Last.Pen.Assign(APen);
-end;
-
-procedure TPolylineTool.SetPoint(APoint: TPoint);
-begin
-  TPolyline(Figures.Last).AddPoint(APoint);
+  if FDrawingNow then TPolyline(Figures.Last).Pen.Assign(APen);
 end;
 
 { TLineTool }
