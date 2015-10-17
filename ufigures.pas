@@ -15,10 +15,11 @@ type
   private
     FPen: TPen;
     FBrush: TBrush;
+    FPoints: array of TPoint;
   public
     constructor Create(APoint: TPoint; APen: TPen; ABrush: TBrush);
-      virtual; abstract;
-    procedure Draw(ACanvas: TCanvas); virtual; abstract;
+    procedure Draw(ACanvas: TCanvas); virtual;
+    procedure MovePoint(APoint: TPoint);
     property Pen: TPen read FPen;
     property Brush: TBrush read FBrush;
   end;
@@ -29,12 +30,8 @@ type
 
   TPolyline = class(TFigure)
   public
-    constructor Create(APoint: TPoint; APen: TPen; ABrush: TBrush); override;
     procedure Draw(ACanvas: TCanvas); override;
     procedure AddPoint(APoint: TPoint);
-    procedure MovePoint(APoint: TPoint);
-  private
-    FPoints: array of TPoint;
   end;
 
 type
@@ -43,18 +40,14 @@ type
 
   TLine = class(TFigure)
   public
-    constructor Create(APoint: TPoint; APen: TPen; ABrush: TBrush); override;
     procedure Draw(ACanvas: TCanvas); override;
-    procedure MoveSecondPoint(APoint: TPoint);
-  private
-    FPoints: array[0..1] of TPoint;
   end;
 
 type
 
   { TRectangle }
 
-  TRectangle = class(TLine)
+  TRectangle = class(TFigure)
   public
     procedure Draw(ACanvas: TCanvas); override;
   end;
@@ -63,7 +56,7 @@ type
 
   { TEllipse }
 
-  TEllipse = class(TLine)
+  TEllipse = class(TFigure)
   public
     procedure Draw(ACanvas: TCanvas); override;
   end;
@@ -72,16 +65,16 @@ type
 
   { TRoundRect }
 
-  TRoundRect = class(TLine)
+  TRoundRect = class(TFigure)
   public
     procedure Draw(ACanvas: TCanvas); override;
   end;
 
 implementation
 
-{ TPolyline }
+{ TFigure }
 
-constructor TPolyline.Create(APoint: TPoint; APen: TPen; ABrush: TBrush);
+constructor TFigure.Create(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
   SetLength(FPoints, 2);
   FPen := TPen.Create;
@@ -92,10 +85,22 @@ begin
   FPoints[1] := APoint;
 end;
 
-procedure TPolyline.Draw(ACanvas: TCanvas);
+procedure TFigure.Draw(ACanvas: TCanvas);
 begin
   ACanvas.Pen.Assign(FPen);
   ACanvas.Brush.Assign(FBrush);
+end;
+
+procedure TFigure.MovePoint(APoint: TPoint);
+begin
+  FPoints[High(FPoints)] := APoint;
+end;
+
+{ TPolyline }
+
+procedure TPolyline.Draw(ACanvas: TCanvas);
+begin
+  inherited;
   ACanvas.Polyline(FPoints);
 end;
 
@@ -105,41 +110,19 @@ begin
   FPoints[High(FPoints)] := APoint;
 end;
 
-procedure TPolyline.MovePoint(APoint: TPoint);
-begin
-  FPoints[High(FPoints)] := APoint;
-end;
-
 { TLine }
-
-constructor TLine.Create(APoint: TPoint; APen: TPen; ABrush: TBrush);
-begin
-  FPen := TPen.Create;
-  FPen.Assign(APen);
-  FBrush := TBrush.Create;
-  FBrush.Assign(ABrush);
-  FPoints[0] := APoint;
-  FPoints[1] := APoint;
-end;
 
 procedure TLine.Draw(ACanvas: TCanvas);
 begin
-  ACanvas.Pen.Assign(FPen);
-  ACanvas.Brush.Assign(FBrush);
+  inherited;
   ACanvas.Line(FPoints[0], FPoints[1]);
-end;
-
-procedure TLine.MoveSecondPoint(APoint: TPoint);
-begin
-  FPoints[1] := APoint;
 end;
 
 { TRectangle }
 
 procedure TRectangle.Draw(ACanvas: TCanvas);
 begin
-  ACanvas.Pen.Assign(FPen);
-  ACanvas.Brush.Assign(FBrush);
+  inherited;
   ACanvas.Rectangle(FPoints[0].X, FPoints[0].Y, FPoints[1].X, FPoints[1].Y);
 end;
 
@@ -147,8 +130,7 @@ end;
 
 procedure TEllipse.Draw(ACanvas: TCanvas);
 begin
-  ACanvas.Pen.Assign(FPen);
-  ACanvas.Brush.Assign(FBrush);
+  inherited;
   ACanvas.Ellipse(FPoints[0].X, FPoints[0].Y, FPoints[1].X, FPoints[1].Y);
 end;
 
@@ -156,8 +138,7 @@ end;
 
 procedure TRoundRect.Draw(ACanvas: TCanvas);
 begin
-  ACanvas.Pen.Assign(FPen);
-  ACanvas.Brush.Assign(FBrush);
+  inherited;
   ACanvas.RoundRect(FPoints[0].X, FPoints[0].Y, FPoints[1].X, FPoints[1].Y,
     10, 10);
 end;

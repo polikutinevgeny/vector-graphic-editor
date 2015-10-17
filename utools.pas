@@ -117,7 +117,7 @@ end;
 
 procedure TTool.MouseMove(APoint: TPoint);
 begin
-  TLine(Figures.Last).MoveSecondPoint(APoint);
+  TLine(Figures.Last).MovePoint(APoint);
 end;
 
 procedure TTool.DoubleClick;
