@@ -194,7 +194,7 @@ end;
 
 procedure TPolylineTool.MouseMove(APoint: TPoint);
 begin
-  if FDrawingNow then TPolyline(Figures.Last).MoveNextPoint(APoint);
+  if FDrawingNow then TPolyline(Figures.Last).MovePoint(APoint);
 end;
 
 procedure TPolylineTool.DoubleClick;
@@ -237,12 +237,12 @@ end;
 
 procedure TPenTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
-  Figures.Add(TPencil.Create(APoint, APen, ABrush));
+  Figures.Add(TPolyline.Create(APoint, APen, ABrush));
 end;
 
 procedure TPenTool.MouseMove(APoint: TPoint);
 begin
-  TPencil(Figures.Last).AddPoint(APoint);
+  TPolyline(Figures.Last).AddPoint(APoint);
 end;
 
 initialization

@@ -25,13 +25,14 @@ type
 
 type
 
-  { TPencil }
+  { TPolyline }
 
-  TPencil = class(TFigure)
+  TPolyline = class(TFigure)
   public
     constructor Create(APoint: TPoint; APen: TPen; ABrush: TBrush); override;
     procedure Draw(ACanvas: TCanvas); override;
     procedure AddPoint(APoint: TPoint);
+    procedure MovePoint(APoint: TPoint);
   private
     FPoints: array of TPoint;
   end;
@@ -47,15 +48,6 @@ type
     procedure MoveSecondPoint(APoint: TPoint);
   private
     FPoints: array[0..1] of TPoint;
-  end;
-
-type
-
-  { TPolyline }
-
-  TPolyline = class(TPencil)
-  public
-    procedure MoveNextPoint(APoint: TPoint);
   end;
 
 type
@@ -87,9 +79,9 @@ type
 
 implementation
 
-{ TPencil }
+{ TPolyline }
 
-constructor TPencil.Create(APoint: TPoint; APen: TPen; ABrush: TBrush);
+constructor TPolyline.Create(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
   SetLength(FPoints, 2);
   FPen := TPen.Create;
@@ -100,22 +92,20 @@ begin
   FPoints[1] := APoint;
 end;
 
-procedure TPencil.Draw(ACanvas: TCanvas);
+procedure TPolyline.Draw(ACanvas: TCanvas);
 begin
   ACanvas.Pen.Assign(FPen);
   ACanvas.Brush.Assign(FBrush);
   ACanvas.Polyline(FPoints);
 end;
 
-procedure TPencil.AddPoint(APoint: TPoint);
+procedure TPolyline.AddPoint(APoint: TPoint);
 begin
   SetLength(FPoints, Length(FPoints) + 1);
   FPoints[High(FPoints)] := APoint;
 end;
 
-{ TPolyline }
-
-procedure TPolyline.MoveNextPoint(APoint: TPoint);
+procedure TPolyline.MovePoint(APoint: TPoint);
 begin
   FPoints[High(FPoints)] := APoint;
 end;
