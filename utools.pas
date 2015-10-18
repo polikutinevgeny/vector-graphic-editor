@@ -101,9 +101,15 @@ type
   end;
 
 var
-  Tools: array[0..5] of TTool;
+  Tools: array of TTool;
 
 implementation
+
+procedure RegisterTool(ATool: TTool);
+begin
+  SetLength(Tools, Length(Tools) + 1);
+  Tools[High(Tools)] := ATool;
+end;
 
 { TTool }
 
@@ -242,11 +248,11 @@ begin
 end;
 
 initialization
-  Tools[0] := TPenTool.Create;
-  Tools[1] := TLineTool.Create;
-  Tools[2] := TPolylineTool.Create;
-  Tools[3] := TRectangleTool.Create;
-  Tools[4] := TEllipseTool.Create;
-  Tools[5] := TRoundRectTool.Create;
+  RegisterTool(TPenTool.Create);
+  RegisterTool(TLineTool.Create);
+  RegisterTool(TPolylineTool.Create);
+  RegisterTool(TRectangleTool.Create);
+  RegisterTool(TEllipseTool.Create);
+  RegisterTool(TRoundRectTool.Create);
 end.
 
