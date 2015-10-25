@@ -36,7 +36,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="5">
+    <Units Count="6">
       <Unit0>
         <Filename Value="VectorGraphicEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -64,6 +64,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UFiguresList"/>
       </Unit4>
+      <Unit5>
+        <Filename Value="uzoom.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UZoom"/>
+      </Unit5>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

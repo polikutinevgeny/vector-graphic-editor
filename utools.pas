@@ -5,7 +5,7 @@ unit UTools;
 interface
 
 uses
-  Classes, Graphics, UFigures, UFiguresList;
+  Classes, Graphics, UFigures, UFiguresList, UZoom;
 
 type
 
@@ -100,6 +100,44 @@ type
         override;
   end;
 
+type
+
+  { TZoomInTool }
+
+  TZoomInTool = Class(TTool)
+    public
+      constructor Create; override;
+      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+        override;
+      procedure MouseMove(APoint: TPoint); override;
+  end;
+
+type
+
+  { TZoomOutTool }
+
+  TZoomOutTool = Class(TTool)
+    public
+      constructor Create; override;
+      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+        override;
+      procedure MouseMove(APoint: TPoint); override;
+  end;
+
+type
+
+  { THandTool }
+
+  THandTool = Class(TTool)
+    private
+      FStartPoint: TPoint;
+    public
+      constructor Create; override;
+      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+        override;
+      procedure MouseMove(APoint: TPoint); override;
+  end;
+
 var
   Tools: array of TTool;
 
@@ -109,6 +147,69 @@ procedure RegisterTool(ATool: TTool);
 begin
   SetLength(Tools, Length(Tools) + 1);
   Tools[High(Tools)] := ATool;
+end;
+
+{ THandTool }
+
+constructor THandTool.Create;
+begin
+  inherited Create;
+  FCaption := 'Move canvas';
+  FFillable := False;
+end;
+
+procedure THandTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+begin
+  FStartPoint := APoint;
+end;
+
+procedure THandTool.MouseMove(APoint: TPoint);
+var d: TPoint;
+begin
+  d.X := FStartPoint.X - APoint.X;
+  d.Y := FStartPoint.Y - APoint.Y;
+  ViewingPort.MovePosition(d);
+  FStartPoint := APoint;
+end;
+
+{ TZoomOutTool }
+
+constructor TZoomOutTool.Create;
+begin
+  inherited Create;
+  FCaption := 'Zoom out';
+  FFillable := False;
+end;
+
+procedure TZoomOutTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+begin
+  ViewingPort.ViewPosition := ViewingPort.ScreenToWorld(APoint);
+  ViewingPort.Scale := ViewingPort.Scale - 0.25;
+end;
+
+procedure TZoomOutTool.MouseMove(APoint: TPoint);
+begin
+  //Nothing to see here, move along
+end;
+
+{ TZoomInTool }
+
+constructor TZoomInTool.Create;
+begin
+  inherited Create;
+  FCaption := 'Zoom in';
+  FFillable := False;
+end;
+
+procedure TZoomInTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+begin
+  ViewingPort.ViewPosition := ViewingPort.ScreenToWorld(APoint);
+  ViewingPort.Scale := ViewingPort.Scale + 0.25;
+end;
+
+procedure TZoomInTool.MouseMove(APoint: TPoint);
+begin
+  //Nothing to see here, move along
 end;
 
 { TTool }
@@ -254,5 +355,8 @@ initialization
   RegisterTool(TRectangleTool.Create);
   RegisterTool(TEllipseTool.Create);
   RegisterTool(TRoundRectTool.Create);
+  RegisterTool(TZoomInTool.Create);
+  RegisterTool(TZoomOutTool.Create);
+  RegisterTool(THandTool.Create);
 end.
 

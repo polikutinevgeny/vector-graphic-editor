@@ -48,6 +48,10 @@ object MainWindow: TMainWindow
       end    
       item
         Text = 'Current tool: Pencil'
+        Width = 250
+      end    
+      item
+        Text = 'Zoom: 100%'
         Width = 50
       end>
     SimplePanel = False

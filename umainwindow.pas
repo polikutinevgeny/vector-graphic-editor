@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
-  UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox;
+  UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox, UZoom;
 
 type
 
@@ -94,6 +94,9 @@ begin
       b.ShowHint := true;
       b.Hint := Tools[i].Caption;
     end;
+  ViewingPort := TViewingPort.Create;
+  ViewingPort.ViewPosition := ViewingPort.ScreenToWorld(
+    Point(PaintBox.Width div 2, PaintBox.Height div 2));
 end;
 
 procedure TMainWindow.PaintBoxDblClick(Sender: TObject);
@@ -111,6 +114,8 @@ begin
       Cleared := False;
       Tools[CurrentToolIndex].MouseClick(Point(X, Y), PaintBox.Canvas.Pen,
         PaintBox.Canvas.Brush);
+      StatusBar.Panels[3].Text := 'Zoom: ' + FloatToStr(ViewingPort.Scale * 100)
+        + '%';
       Invalidate;
     end;
 end;
@@ -124,12 +129,15 @@ begin
       Invalidate;
     end;
   {Showing coords on statusbar}
-  StatusBar.Panels[0].Text := 'X: ' + IntToStr(X);
-  StatusBar.Panels[1].Text := 'Y: ' + IntToStr(Y);
+  StatusBar.Panels[0].Text := 'X: ' + IntToStr(
+    round(ViewingPort.ScreenToWorld(Point(X, Y)).X));
+  StatusBar.Panels[1].Text := 'Y: ' + IntToStr(
+    round(ViewingPort.ScreenToWorld(Point(X, Y)).Y));
 end;
 
 procedure TMainWindow.PaintBoxPaint(Sender: TObject);
 begin
+  ViewingPort.PortSize := Point(PaintBox.Width, PaintBox.Height);
   {Making canvas white}
   PaintBox.Canvas.Brush.Color := clWhite;
   PaintBox.Canvas.FillRect(0, 0, PaintBox.Width, PaintBox.Height);
@@ -227,7 +235,7 @@ begin
   FillColorLabel.Visible := AState;
   FillStyleCB.Visible := AState;
   FillColorCB.Visible := AState;
-  ModifierPanel.Height := 45 + 45 * Byte(AState);
+  ModifierPanel.Height := 45 + 45 * ord(AState);
 end;
 
 procedure TMainWindow.RedoMIClick(Sender: TObject);
