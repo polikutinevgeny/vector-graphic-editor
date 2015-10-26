@@ -5,7 +5,7 @@ unit UFiguresList;
 interface
 
 uses
-  Graphics, UFigures, math;
+  Graphics, UFigures, math, UAdditionalTypes;
 
 type
 
@@ -26,6 +26,8 @@ type
       procedure Redo;
       procedure RedoAll;
       function Last: TFigure;
+      function TopLeft: TFloatPoint;
+      function BottomRight: TFloatPoint;
   end;
 
 var
@@ -79,6 +81,46 @@ end;
 function TFiguresList.Last: TFigure;
 begin
   Last := FFigures[FNumberOfFiguresShown - 1];
+end;
+
+function TFiguresList.TopLeft: TFloatPoint;
+var
+  t, l: Double;
+  i: integer;
+begin
+  if FNumberOfFiguresShown > 0 then
+  begin;
+    t := FFigures[0].Top;
+    l := FFigures[0].Left;
+    for i := 1 to FNumberOfFiguresShown - 1 do
+    begin
+      t := Min(t, FFigures[i].Top);
+      l := Min(l, FFigures[i].Left);
+    end;
+    Result := FloatPoint(l, t);
+  end
+  else
+    Result := FloatPoint(NaN, NaN);
+end;
+
+function TFiguresList.BottomRight: TFloatPoint;
+var
+  b, r: Double;
+  i: integer;
+begin
+  if FNumberOfFiguresShown > 0 then
+  begin;
+    b := FFigures[0].Bottom;
+    r := FFigures[0].Right;
+    for i := 1 to FNumberOfFiguresShown - 1 do
+    begin
+      b := Max(b, FFigures[i].Bottom);
+      r := Max(r, FFigures[i].Right);
+    end;
+    Result := FloatPoint(r, b);
+  end
+  else
+    Result := FloatPoint(NaN, NaN);
 end;
 
 initialization

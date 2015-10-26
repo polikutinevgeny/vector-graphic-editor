@@ -5,7 +5,7 @@ unit UFigures;
 interface
 
 uses
-  Classes, Graphics, UViewingPort, UAdditionalTypes;
+  Classes, Graphics, UViewingPort, UAdditionalTypes, math;
 
 type
 
@@ -16,12 +16,20 @@ type
     FPen: TPen;
     FBrush: TBrush;
     FPoints: TFloatPoints;
+    FTop: Double;
+    FLeft: Double;
+    FBottom: Double;
+    FRight: Double;
   public
     constructor Create(APoint: TPoint; APen: TPen; ABrush: TBrush);
     procedure Draw(ACanvas: TCanvas); virtual;
     procedure MovePoint(APoint: TPoint);
     property Pen: TPen read FPen;
     property Brush: TBrush read FBrush;
+    property Top: Double read FTop;
+    property Bottom: Double read FBottom;
+    property Left: Double read FLeft;
+    property Right: Double read FRight;
   end;
 
 type
@@ -83,6 +91,10 @@ begin
   FBrush.Assign(ABrush);
   FPoints[0] := ViewingPort.ScreenToWorld(APoint);
   FPoints[1] := ViewingPort.ScreenToWorld(APoint);
+  FLeft := FPoints[0].X;
+  FRight := FPoints[0].X;
+  FTop := FPoints[0].Y;
+  FBottom := FPoints[0].Y;
 end;
 
 procedure TFigure.Draw(ACanvas: TCanvas);
@@ -94,6 +106,10 @@ end;
 procedure TFigure.MovePoint(APoint: TPoint);
 begin
   FPoints[High(FPoints)] := ViewingPort.ScreenToWorld(APoint);
+  FLeft := Min(FLeft, FPoints[High(FPoints)].X);
+  FRight := Max(FRight, FPoints[High(FPoints)].X);
+  FTop := Min(FTop, FPoints[High(FPoints)].Y);
+  FBottom := Max(FBottom, FPoints[High(FPoints)].Y);
 end;
 
 { TPolyline }
@@ -108,6 +124,10 @@ procedure TPolyline.AddPoint(APoint: TPoint);
 begin
   SetLength(FPoints, Length(FPoints) + 1);
   FPoints[High(FPoints)] := ViewingPort.ScreenToWorld(APoint);
+  FLeft := Min(FLeft, FPoints[High(FPoints)].X);
+  FRight := Max(FRight, FPoints[High(FPoints)].X);
+  FTop := Min(FTop, FPoints[High(FPoints)].Y);
+  FBottom := Max(FBottom, FPoints[High(FPoints)].Y);
 end;
 
 { TLine }
