@@ -5,7 +5,7 @@ unit UFigures;
 interface
 
 uses
-  Classes, Graphics, UZoom;
+  Classes, Graphics, UViewingPort, UAdditionalTypes;
 
 type
 

@@ -5,7 +5,7 @@ unit UTools;
 interface
 
 uses
-  Classes, Graphics, UFigures, UFiguresList, UZoom, math;
+  Classes, Graphics, UFigures, UFiguresList, uviewingport, math, UAdditionalTypes;
 
 type
 
@@ -222,11 +222,8 @@ begin
 end;
 
 procedure THandTool.MouseMove(APoint: TPoint);
-var d: TPoint;
 begin
-  d.X := FStartPoint.X - APoint.X;
-  d.Y := FStartPoint.Y - APoint.Y;
-  ViewingPort.MovePosition(d);
+  ViewingPort.MovePosition(FStartPoint - APoint);
   FStartPoint := APoint;
 end;
 

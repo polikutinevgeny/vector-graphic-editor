@@ -36,7 +36,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="6">
+    <Units Count="7">
       <Unit0>
         <Filename Value="VectorGraphicEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -65,10 +65,15 @@
         <UnitName Value="UFiguresList"/>
       </Unit4>
       <Unit5>
-        <Filename Value="uzoom.pas"/>
+        <Filename Value="uviewingport.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="UZoom"/>
+        <UnitName Value="UViewingPort"/>
       </Unit5>
+      <Unit6>
+        <Filename Value="uadditionaltypes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UAdditionalTypes"/>
+      </Unit6>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

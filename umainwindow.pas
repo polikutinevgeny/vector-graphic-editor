@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
-  UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox, UZoom;
+  UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox, UViewingPort,
+  UAdditionalTypes;
 
 type
 
@@ -95,8 +96,8 @@ begin
       b.Hint := Tools[i].Caption;
     end;
   ViewingPort := TViewingPort.Create;
-  ViewingPort.ViewPosition := ViewingPort.ScreenToWorld(
-    Point(PaintBox.Width div 2, PaintBox.Height div 2));
+  ViewingPort.ViewPosition := FloatPoint(PaintBox.Width div 2,
+    PaintBox.Height div 2);
 end;
 
 procedure TMainWindow.PaintBoxDblClick(Sender: TObject);
@@ -114,8 +115,6 @@ begin
       Cleared := False;
       Tools[CurrentToolIndex].MouseClick(Point(X, Y), PaintBox.Canvas.Pen,
         PaintBox.Canvas.Brush);
-      StatusBar.Panels[3].Text := 'Zoom: ' + FloatToStr(ViewingPort.Scale * 100)
-        + '%';
       Invalidate;
     end;
 end;
@@ -138,6 +137,8 @@ end;
 procedure TMainWindow.PaintBoxPaint(Sender: TObject);
 begin
   ViewingPort.PortSize := Point(PaintBox.Width, PaintBox.Height);
+  StatusBar.Panels[3].Text := 'Zoom: ' + IntToStr(
+    round(ViewingPort.Scale * 100)) + '%';
   {Making canvas white}
   PaintBox.Canvas.Brush.Color := clWhite;
   PaintBox.Canvas.FillRect(0, 0, PaintBox.Width, PaintBox.Height);

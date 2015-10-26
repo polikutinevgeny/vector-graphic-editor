@@ -1,24 +1,11 @@
-unit UZoom;
+unit UViewingPort;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, Graphics, Forms, StdCtrls, ExtCtrls, Math;
-
-type
-  TFloatPoint = record
-    X, Y: double;
-  end;
-
-function FloatPoint(X, Y: Double): TFloatPoint;
-
-type
-  TFloatPoints = array of TFloatPoint;
-
-type
-  TPoints = array of TPoint;
+  Classes, SysUtils, Graphics, Forms, StdCtrls, ExtCtrls, Math, UAdditionalTypes;
 
 type
 
@@ -51,12 +38,6 @@ var
 
 implementation
 
-function FloatPoint(X, Y: Double): TFloatPoint;
-begin
-  Result.X := X;
-  Result.Y := Y;
-end;
-
 { TViewingPort }
 
 procedure TViewingPort.SetScale(AScale: Double);
@@ -68,14 +49,12 @@ end;
 constructor TViewingPort.Create;
 begin
   FScale := 1;
-  FViewPosition.X := 0;
-  FViewPosition.Y := 0;
+  FViewPosition := FloatPoint(0, 0);
 end;
 
 function TViewingPort.WorldToScreen(APoint: TFloatPoint): TPoint;
 begin
-  Result.X := round((APoint.X - FViewPosition.X) * FScale + PortSize.X / 2);
-  Result.Y := round((APoint.Y - FViewPosition.Y) * FScale + PortSize.Y / 2);
+  Result := Point((APoint - FViewPosition) * FScale + PortSize / 2);
 end;
 
 function TViewingPort.WorldToScreen(APoints: TFloatPoints): TPoints;
@@ -90,14 +69,12 @@ end;
 
 function TViewingPort.ScreenToWorld(APoint: TPoint): TFloatPoint;
 begin
-  Result.X := (APoint.X + FViewPosition.X * FScale - PortSize.X / 2) / FScale;
-  Result.Y := (APoint.Y + FViewPosition.Y * FScale - PortSize.Y / 2) / FScale;
+  Result := (APoint + FViewPosition * FScale - PortSize / 2) / FScale;
 end;
 
 procedure TViewingPort.MovePosition(APoint: TPoint);
 begin
-  FViewPosition.X += APoint.X / FScale;
-  FViewPosition.Y += APoint.Y / FScale;
+  FViewPosition += APoint / FScale;
 end;
 
 procedure TViewingPort.ScaleTo(APoint1, APoint2: TFloatPoint);
@@ -105,8 +82,8 @@ var scl: double;
 begin
   if (APoint1.X - APoint2.X = 0) or (APoint1.Y - APoint2.Y = 0) then
     exit;
-  scl := Min(FPortSize.X/abs(APoint1.X - APoint2.X),
-    FPortSize.Y/abs(APoint1.Y - APoint2.Y));
+  scl := Min(FPortSize.X / abs(APoint1.X - APoint2.X),
+    FPortSize.Y / abs(APoint1.Y - APoint2.Y));
   scl := Min(Max(MinScale, scl), MaxScale);
   FScale := scl;
 end;
