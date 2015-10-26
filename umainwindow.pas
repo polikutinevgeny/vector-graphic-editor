@@ -167,6 +167,9 @@ begin
   Figures.UndoAll;
   Tools[CurrentToolIndex].DoubleClick;
   Cleared := True;
+  ViewingPort.Scale := 1;
+  ViewingPort.ViewPosition := FloatPoint(PaintBox.Width div 2,
+    PaintBox.Height div 2);
   Invalidate;
 end;
 
