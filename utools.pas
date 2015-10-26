@@ -5,7 +5,7 @@ unit UTools;
 interface
 
 uses
-  Classes, Graphics, UFigures, UFiguresList, UZoom;
+  Classes, Graphics, UFigures, UFiguresList, UZoom, math;
 
 type
 
@@ -21,6 +21,7 @@ type
       procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
         virtual; abstract;
       procedure MouseMove(APoint: TPoint); virtual;
+      procedure MouseUp; virtual;
       procedure DoubleClick; virtual;
       procedure ChangePen(APen: TPen); virtual;
       property Icon: TBitmap read FIcon;
@@ -138,6 +139,22 @@ type
       procedure MouseMove(APoint: TPoint); override;
   end;
 
+type
+
+  { TRectangleZoomTool }
+
+  TRectangleZoomTool = Class(TTool)
+    private
+      FPointOne: TFloatPoint;
+      FPointTwo: TFloatPoint;
+    public
+      constructor Create; override;
+      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+        override;
+      procedure MouseMove(APoint: TPoint); override;
+      procedure MouseUp; override;
+  end;
+
 var
   Tools: array of TTool;
 
@@ -149,12 +166,53 @@ begin
   Tools[High(Tools)] := ATool;
 end;
 
+{ TRectangleZoomTool }
+
+constructor TRectangleZoomTool.Create;
+begin
+  inherited Create;
+  FCaption := 'Zoom to area';
+  FFillable := False;
+end;
+
+procedure TRectangleZoomTool.MouseClick(APoint: TPoint; APen: TPen;
+  ABrush: TBrush);
+var
+  p: TPen;
+  b: TBrush;
+begin
+  p := TPen.Create;
+  p.Color := clBlue;
+  p.Style := psDot;
+  b := TBrush.Create;
+  b.Color := clYellow;
+  b.Style := bsDiagCross;
+  Figures.ZoomRectangle := TRectangle.Create(APoint, p, b);
+  FPointOne := ViewingPort.ScreenToWorld(APoint);
+  FPointTwo := ViewingPort.ScreenToWorld(APoint);
+end;
+
+procedure TRectangleZoomTool.MouseMove(APoint: TPoint);
+begin
+  Figures.ZoomRectangle.MovePoint(APoint);
+  FPointTwo := ViewingPort.ScreenToWorld(APoint);
+end;
+
+procedure TRectangleZoomTool.MouseUp;
+begin
+  ViewingPort.ViewPosition := FloatPoint((FPointOne.X + FPointTwo.X) / 2,
+    (FPointOne.Y + FPointTwo.Y) / 2);
+  ViewingPort.ScaleTo(FPointOne, FPointTwo);
+  Figures.ZoomRectangle.Free;
+  Figures.ZoomRectangle := nil;
+end;
+
 { THandTool }
 
 constructor THandTool.Create;
 begin
   inherited Create;
-  FCaption := 'Move canvas';
+  FCaption := 'Hand';
   FFillable := False;
 end;
 
@@ -223,6 +281,11 @@ end;
 procedure TTool.MouseMove(APoint: TPoint);
 begin
   Figures.Last.MovePoint(APoint);
+end;
+
+procedure TTool.MouseUp;
+begin
+  {Do nothing, because I need it to be called and not to throw exceptions}
 end;
 
 procedure TTool.DoubleClick;
@@ -358,5 +421,6 @@ initialization
   RegisterTool(TZoomInTool.Create);
   RegisterTool(TZoomOutTool.Create);
   RegisterTool(THandTool.Create);
+  RegisterTool(TRectangleZoomTool.Create);
 end.
 

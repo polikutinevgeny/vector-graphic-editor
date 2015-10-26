@@ -196,6 +196,8 @@ procedure TMainWindow.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   MousePressed := False;
+  Tools[CurrentToolIndex].MouseUp;
+  Invalidate;
 end;
 
 procedure TMainWindow.UndoMIClick(Sender: TObject);

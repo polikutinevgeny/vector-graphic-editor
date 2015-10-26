@@ -12,6 +12,8 @@ type
     X, Y: double;
   end;
 
+function FloatPoint(X, Y: Double): TFloatPoint;
+
 type
   TFloatPoints = array of TFloatPoint;
 
@@ -41,12 +43,19 @@ type
       function WorldToScreen(APoints: TFloatPoints): TPoints; overload;
       function ScreenToWorld(APoint: TPoint): TFloatPoint;
       procedure MovePosition(APoint: TPoint);
+      procedure ScaleTo(APoint1, APoint2: TFloatPoint);
   end;
 
 var
   ViewingPort: TViewingPort;
 
 implementation
+
+function FloatPoint(X, Y: Double): TFloatPoint;
+begin
+  Result.X := X;
+  Result.Y := Y;
+end;
 
 { TViewingPort }
 
@@ -89,6 +98,17 @@ procedure TViewingPort.MovePosition(APoint: TPoint);
 begin
   FViewPosition.X += APoint.X / FScale;
   FViewPosition.Y += APoint.Y / FScale;
+end;
+
+procedure TViewingPort.ScaleTo(APoint1, APoint2: TFloatPoint);
+var scl: double;
+begin
+  if (APoint1.X - APoint2.X = 0) or (APoint1.Y - APoint2.Y = 0) then
+    exit;
+  scl := Min(FPortSize.X/abs(APoint1.X - APoint2.X),
+    FPortSize.Y/abs(APoint1.Y - APoint2.Y));
+  scl := Min(Max(MinScale, scl), MaxScale);
+  FScale := scl;
 end;
 
 end.

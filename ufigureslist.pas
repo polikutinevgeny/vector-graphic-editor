@@ -15,7 +15,9 @@ type
     private
       FFigures: array of TFigure;
       FNumberOfFiguresShown: integer;
+      FZoomRect: TRectangle;
     public
+      property ZoomRectangle: TRectangle read FZoomRect write FZoomRect;
       constructor Create;
       procedure Draw(ACanvas: TCanvas);
       procedure Add(AFigure: TFigure);
@@ -43,6 +45,8 @@ var i: integer;
 begin
   for i := 0 to FNumberOfFiguresShown - 1 do
     FFigures[i].Draw(ACanvas);
+  if FZoomRect <> nil then
+    FZoomRect.Draw(ACanvas);
 end;
 
 procedure TFiguresList.Add(AFigure: TFigure);
