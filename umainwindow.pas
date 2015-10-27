@@ -14,6 +14,8 @@ type
   { TMainWindow }
 
   TMainWindow = class(TForm)
+    ZoomCB: TComboBox;
+    ZoomLabel: TLabel;
     MainMenu: TMainMenu;
     EditMI, ClearMI, FileMI, AboutMI, ExitMI, UndoMI, RedoMI: TMenuItem;
     PenSizeLabel, PenColorLabel, LineStyleLabel, FillColorLabel,
@@ -47,6 +49,7 @@ type
     procedure UpdatePen;
     procedure UpdateBrush;
     procedure SwitchBrushModifiers(AState: boolean);
+    procedure ZoomCBChange(Sender: TObject);
   private
     { private declarations }
   public
@@ -137,8 +140,7 @@ end;
 procedure TMainWindow.PaintBoxPaint(Sender: TObject);
 begin
   ViewingPort.PortSize := Point(PaintBox.Width, PaintBox.Height);
-  StatusBar.Panels[3].Text := 'Zoom: ' + IntToStr(
-    round(ViewingPort.Scale * 100)) + '%';
+  ZoomCB.Text := FloatToStr(ViewingPort.Scale * 100);
   {Making canvas white}
   PaintBox.Canvas.Brush.Color := clWhite;
   PaintBox.Canvas.FillRect(0, 0, PaintBox.Width, PaintBox.Height);
@@ -242,6 +244,12 @@ begin
   FillStyleCB.Visible := AState;
   FillColorCB.Visible := AState;
   ModifierPanel.Height := 45 + 45 * ord(AState);
+end;
+
+procedure TMainWindow.ZoomCBChange(Sender: TObject);
+begin
+  ViewingPort.Scale := StrToFloat(ZoomCB.Text) / 100;
+  Invalidate;
 end;
 
 procedure TMainWindow.RedoMIClick(Sender: TObject);
