@@ -5,7 +5,8 @@ unit UTools;
 interface
 
 uses
-  Classes, Graphics, UFigures, UFiguresList, uviewingport, math, UAdditionalTypes;
+  Classes, Graphics, UFigures, UFiguresList, UViewingPort, math,
+  UAdditionalTypes, sysutils;
 
 type
 
@@ -189,13 +190,12 @@ end;
 
 procedure TShowAllTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
-  if not (IsNan(Figures.TopLeft.X) and IsNan(Figures.TopLeft.Y) and
-    IsNan(Figures.BottomRight.X) and IsNan(Figures.BottomRight.Y)) then
-    begin
-      ViewingPort.ViewPosition := (Figures.TopLeft + Figures.BottomRight) / 2;
-      ViewingPort.ScaleTo(Figures.TopLeft - FloatPoint(10, 10),
-        Figures.BottomRight + FloatPoint(10, 10));
-    end;
+  try
+    ViewingPort.ViewPosition := (Figures.TopLeft + Figures.BottomRight) / 2;
+    ViewingPort.ScaleTo(Figures.TopLeft - FloatPoint(10, 10),
+      Figures.BottomRight + FloatPoint(10, 10));
+  except
+  end;
 end;
 
 procedure TShowAllTool.MouseMove(APoint: TPoint);
