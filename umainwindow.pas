@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
   UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox, UViewingPort,
-  UAdditionalTypes, math, types;
+  UAdditionalTypes, types;
 
 type
 

@@ -5,7 +5,7 @@ unit UViewingPort;
 interface
 
 uses
-  Classes, SysUtils, Graphics, Forms, StdCtrls, ExtCtrls, Math, UAdditionalTypes;
+  Classes, StdCtrls, ExtCtrls, Math, UAdditionalTypes;
 
 type
 

@@ -5,7 +5,7 @@ unit UFiguresList;
 interface
 
 uses
-  Graphics, UFigures, math, UAdditionalTypes, sysutils;
+  Graphics, UFigures, math, UAdditionalTypes;
 
 type
 

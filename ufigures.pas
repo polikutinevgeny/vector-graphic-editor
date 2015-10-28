@@ -101,6 +101,7 @@ procedure TFigure.Draw(ACanvas: TCanvas);
 begin
   ACanvas.Pen.Assign(FPen);
   ACanvas.Brush.Assign(FBrush);
+  ACanvas.Pen.Width := round(ACanvas.Pen.Width * ViewingPort.Scale);
 end;
 
 procedure TFigure.MovePoint(APoint: TPoint);

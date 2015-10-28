@@ -5,8 +5,8 @@ unit UTools;
 interface
 
 uses
-  Classes, Graphics, UFigures, UFiguresList, UViewingPort, math,
-  UAdditionalTypes, sysutils;
+  Classes, Graphics, UFigures, UFiguresList, UViewingPort,
+  UAdditionalTypes;
 
 type
 
@@ -353,6 +353,7 @@ end;
 procedure TRoundRectTool.MouseClick(APoint: TPoint; APen: TPen;
   ABrush: TBrush);
 begin
+  APen.Width := round(APen.Width / ViewingPort.Scale);
   Figures.Add(TRoundRect.Create(APoint, APen, ABrush));
 end;
 
@@ -367,6 +368,7 @@ end;
 
 procedure TEllipseTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
+  APen.Width := round(APen.Width / ViewingPort.Scale);
   Figures.Add(TEllipse.Create(APoint, APen, ABrush));
 end;
 
@@ -382,6 +384,7 @@ end;
 procedure TRectangleTool.MouseClick(APoint: TPoint; APen: TPen;
   ABrush: TBrush);
 begin
+  APen.Width := round(APen.Width / ViewingPort.Scale);
   Figures.Add(TRectangle.Create(APoint, APen, ABrush));
 end;
 
@@ -399,6 +402,7 @@ procedure TPolylineTool.MouseClick(APoint: TPoint; APen: TPen;
 begin
   if not FDrawingNow then
   begin
+    APen.Width := round(APen.Width / ViewingPort.Scale);
     Figures.Add(TPolyline.Create(APoint, APen, ABrush));
     FDrawingNow := true;
   end
@@ -446,6 +450,7 @@ end;
 
 procedure TPenTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
+  APen.Width := round(APen.Width / ViewingPort.Scale);
   Figures.Add(TPolyline.Create(APoint, APen, ABrush));
 end;
 

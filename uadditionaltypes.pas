@@ -5,7 +5,7 @@ unit UAdditionalTypes;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes;
 
 type
   TFloatPoint = record
