@@ -89,8 +89,6 @@ var
   t, l: Double;
   i: integer;
 begin
-  if FNumberOfFiguresShown < 1 then
-    raise Exception.Create('No figures to look at');
   t := FFigures[0].Top;
   l := FFigures[0].Left;
   for i := 1 to FNumberOfFiguresShown - 1 do
@@ -106,8 +104,6 @@ var
   b, r: Double;
   i: integer;
 begin
-  if FNumberOfFiguresShown < 1 then
-    raise Exception.Create('No figures to look at');
   b := FFigures[0].Bottom;
   r := FFigures[0].Right;
   for i := 1 to FNumberOfFiguresShown - 1 do

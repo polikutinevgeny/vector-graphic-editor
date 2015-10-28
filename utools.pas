@@ -190,10 +190,10 @@ end;
 
 procedure TShowAllTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
-  try
+  if not Figures.IsEmpty then
+  begin
     ViewingPort.ViewPosition := (Figures.TopLeft + Figures.BottomRight) / 2;
     ViewingPort.ScaleTo(Figures.TopLeft, Figures.BottomRight);
-  except
   end;
 end;
 
@@ -236,8 +236,11 @@ end;
 
 procedure TRectangleZoomTool.MouseUp;
 begin
-  ViewingPort.ViewPosition := (FPointOne + FPointTwo) / 2;
-  ViewingPort.ScaleTo(FPointOne, FPointTwo);
+  if not Figures.IsEmpty then
+  begin
+    ViewingPort.ViewPosition := (FPointOne + FPointTwo) / 2;
+    ViewingPort.ScaleTo(FPointOne, FPointTwo);
+  end;
   Figures.ZoomRectangle.Free;
   Figures.ZoomRectangle := nil;
 end;
@@ -275,8 +278,11 @@ end;
 
 procedure TZoomOutTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
-  ViewingPort.ViewPosition := ViewingPort.ScreenToWorld(APoint);
-  ViewingPort.Scale := ViewingPort.Scale - 0.25;
+  if not Figures.IsEmpty then
+  begin
+    ViewingPort.ViewPosition := ViewingPort.ScreenToWorld(APoint);
+    ViewingPort.Scale := ViewingPort.Scale - 0.25;
+  end;
 end;
 
 procedure TZoomOutTool.MouseMove(APoint: TPoint);
@@ -295,8 +301,11 @@ end;
 
 procedure TZoomInTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
-  ViewingPort.ViewPosition := ViewingPort.ScreenToWorld(APoint);
-  ViewingPort.Scale := ViewingPort.Scale + 0.25;
+  if not Figures.IsEmpty then
+  begin
+    ViewingPort.ViewPosition := ViewingPort.ScreenToWorld(APoint);
+    ViewingPort.Scale := ViewingPort.Scale + 0.25;
+  end;
 end;
 
 procedure TZoomInTool.MouseMove(APoint: TPoint);

@@ -143,13 +143,12 @@ end;
 
 procedure TMainWindow.PaintBoxPaint(Sender: TObject);
 begin
-  try
+  if not Figures.IsEmpty then
     ViewingPort.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB,
-      Figures.TopLeft, Figures.BottomRight);
-  except
+      Figures.TopLeft, Figures.BottomRight)
+  else
     ViewingPort.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB,
       FloatPoint(0, 0), FloatPoint(0, 0));
-  end;
   ZoomCB.Text := FloatToStr(ViewingPort.Scale * 100);
   {Making canvas white}
   PaintBox.Canvas.Brush.Color := clWhite;
@@ -225,7 +224,8 @@ end;
 procedure TMainWindow.PaintBoxMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
-  ViewingPort.ScaleMouseWheel(MousePos, WheelDelta);
+  if not Figures.IsEmpty then
+    ViewingPort.ScaleMouseWheel(MousePos, WheelDelta);
   Invalidate;
 end;
 
@@ -277,7 +277,8 @@ end;
 
 procedure TMainWindow.ZoomCBChange(Sender: TObject);
 begin
-  ViewingPort.Scale := StrToFloat(ZoomCB.Text) / 100;
+  if not Figures.IsEmpty then
+    ViewingPort.Scale := StrToFloat(ZoomCB.Text) / 100;
   Invalidate;
 end;
 
