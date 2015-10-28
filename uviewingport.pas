@@ -26,7 +26,6 @@ type
       property ViewPosition: TFloatPoint read FViewPosition
         write FViewPosition;
       property Scale: Double read FScale write SetScale;
-      property PortSize: TPoint read FPortSize write FPortSize;
       constructor Create;
       function WorldToScreen(APoint: TFloatPoint): TPoint;
       function WorldToScreen(APoints: TFloatPoints): TPoints; overload;

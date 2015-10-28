@@ -278,7 +278,7 @@ end;
 procedure TMainWindow.ZoomCBChange(Sender: TObject);
 begin
   if not Figures.IsEmpty then
-    ViewingPort.Scale := StrToFloat(ZoomCB.Text) / 100;
+    ViewingPort.Scale := StrToFloatDef(ZoomCB.Text, 100) / 100;
   Invalidate;
 end;
 
