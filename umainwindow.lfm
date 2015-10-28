@@ -1,7 +1,7 @@
 object MainWindow: TMainWindow
-  Left = 524
+  Left = 651
   Height = 600
-  Top = 153
+  Top = 140
   Width = 850
   Caption = 'Vector Graphic Editor'
   ClientHeight = 570
@@ -21,11 +21,17 @@ object MainWindow: TMainWindow
     TabOrder = 0
   end
   object PaintBox: TPaintBox
+    AnchorSideLeft.Control = ControlsPanel
+    AnchorSideLeft.Side = asrBottom
+    AnchorSideTop.Control = ModifierPanel
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = VerticalSB
+    AnchorSideBottom.Control = HorizontalSB
     Left = 150
-    Height = 497
+    Height = 471
     Top = 45
-    Width = 700
-    Align = alClient
+    Width = 674
+    Anchors = [akTop, akLeft, akRight, akBottom]
     OnDblClick = PaintBoxDblClick
     OnMouseDown = PaintBoxMouseDown
     OnMouseMove = PaintBoxMouseMove
@@ -38,14 +44,6 @@ object MainWindow: TMainWindow
     Top = 542
     Width = 850
     Panels = <    
-      item
-        Text = 'X: 0'
-        Width = 100
-      end    
-      item
-        Text = 'Y: 0'
-        Width = 100
-      end    
       item
         Text = 'Current tool: Pencil'
         Width = 250
@@ -209,6 +207,41 @@ object MainWindow: TMainWindow
       TabOrder = 5
       Text = '100'
     end
+  end
+  object HorizontalSB: TScrollBar
+    AnchorSideLeft.Control = ControlsPanel
+    AnchorSideLeft.Side = asrBottom
+    AnchorSideTop.Control = PaintBox
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = StatusBar
+    Left = 150
+    Height = 26
+    Top = 516
+    Width = 674
+    Align = alCustom
+    Anchors = [akLeft, akRight, akBottom]
+    BorderSpacing.Right = 26
+    Max = 999
+    PageSize = 1000
+    TabOrder = 3
+    Visible = False
+    OnScroll = HorizontalSBScroll
+  end
+  object VerticalSB: TScrollBar
+    Left = 824
+    Height = 471
+    Top = 45
+    Width = 26
+    Align = alRight
+    BorderSpacing.Bottom = 26
+    Kind = sbVertical
+    Max = 999
+    PageSize = 1000
+    TabOrder = 4
+    Visible = False
+    OnScroll = VerticalSBScroll
   end
   object MainMenu: TMainMenu
     left = 152

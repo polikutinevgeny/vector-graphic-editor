@@ -28,6 +28,7 @@ type
       function Last: TFigure;
       function TopLeft: TFloatPoint;
       function BottomRight: TFloatPoint;
+      function IsEmpty: Boolean;
   end;
 
 var
@@ -115,6 +116,11 @@ begin
     r := Max(r, FFigures[i].Right);
   end;
   Result := FloatPoint(r, b);
+end;
+
+function TFiguresList.IsEmpty: Boolean;
+begin
+  Result := FNumberOfFiguresShown < 1;
 end;
 
 initialization

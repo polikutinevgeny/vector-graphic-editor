@@ -7,13 +7,15 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
   UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox, UViewingPort,
-  UAdditionalTypes;
+  UAdditionalTypes, math;
 
 type
 
   { TMainWindow }
 
   TMainWindow = class(TForm)
+    HorizontalSB: TScrollBar;
+    VerticalSB: TScrollBar;
     ZoomCB: TComboBox;
     ZoomLabel: TLabel;
     MainMenu: TMainMenu;
@@ -30,6 +32,8 @@ type
     procedure ClearMIClick(Sender: TObject);
     procedure FillColorCBChange(Sender: TObject);
     procedure FillStyleCBChange(Sender: TObject);
+    procedure HorizontalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
+      var ScrollPos: Integer);
     procedure PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure PenColorCBChange(Sender: TObject);
@@ -49,6 +53,8 @@ type
     procedure UpdatePen;
     procedure UpdateBrush;
     procedure SwitchBrushModifiers(AState: boolean);
+    procedure VerticalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
+      var ScrollPos: Integer);
     procedure ZoomCBChange(Sender: TObject);
   private
     { private declarations }
@@ -101,6 +107,7 @@ begin
   ViewingPort := TViewingPort.Create;
   ViewingPort.ViewPosition := FloatPoint(PaintBox.Width div 2,
     PaintBox.Height div 2);
+  HorizontalSB.Parent.DoubleBuffered := True;
 end;
 
 procedure TMainWindow.PaintBoxDblClick(Sender: TObject);
@@ -130,16 +137,17 @@ begin
       Tools[CurrentToolIndex].MouseMove(Point(X, Y));
       Invalidate;
     end;
-  {Showing coords on statusbar}
-  StatusBar.Panels[0].Text := 'X: ' + IntToStr(
-    round(ViewingPort.ScreenToWorld(Point(X, Y)).X));
-  StatusBar.Panels[1].Text := 'Y: ' + IntToStr(
-    round(ViewingPort.ScreenToWorld(Point(X, Y)).Y));
 end;
 
 procedure TMainWindow.PaintBoxPaint(Sender: TObject);
 begin
-  ViewingPort.PortSize := Point(PaintBox.Width, PaintBox.Height);
+  try
+    ViewingPort.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB,
+      Figures.TopLeft, Figures.BottomRight);
+  except
+    ViewingPort.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB,
+      FloatPoint(0, 0), FloatPoint(0, 0));
+  end;
   ZoomCB.Text := FloatToStr(ViewingPort.Scale * 100);
   {Making canvas white}
   PaintBox.Canvas.Brush.Color := clWhite;
@@ -154,7 +162,7 @@ procedure TMainWindow.ToolClick(Sender: TObject);
 begin
   Tools[CurrentToolIndex].DoubleClick;
   CurrentToolIndex := TSpeedButton(Sender).Tag;
-  StatusBar.Panels[2].Text := 'Current tool: '
+  StatusBar.Panels[0].Text := 'Current tool: '
     + Tools[CurrentToolIndex].Caption;
   SwitchBrushModifiers(Tools[CurrentToolIndex].Fillable);
 end;
@@ -171,8 +179,8 @@ begin
   Tools[CurrentToolIndex].DoubleClick;
   Cleared := True;
   ViewingPort.Scale := 1;
-  ViewingPort.ViewPosition := FloatPoint(PaintBox.Width div 2,
-    PaintBox.Height div 2);
+  ViewingPort.ViewPosition := FloatPoint(PaintBox.Width / 2,
+    PaintBox.Height / 2);
   Invalidate;
 end;
 
@@ -196,6 +204,12 @@ end;
 procedure TMainWindow.FillStyleCBChange(Sender: TObject);
 begin
   UpdateBrush;
+end;
+
+procedure TMainWindow.HorizontalSBScroll(Sender: TObject;
+  ScrollCode: TScrollCode; var ScrollPos: Integer);
+begin
+  Invalidate;
 end;
 
 procedure TMainWindow.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
@@ -244,6 +258,12 @@ begin
   FillStyleCB.Visible := AState;
   FillColorCB.Visible := AState;
   ModifierPanel.Height := 45 + 45 * ord(AState);
+end;
+
+procedure TMainWindow.VerticalSBScroll(Sender: TObject;
+  ScrollCode: TScrollCode; var ScrollPos: Integer);
+begin
+  Invalidate;
 end;
 
 procedure TMainWindow.ZoomCBChange(Sender: TObject);

@@ -192,8 +192,7 @@ procedure TShowAllTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
   try
     ViewingPort.ViewPosition := (Figures.TopLeft + Figures.BottomRight) / 2;
-    ViewingPort.ScaleTo(Figures.TopLeft - FloatPoint(10, 10),
-      Figures.BottomRight + FloatPoint(10, 10));
+    ViewingPort.ScaleTo(Figures.TopLeft, Figures.BottomRight);
   except
   end;
 end;
@@ -259,7 +258,8 @@ end;
 
 procedure THandTool.MouseMove(APoint: TPoint);
 begin
-  ViewingPort.MovePosition(FStartPoint - APoint);
+  if not Figures.IsEmpty then
+    ViewingPort.MovePosition(FStartPoint - APoint);
   FStartPoint := APoint;
 end;
 
