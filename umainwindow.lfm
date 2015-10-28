@@ -6,7 +6,7 @@ object MainWindow: TMainWindow
   Caption = 'Vector Graphic Editor'
   ClientHeight = 570
   ClientWidth = 850
-  Constraints.MinHeight = 550
+  Constraints.MinHeight = 600
   Constraints.MinWidth = 850
   Menu = MainMenu
   OnCreate = FormCreate
@@ -21,12 +21,7 @@ object MainWindow: TMainWindow
     TabOrder = 0
   end
   object PaintBox: TPaintBox
-    AnchorSideLeft.Control = ControlsPanel
-    AnchorSideLeft.Side = asrBottom
-    AnchorSideTop.Control = ModifierPanel
-    AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = VerticalSB
-    AnchorSideBottom.Control = HorizontalSB
     Left = 150
     Height = 471
     Top = 45
@@ -36,6 +31,7 @@ object MainWindow: TMainWindow
     OnMouseDown = PaintBoxMouseDown
     OnMouseMove = PaintBoxMouseMove
     OnMouseUp = PaintBoxMouseUp
+    OnMouseWheel = PaintBoxMouseWheel
     OnPaint = PaintBoxPaint
   end
   object StatusBar: TStatusBar

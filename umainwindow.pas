@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
   UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox, UViewingPort,
-  UAdditionalTypes, math;
+  UAdditionalTypes, math, types;
 
 type
 
@@ -36,6 +36,8 @@ type
       var ScrollPos: Integer);
     procedure PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure PaintBoxMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure PenColorCBChange(Sender: TObject);
     procedure ExitMIClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -217,6 +219,13 @@ procedure TMainWindow.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
 begin
   MousePressed := False;
   Tools[CurrentToolIndex].MouseUp;
+  Invalidate;
+end;
+
+procedure TMainWindow.PaintBoxMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin
+  ViewingPort.ScaleMouseWheel(MousePos, WheelDelta);
   Invalidate;
 end;
 

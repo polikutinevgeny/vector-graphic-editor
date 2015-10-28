@@ -31,10 +31,10 @@ type
       function WorldToScreen(APoint: TFloatPoint): TPoint;
       function WorldToScreen(APoints: TFloatPoints): TPoints; overload;
       function ScreenToWorld(APoint: TPoint): TFloatPoint;
-      procedure MovePosition(APoint: TPoint);
       procedure ScaleTo(APoint1, APoint2: TFloatPoint);
       procedure RecalculateScroll(APaintBox: TPaintBox; AHorizontalSB,
         AVerticalSB: TScrollBar; ATopLeft, ABottomRight: TFloatPoint);
+      procedure ScaleMouseWheel(APoint: TPoint; Delta: Integer);
   end;
 
 var
@@ -58,7 +58,7 @@ end;
 
 function TViewingPort.WorldToScreen(APoint: TFloatPoint): TPoint;
 begin
-  Result := Point((APoint - FViewPosition) * FScale + PortSize / 2);
+  Result := Point((APoint - FViewPosition) * FScale + FPortSize / 2);
 end;
 
 function TViewingPort.WorldToScreen(APoints: TFloatPoints): TPoints;
@@ -73,12 +73,7 @@ end;
 
 function TViewingPort.ScreenToWorld(APoint: TPoint): TFloatPoint;
 begin
-  Result := (APoint + FViewPosition * FScale - PortSize / 2) / FScale;
-end;
-
-procedure TViewingPort.MovePosition(APoint: TPoint);
-begin
-  FViewPosition += APoint / FScale;
+  Result := (APoint + FViewPosition * FScale - FPortSize / 2) / FScale;
 end;
 
 procedure TViewingPort.ScaleTo(APoint1, APoint2: TFloatPoint);
@@ -146,6 +141,20 @@ begin
       FViewPosition.Y := AVerticalSB.Position * WorldSize.Y / Amplitude
         + (top + FPortSize.Y / FScale / 2);
     FVerticalSBPosition := AVerticalSB.Position;
+  end;
+end;
+
+procedure TViewingPort.ScaleMouseWheel(APoint: TPoint; Delta: Integer);
+begin
+  if not ((FScale <= MinScale) or (Delta < 0)) then
+  begin
+    FViewPosition := ScreenToWorld(APoint);
+    FScale /= 1.25;
+  end
+  else if not ((FScale >= MaxScale) or (Delta > 0)) then
+  begin
+    FViewPosition := ScreenToWorld(APoint);
+    FScale *= 1.25;
   end;
 end;
 

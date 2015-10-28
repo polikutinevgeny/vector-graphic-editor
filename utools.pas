@@ -259,7 +259,8 @@ end;
 procedure THandTool.MouseMove(APoint: TPoint);
 begin
   if not Figures.IsEmpty then
-    ViewingPort.MovePosition(FStartPoint - APoint);
+    ViewingPort.ViewPosition := ViewingPort.ViewPosition
+      + (FStartPoint - APoint) / ViewingPort.Scale;
   FStartPoint := APoint;
 end;
 
