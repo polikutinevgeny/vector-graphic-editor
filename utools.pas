@@ -193,7 +193,8 @@ begin
   if not Figures.IsEmpty then
   begin
     ViewingPort.ViewPosition := (Figures.TopLeft + Figures.BottomRight) / 2;
-    ViewingPort.ScaleTo(Figures.TopLeft, Figures.BottomRight);
+    ViewingPort.ScaleTo(Figures.TopLeft - FloatPoint(10, 10) / ViewingPort.Scale,
+      Figures.BottomRight + FloatPoint(10, 10) / ViewingPort.Scale);
   end;
 end;
 
@@ -239,7 +240,8 @@ begin
   if not Figures.IsEmpty then
   begin
     ViewingPort.ViewPosition := (FPointOne + FPointTwo) / 2;
-    ViewingPort.ScaleTo(FPointOne, FPointTwo);
+    ViewingPort.ScaleTo(FPointOne - FloatPoint(10, 10) / ViewingPort.Scale,
+      FPointTwo + FloatPoint(10, 10) / ViewingPort.Scale);
   end;
   Figures.ZoomRectangle.Free;
   Figures.ZoomRectangle := nil;
