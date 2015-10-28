@@ -115,7 +115,7 @@ end;
 procedure TMainWindow.PaintBoxDblClick(Sender: TObject);
 begin
   Tools[CurrentToolIndex].DoubleClick;
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
@@ -127,7 +127,7 @@ begin
       Cleared := False;
       Tools[CurrentToolIndex].MouseClick(Point(X, Y), PaintBox.Canvas.Pen,
         PaintBox.Canvas.Brush);
-      Invalidate;
+      PaintBox.Invalidate;
     end;
 end;
 
@@ -137,7 +137,7 @@ begin
   if MousePressed then
     begin
       Tools[CurrentToolIndex].MouseMove(Point(X, Y));
-      Invalidate;
+      PaintBox.Invalidate;
     end;
 end;
 
@@ -171,7 +171,7 @@ end;
 procedure TMainWindow.SizeChanged(Sender: TObject);
 begin
   UpdatePen;
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.ClearMIClick(Sender: TObject);
@@ -182,19 +182,19 @@ begin
   ViewingPort.Scale := 1;
   ViewingPort.ViewPosition := FloatPoint(PaintBox.Width / 2,
     PaintBox.Height / 2);
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.PenStyleCBChange(Sender: TObject);
 begin
   UpdatePen;
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.PenColorCBChange(Sender: TObject);
 begin
   UpdatePen;
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.FillColorCBChange(Sender: TObject);
@@ -210,7 +210,7 @@ end;
 procedure TMainWindow.HorizontalSBScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
@@ -218,7 +218,7 @@ procedure TMainWindow.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
 begin
   MousePressed := False;
   Tools[CurrentToolIndex].MouseUp;
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.PaintBoxMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -226,7 +226,7 @@ procedure TMainWindow.PaintBoxMouseWheel(Sender: TObject; Shift: TShiftState;
 begin
   if not Figures.IsEmpty then
     ViewingPort.ScaleMouseWheel(MousePos, WheelDelta);
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.UndoMIClick(Sender: TObject);
@@ -235,12 +235,21 @@ begin
   {If the previous action cleared everything we will undo it, otherwise we
   will delete the last figure drawn}
   if Cleared then
+  begin
+    Figures.RedoAll;
+    Cleared := false;
+  end
+  else
+  begin
+    Figures.Undo;
+    if Figures.IsEmpty then
     begin
-      Figures.RedoAll;
-      Cleared := false;
-    end
-  else Figures.Undo;
-  Invalidate;
+      ViewingPort.Scale := 1;
+      ViewingPort.ViewPosition := FloatPoint(PaintBox.Width / 2,
+        PaintBox.Height / 2);
+    end;
+  end;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.UpdatePen;
@@ -272,20 +281,20 @@ end;
 procedure TMainWindow.VerticalSBScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.ZoomCBChange(Sender: TObject);
 begin
   if not Figures.IsEmpty then
     ViewingPort.Scale := StrToFloatDef(ZoomCB.Text, 100) / 100;
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.RedoMIClick(Sender: TObject);
 begin
   Figures.Redo;
-  Invalidate;
+  PaintBox.Invalidate;
 end;
 
 end.

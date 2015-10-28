@@ -148,12 +148,12 @@ begin
   if not ((FScale <= MinScale) or (Delta < 0)) then
   begin
     FViewPosition := ScreenToWorld(APoint);
-    FScale /= 1.25;
+    FScale := Max(FScale / 1.25, MinScale);
   end
   else if not ((FScale >= MaxScale) or (Delta > 0)) then
   begin
     FViewPosition := ScreenToWorld(APoint);
-    FScale *= 1.25;
+    FScale := Min(FScale * 1.25, MaxScale);
   end;
 end;
 
