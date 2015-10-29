@@ -251,6 +251,10 @@ object MainWindow: TMainWindow
     end
     object EditMI: TMenuItem
       Caption = 'Edit'
+      object ShowAllMI: TMenuItem
+        Caption = 'Show all'
+        OnClick = ShowAllMIClick
+      end
       object ClearMI: TMenuItem
         Caption = 'Clear'
         OnClick = ClearMIClick

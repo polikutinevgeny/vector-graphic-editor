@@ -15,6 +15,7 @@ type
 
   TMainWindow = class(TForm)
     HorizontalSB: TScrollBar;
+    ShowAllMI: TMenuItem;
     VerticalSB: TScrollBar;
     ZoomCB: TComboBox;
     ZoomLabel: TLabel;
@@ -49,6 +50,7 @@ type
     procedure PaintBoxPaint(Sender: TObject);
     procedure RedoMIClick(Sender: TObject);
     procedure PenStyleCBChange(Sender: TObject);
+    procedure ShowAllMIClick(Sender: TObject);
     procedure ToolClick(Sender: TObject);
     procedure SizeChanged(Sender: TObject);
     procedure UndoMIClick(Sender: TObject);
@@ -188,6 +190,17 @@ end;
 procedure TMainWindow.PenStyleCBChange(Sender: TObject);
 begin
   UpdatePen;
+  PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.ShowAllMIClick(Sender: TObject);
+begin
+  if not Figures.IsEmpty then
+  begin
+    ViewingPort.ViewPosition := (Figures.TopLeft + Figures.BottomRight) / 2;
+    ViewingPort.ScaleTo(Figures.TopLeft - FloatPoint(10, 10) / ViewingPort.Scale,
+      Figures.BottomRight + FloatPoint(10, 10) / ViewingPort.Scale);
+  end;
   PaintBox.Invalidate;
 end;
 

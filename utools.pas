@@ -156,18 +156,6 @@ type
       procedure MouseUp; override;
   end;
 
-type
-
-  { TShowAllTool }
-
-  TShowAllTool = Class(TTool)
-    public
-      constructor Create; override;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        override;
-      procedure MouseMove(APoint: TPoint); override;
-  end;
-
 var
   Tools: array of TTool;
 
@@ -177,30 +165,6 @@ procedure RegisterTool(ATool: TTool);
 begin
   SetLength(Tools, Length(Tools) + 1);
   Tools[High(Tools)] := ATool;
-end;
-
-{ TShowAllTool }
-
-constructor TShowAllTool.Create;
-begin
-  inherited Create;
-  FCaption := 'Show all';
-  FFillable := False;
-end;
-
-procedure TShowAllTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-begin
-  if not Figures.IsEmpty then
-  begin
-    ViewingPort.ViewPosition := (Figures.TopLeft + Figures.BottomRight) / 2;
-    ViewingPort.ScaleTo(Figures.TopLeft - FloatPoint(10, 10) / ViewingPort.Scale,
-      Figures.BottomRight + FloatPoint(10, 10) / ViewingPort.Scale);
-  end;
-end;
-
-procedure TShowAllTool.MouseMove(APoint: TPoint);
-begin
-  //Move along, it is designed to do nothing
 end;
 
 { TRectangleZoomTool }
@@ -467,6 +431,5 @@ initialization
   RegisterTool(TZoomOutTool.Create);
   RegisterTool(THandTool.Create);
   RegisterTool(TRectangleZoomTool.Create);
-  RegisterTool(TShowAllTool.Create);
 end.
 
