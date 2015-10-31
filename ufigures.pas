@@ -89,8 +89,8 @@ begin
   FPen.Assign(APen);
   FBrush := TBrush.Create;
   FBrush.Assign(ABrush);
-  FPoints[0] := ViewingPort.ScreenToWorld(APoint);
-  FPoints[1] := ViewingPort.ScreenToWorld(APoint);
+  FPoints[0] := VP.ScreenToWorld(APoint);
+  FPoints[1] := VP.ScreenToWorld(APoint);
   FLeft := FPoints[0].X;
   FRight := FPoints[0].X;
   FTop := FPoints[0].Y;
@@ -101,12 +101,12 @@ procedure TFigure.Draw(ACanvas: TCanvas);
 begin
   ACanvas.Pen.Assign(FPen);
   ACanvas.Brush.Assign(FBrush);
-  ACanvas.Pen.Width := round(ACanvas.Pen.Width * ViewingPort.Scale);
+  ACanvas.Pen.Width := round(ACanvas.Pen.Width * VP.Scale);
 end;
 
 procedure TFigure.MovePoint(APoint: TPoint);
 begin
-  FPoints[High(FPoints)] := ViewingPort.ScreenToWorld(APoint);
+  FPoints[High(FPoints)] := VP.ScreenToWorld(APoint);
   FLeft := Min(FLeft, FPoints[High(FPoints)].X);
   FRight := Max(FRight, FPoints[High(FPoints)].X);
   FTop := Min(FTop, FPoints[High(FPoints)].Y);
@@ -118,13 +118,13 @@ end;
 procedure TPolyline.Draw(ACanvas: TCanvas);
 begin
   inherited;
-  ACanvas.Polyline(ViewingPort.WorldToScreen(FPoints));
+  ACanvas.Polyline(VP.WorldToScreen(FPoints));
 end;
 
 procedure TPolyline.AddPoint(APoint: TPoint);
 begin
   SetLength(FPoints, Length(FPoints) + 1);
-  FPoints[High(FPoints)] := ViewingPort.ScreenToWorld(APoint);
+  FPoints[High(FPoints)] := VP.ScreenToWorld(APoint);
   FLeft := Min(FLeft, FPoints[High(FPoints)].X);
   FRight := Max(FRight, FPoints[High(FPoints)].X);
   FTop := Min(FTop, FPoints[High(FPoints)].Y);
@@ -137,8 +137,8 @@ procedure TLine.Draw(ACanvas: TCanvas);
 begin
   inherited;
   ACanvas.Line(
-    ViewingPort.WorldToScreen(FPoints[0]),
-    ViewingPort.WorldToScreen(FPoints[1]));
+    VP.WorldToScreen(FPoints[0]),
+    VP.WorldToScreen(FPoints[1]));
 end;
 
 { TRectangle }
@@ -147,8 +147,8 @@ procedure TRectangle.Draw(ACanvas: TCanvas);
 var p1, p2: TPoint;
 begin
   inherited;
-  p1 := ViewingPort.WorldToScreen(FPoints[0]);
-  p2 := ViewingPort.WorldToScreen(FPoints[1]);
+  p1 := VP.WorldToScreen(FPoints[0]);
+  p2 := VP.WorldToScreen(FPoints[1]);
   ACanvas.Rectangle(p1.X, p1.Y, p2.X, p2.Y);
 end;
 
@@ -158,8 +158,8 @@ procedure TEllipse.Draw(ACanvas: TCanvas);
 var p1, p2: TPoint;
 begin
   inherited;
-  p1 := ViewingPort.WorldToScreen(FPoints[0]);
-  p2 := ViewingPort.WorldToScreen(FPoints[1]);
+  p1 := VP.WorldToScreen(FPoints[0]);
+  p2 := VP.WorldToScreen(FPoints[1]);
   ACanvas.Ellipse(p1.X, p1.Y, p2.X, p2.Y);
 end;
 
@@ -169,8 +169,8 @@ procedure TRoundRect.Draw(ACanvas: TCanvas);
 var p1, p2: TPoint;
 begin
   inherited;
-  p1 := ViewingPort.WorldToScreen(FPoints[0]);
-  p2 := ViewingPort.WorldToScreen(FPoints[1]);
+  p1 := VP.WorldToScreen(FPoints[0]);
+  p2 := VP.WorldToScreen(FPoints[1]);
   ACanvas.RoundRect(p1.X, p1.Y, p2.X, p2.Y, 10, 10);
 end;
 

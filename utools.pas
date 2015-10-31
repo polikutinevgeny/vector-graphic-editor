@@ -189,23 +189,23 @@ begin
   b.Color := clYellow;
   b.Style := bsDiagCross;
   Figures.ZoomRectangle := TRectangle.Create(APoint, p, b);
-  FPointOne := ViewingPort.ScreenToWorld(APoint);
-  FPointTwo := ViewingPort.ScreenToWorld(APoint);
+  FPointOne := VP.ScreenToWorld(APoint);
+  FPointTwo := VP.ScreenToWorld(APoint);
 end;
 
 procedure TRectangleZoomTool.MouseMove(APoint: TPoint);
 begin
   Figures.ZoomRectangle.MovePoint(APoint);
-  FPointTwo := ViewingPort.ScreenToWorld(APoint);
+  FPointTwo := VP.ScreenToWorld(APoint);
 end;
 
 procedure TRectangleZoomTool.MouseUp;
 begin
   if not Figures.IsEmpty then
   begin
-    ViewingPort.ViewPosition := (FPointOne + FPointTwo) / 2;
-    ViewingPort.ScaleTo(FPointOne - FloatPoint(10, 10) / ViewingPort.Scale,
-      FPointTwo + FloatPoint(10, 10) / ViewingPort.Scale);
+    VP.ViewPosition := (FPointOne + FPointTwo) / 2;
+    VP.ScaleTo(FPointOne - FloatPoint(10, 10) / VP.Scale,
+      FPointTwo + FloatPoint(10, 10) / VP.Scale);
   end;
   Figures.ZoomRectangle.Free;
   Figures.ZoomRectangle := nil;
@@ -228,8 +228,8 @@ end;
 procedure THandTool.MouseMove(APoint: TPoint);
 begin
   if not Figures.IsEmpty then
-    ViewingPort.ViewPosition := ViewingPort.ViewPosition
-      + (FStartPoint - APoint) / ViewingPort.Scale;
+    VP.ViewPosition := VP.ViewPosition
+      + (FStartPoint - APoint) / VP.Scale;
   FStartPoint := APoint;
 end;
 
@@ -246,8 +246,8 @@ procedure TZoomOutTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
   if not Figures.IsEmpty then
   begin
-    ViewingPort.ViewPosition := ViewingPort.ScreenToWorld(APoint);
-    ViewingPort.Scale := ViewingPort.Scale - 0.25;
+    VP.ViewPosition := VP.ScreenToWorld(APoint);
+    VP.Scale := VP.Scale - 0.25;
   end;
 end;
 
@@ -269,8 +269,8 @@ procedure TZoomInTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
 begin
   if not Figures.IsEmpty then
   begin
-    ViewingPort.ViewPosition := ViewingPort.ScreenToWorld(APoint);
-    ViewingPort.Scale := ViewingPort.Scale + 0.25;
+    VP.ViewPosition := VP.ScreenToWorld(APoint);
+    VP.Scale := VP.Scale + 0.25;
   end;
 end;
 

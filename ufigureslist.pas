@@ -64,8 +64,8 @@ begin
   FNumberOfFiguresShown := max(FNumberOfFiguresShown - 1, 0);
   if IsEmpty then
     begin
-      ViewingPort.Scale := 1;
-      ViewingPort.ViewPosition := ViewingPort.PortSize / 2;
+      VP.Scale := 1;
+      VP.ViewPosition := VP.PortSize / 2;
     end;
 end;
 

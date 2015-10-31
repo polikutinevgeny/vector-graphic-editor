@@ -9,9 +9,9 @@ uses
 
 type
 
-  { TViewingPort }
+  { TViewPort }
 
-  TViewingPort = class
+  TViewPort = class
     const
       MaxScale = 20;
       MinScale = 0.25;
@@ -38,30 +38,30 @@ type
   end;
 
 var
-  ViewingPort: TViewingPort;
+  VP: TViewPort;
 
 implementation
 
-{ TViewingPort }
+{ TViewPort }
 
-procedure TViewingPort.SetScale(AScale: Double);
+procedure TViewPort.SetScale(AScale: Double);
 begin
   if not ((AScale = FScale) or (AScale > MaxScale) or (AScale < MinScale)) then
     FScale := AScale;
 end;
 
-constructor TViewingPort.Create;
+constructor TViewPort.Create;
 begin
   FScale := 1;
   FViewPosition := FloatPoint(0, 0);
 end;
 
-function TViewingPort.WorldToScreen(APoint: TFloatPoint): TPoint;
+function TViewPort.WorldToScreen(APoint: TFloatPoint): TPoint;
 begin
   Result := Point((APoint - FViewPosition) * FScale + FPortSize / 2);
 end;
 
-function TViewingPort.WorldToScreen(APoints: TFloatPoints): TPoints;
+function TViewPort.WorldToScreen(APoints: TFloatPoints): TPoints;
 var i: integer;
 begin
   SetLength(Result, Length(APoints));
@@ -71,12 +71,12 @@ begin
   end;
 end;
 
-function TViewingPort.ScreenToWorld(APoint: TPoint): TFloatPoint;
+function TViewPort.ScreenToWorld(APoint: TPoint): TFloatPoint;
 begin
   Result := (APoint + FViewPosition * FScale - FPortSize / 2) / FScale;
 end;
 
-procedure TViewingPort.ScaleTo(APoint1, APoint2: TFloatPoint);
+procedure TViewPort.ScaleTo(APoint1, APoint2: TFloatPoint);
 var scl: double;
 begin
   if (APoint1.X = APoint2.X) or (APoint1.Y - APoint2.Y = 0) then
@@ -88,7 +88,7 @@ begin
   FScale := scl;
 end;
 
-procedure TViewingPort.RecalculateScroll(APaintBox: TPaintBox; AHorizontalSB,
+procedure TViewPort.RecalculateScroll(APaintBox: TPaintBox; AHorizontalSB,
   AVerticalSB: TScrollBar; ATopLeft, ABottomRight: TFloatPoint);
 var
   left, right, top, bottom: double;
@@ -145,7 +145,7 @@ begin
   end;
 end;
 
-procedure TViewingPort.ScaleMouseWheel(APoint: TPoint; Delta: Integer);
+procedure TViewPort.ScaleMouseWheel(APoint: TPoint; Delta: Integer);
 begin
   if not ((FScale <= MinScale) or (Delta < 0)) then
   begin

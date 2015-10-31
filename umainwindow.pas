@@ -108,8 +108,8 @@ begin
       b.ShowHint := true;
       b.Hint := Tools[i].Caption;
     end;
-  ViewingPort := TViewingPort.Create;
-  ViewingPort.ViewPosition := FloatPoint(PaintBox.Width div 2,
+  VP := TViewPort.Create;
+  VP.ViewPosition := FloatPoint(PaintBox.Width div 2,
     PaintBox.Height div 2);
   HorizontalSB.Parent.DoubleBuffered := True;
 end;
@@ -146,12 +146,12 @@ end;
 procedure TMainWindow.PaintBoxPaint(Sender: TObject);
 begin
   if not Figures.IsEmpty then
-    ViewingPort.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB,
+    VP.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB,
       Figures.TopLeft, Figures.BottomRight)
   else
-    ViewingPort.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB,
+    VP.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB,
       FloatPoint(0, 0), FloatPoint(0, 0));
-  ZoomCB.Text := FloatToStr(ViewingPort.Scale * 100);
+  ZoomCB.Text := FloatToStr(VP.Scale * 100);
   {Making canvas white}
   PaintBox.Canvas.Brush.Color := clWhite;
   PaintBox.Canvas.FillRect(0, 0, PaintBox.Width, PaintBox.Height);
@@ -181,8 +181,8 @@ begin
   Figures.UndoAll;
   Tools[CurrentToolIndex].DoubleClick;
   Cleared := True;
-  ViewingPort.Scale := 1;
-  ViewingPort.ViewPosition := FloatPoint(PaintBox.Width / 2,
+  VP.Scale := 1;
+  VP.ViewPosition := FloatPoint(PaintBox.Width / 2,
     PaintBox.Height / 2);
   PaintBox.Invalidate;
 end;
@@ -197,9 +197,9 @@ procedure TMainWindow.ShowAllMIClick(Sender: TObject);
 begin
   if not Figures.IsEmpty then
   begin
-    ViewingPort.ViewPosition := (Figures.TopLeft + Figures.BottomRight) / 2;
-    ViewingPort.ScaleTo(Figures.TopLeft - FloatPoint(10, 10) / ViewingPort.Scale,
-      Figures.BottomRight + FloatPoint(10, 10) / ViewingPort.Scale);
+    VP.ViewPosition := (Figures.TopLeft + Figures.BottomRight) / 2;
+    VP.ScaleTo(Figures.TopLeft - FloatPoint(10, 10) / VP.Scale,
+      Figures.BottomRight + FloatPoint(10, 10) / VP.Scale);
   end;
   PaintBox.Invalidate;
 end;
@@ -238,7 +238,7 @@ procedure TMainWindow.PaintBoxMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
   if not Figures.IsEmpty then
-    ViewingPort.ScaleMouseWheel(MousePos, WheelDelta);
+    VP.ScaleMouseWheel(MousePos, WheelDelta);
   PaintBox.Invalidate;
 end;
 
@@ -292,7 +292,7 @@ end;
 procedure TMainWindow.ZoomCBChange(Sender: TObject);
 begin
   if not Figures.IsEmpty then
-    ViewingPort.Scale := StrToFloatDef(ZoomCB.Text, 100) / 100;
+    VP.Scale := StrToFloatDef(ZoomCB.Text, 100) / 100;
   PaintBox.Invalidate;
 end;
 
