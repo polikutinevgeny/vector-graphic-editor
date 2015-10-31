@@ -5,16 +5,23 @@ unit UGeometry;
 interface
 
 uses
-  Classes;
+  Classes, math;
 
 type
   TFloatPoint = record
     X, Y: double;
   end;
 
+type
+  TFloatRect = record
+    Left, Right, Top, Bottom: double;
+  end;
+
 function FloatPoint(X, Y: Double): TFloatPoint;
 function FloatPoint(APoint: TPoint): TFloatPoint;
 function Point(AFloatPoint: TFloatPoint): TPoint; overload;
+function Rect(a, b: TPoint): TRect; overload;
+function FloatRect(a, b: TFloatPoint): TFloatRect;
 operator + (a, b: TFloatPoint): TFloatPoint;
 operator - (a, b: TFloatPoint): TFloatPoint;
 operator + (a, b: TPoint): TPoint;
@@ -51,6 +58,22 @@ function Point(AFloatPoint: TFloatPoint): TPoint;
 begin
   Result.X := round(AFloatPoint.X);
   Result.Y := round(AFloatPoint.Y);
+end;
+
+function Rect(a, b: TPoint): TRect;
+begin
+  Result.Left := Min(a.X, b.X);
+  Result.Top := Min(a.Y, b.Y);
+  Result.Right := Max(a.X, b.X);
+  Result.Bottom := Max(a.Y, b.Y);
+end;
+
+function FloatRect(a, b: TFloatPoint): TFloatRect;
+begin
+  Result.Left := Min(a.X, b.X);
+  Result.Top := Min(a.Y, b.Y);
+  Result.Right := Max(a.X, b.X);
+  Result.Bottom := Max(a.Y, b.Y);
 end;
 
 operator + (a, b: TFloatPoint): TFloatPoint;
