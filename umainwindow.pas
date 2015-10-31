@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
-  UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox, UViewingPort,
-  UAdditionalTypes, types;
+  UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox, UViewPort,
+  UGeometry, types;
 
 type
 
@@ -253,15 +253,7 @@ begin
     Cleared := false;
   end
   else
-  begin
     Figures.Undo;
-    if Figures.IsEmpty then
-    begin
-      ViewingPort.Scale := 1;
-      ViewingPort.ViewPosition := FloatPoint(PaintBox.Width / 2,
-        PaintBox.Height / 2);
-    end;
-  end;
   PaintBox.Invalidate;
 end;
 

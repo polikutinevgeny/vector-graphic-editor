@@ -65,14 +65,14 @@
         <UnitName Value="UFiguresList"/>
       </Unit4>
       <Unit5>
-        <Filename Value="uviewingport.pas"/>
+        <Filename Value="uviewport.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="UViewingPort"/>
+        <UnitName Value="UViewPort"/>
       </Unit5>
       <Unit6>
-        <Filename Value="uadditionaltypes.pas"/>
+        <Filename Value="ugeometry.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="UAdditionalTypes"/>
+        <UnitName Value="UGeometry"/>
       </Unit6>
     </Units>
   </ProjectOptions>

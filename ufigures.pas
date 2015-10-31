@@ -5,7 +5,7 @@ unit UFigures;
 interface
 
 uses
-  Classes, Graphics, UViewingPort, UAdditionalTypes, math;
+  Classes, Graphics, UViewPort, UGeometry, math;
 
 type
 
@@ -136,7 +136,8 @@ end;
 procedure TLine.Draw(ACanvas: TCanvas);
 begin
   inherited;
-  ACanvas.Line(ViewingPort.WorldToScreen(FPoints[0]),
+  ACanvas.Line(
+    ViewingPort.WorldToScreen(FPoints[0]),
     ViewingPort.WorldToScreen(FPoints[1]));
 end;
 

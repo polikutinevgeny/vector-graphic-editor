@@ -1,11 +1,11 @@
-unit UViewingPort;
+unit UViewPort;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, StdCtrls, ExtCtrls, Math, UAdditionalTypes;
+  Classes, StdCtrls, ExtCtrls, Math, UGeometry;
 
 type
 
@@ -26,6 +26,7 @@ type
       property ViewPosition: TFloatPoint read FViewPosition
         write FViewPosition;
       property Scale: Double read FScale write SetScale;
+      property PortSize: TPoint read FPortSize;
       constructor Create;
       function WorldToScreen(APoint: TFloatPoint): TPoint;
       function WorldToScreen(APoints: TFloatPoints): TPoints; overload;
@@ -78,9 +79,10 @@ end;
 procedure TViewingPort.ScaleTo(APoint1, APoint2: TFloatPoint);
 var scl: double;
 begin
-  if (APoint1.X - APoint2.X = 0) or (APoint1.Y - APoint2.Y = 0) then
+  if (APoint1.X = APoint2.X) or (APoint1.Y - APoint2.Y = 0) then
     exit;
-  scl := Min(FPortSize.X / abs(APoint1.X - APoint2.X),
+  scl := Min(
+    FPortSize.X / abs(APoint1.X - APoint2.X),
     FPortSize.Y / abs(APoint1.Y - APoint2.Y));
   scl := Min(Max(MinScale, scl), MaxScale);
   FScale := scl;
@@ -116,9 +118,9 @@ begin
   begin
     AHorizontalSB.Visible := True;
     if AHorizontalSB.Position = FHorizontalSBPosition then
-      AHorizontalSB.Position := round((FViewPosition.X
-        - (left + FPortSize.X / FScale / 2))
-        / WorldSize.X * Amplitude)
+      AHorizontalSB.Position := round(
+        (FViewPosition.X - (left + FPortSize.X / FScale / 2))
+        * Amplitude / WorldSize.X)
     else
       FViewPosition.X := AHorizontalSB.Position * WorldSize.X / Amplitude
         + (left + FPortSize.X / FScale / 2);

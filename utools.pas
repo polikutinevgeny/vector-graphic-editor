@@ -5,8 +5,8 @@ unit UTools;
 interface
 
 uses
-  Classes, Graphics, UFigures, UFiguresList, UViewingPort,
-  UAdditionalTypes;
+  Classes, Graphics, UFigures, UFiguresList, UViewPort,
+  UGeometry;
 
 type
 

@@ -5,7 +5,7 @@ unit UFiguresList;
 interface
 
 uses
-  Graphics, UFigures, math, UAdditionalTypes;
+  Graphics, UFigures, math, UGeometry, UViewPort;
 
 type
 
@@ -62,6 +62,11 @@ end;
 procedure TFiguresList.Undo;
 begin
   FNumberOfFiguresShown := max(FNumberOfFiguresShown - 1, 0);
+  if IsEmpty then
+    begin
+      ViewingPort.Scale := 1;
+      ViewingPort.ViewPosition := ViewingPort.PortSize / 2;
+    end;
 end;
 
 procedure TFiguresList.UndoAll;
