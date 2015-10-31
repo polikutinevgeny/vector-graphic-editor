@@ -46,7 +46,7 @@ implementation
 
 procedure TViewPort.SetScale(AScale: Double);
 begin
-  if not ((AScale = FScale) or (AScale > MaxScale) or (AScale < MinScale)) then
+  if (AScale <> FScale) and InRange(AScale, MinScale, MaxScale) then
     FScale := AScale;
 end;
 
@@ -79,21 +79,20 @@ end;
 procedure TViewPort.ScaleTo(APoint1, APoint2: TFloatPoint);
 var scl: double;
 begin
-  if (APoint1.X = APoint2.X) or (APoint1.Y - APoint2.Y = 0) then
+  if (APoint1.X = APoint2.X) or (APoint1.Y = APoint2.Y) then
     exit;
   scl := Min(
     FPortSize.X / abs(APoint1.X - APoint2.X),
     FPortSize.Y / abs(APoint1.Y - APoint2.Y));
-  scl := Min(Max(MinScale, scl), MaxScale);
-  FScale := scl;
+  FScale := EnsureRange(scl, MinScale, MaxScale);
 end;
 
 procedure TViewPort.RecalculateScroll(APaintBox: TPaintBox; AHorizontalSB,
   AVerticalSB: TScrollBar; ATopLeft, ABottomRight: TFloatPoint);
 var
   left, right, top, bottom: double;
-  fp1, fp2, WorldSize: TFloatPoint;
-  Amplitude: integer;
+  fp1, fp2, worldsize: TFloatPoint;
+  amplitude: integer;
 begin
   {Updating size of viewing port}
   FPortSize := Point(APaintBox.Width, APaintBox.Height);
@@ -105,14 +104,14 @@ begin
   right := Max(fp2.X, ABottomRight.X);
   bottom := Max(fp2.Y, ABottomRight.Y);
   {Determining full size of our canvas}
-  WorldSize.X := right - left;
-  WorldSize.Y := bottom - top;
-  if WorldSize.X * WorldSize.Y = 0 then
+  worldsize.X := right - left;
+  worldsize.Y := bottom - top;
+  if (worldsize.X = 0) or (worldsize.Y = 0) then
     exit;
   {Setting an horizontal scrollbox}
-  Amplitude := AHorizontalSB.Max - AHorizontalSB.Min;
-  AHorizontalSB.PageSize := round(FPortSize.X * Amplitude / (WorldSize.X * FScale));
-  if AHorizontalSB.PageSize >= Amplitude then
+  amplitude := AHorizontalSB.Max - AHorizontalSB.Min;
+  AHorizontalSB.PageSize := round(FPortSize.X * amplitude / (worldsize.X * FScale));
+  if AHorizontalSB.PageSize >= amplitude then
     AHorizontalSB.Visible := False
   else
   begin
@@ -120,16 +119,16 @@ begin
     if AHorizontalSB.Position = FHorizontalSBPosition then
       AHorizontalSB.Position := round(
         (FViewPosition.X - (left + FPortSize.X / FScale / 2))
-        * Amplitude / WorldSize.X)
+        * amplitude / worldsize.X)
     else
-      FViewPosition.X := AHorizontalSB.Position * WorldSize.X / Amplitude
+      FViewPosition.X := AHorizontalSB.Position * worldsize.X / amplitude
         + (left + FPortSize.X / FScale / 2);
     FHorizontalSBPosition := AHorizontalSB.Position;
   end;
   {Setting an vertical scrollbox}
-  Amplitude := AVerticalSB.Max - AVerticalSB.Min;
-  AVerticalSB.PageSize := round(FPortSize.Y * Amplitude / (WorldSize.Y * FScale));
-  if AVerticalSB.PageSize >= Amplitude then
+  amplitude := AVerticalSB.Max - AVerticalSB.Min;
+  AVerticalSB.PageSize := round(FPortSize.Y * amplitude / (worldsize.Y * FScale));
+  if AVerticalSB.PageSize >= amplitude then
     AVerticalSB.Visible := False
   else
   begin
@@ -137,9 +136,9 @@ begin
     if AVerticalSB.Position = FVerticalSBPosition then
       AVerticalSB.Position := round((FViewPosition.Y
         - (top + FPortSize.Y / FScale / 2))
-        / WorldSize.Y * Amplitude)
+        / worldsize.Y * amplitude)
     else
-      FViewPosition.Y := AVerticalSB.Position * WorldSize.Y / Amplitude
+      FViewPosition.Y := AVerticalSB.Position * worldsize.Y / amplitude
         + (top + FPortSize.Y / FScale / 2);
     FVerticalSBPosition := AVerticalSB.Position;
   end;

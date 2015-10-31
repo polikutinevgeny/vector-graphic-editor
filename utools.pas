@@ -204,8 +204,7 @@ begin
   if not Figures.IsEmpty then
   begin
     VP.ViewPosition := (FPointOne + FPointTwo) / 2;
-    VP.ScaleTo(FPointOne - FloatPoint(10, 10) / VP.Scale,
-      FPointTwo + FloatPoint(10, 10) / VP.Scale);
+    VP.ScaleTo(FPointOne, FPointTwo);
   end;
   Figures.ZoomRectangle.Free;
   Figures.ZoomRectangle := nil;
@@ -228,8 +227,7 @@ end;
 procedure THandTool.MouseMove(APoint: TPoint);
 begin
   if not Figures.IsEmpty then
-    VP.ViewPosition := VP.ViewPosition
-      + (FStartPoint - APoint) / VP.Scale;
+    VP.ViewPosition := VP.ViewPosition + (FStartPoint - APoint) / VP.Scale;
   FStartPoint := APoint;
 end;
 

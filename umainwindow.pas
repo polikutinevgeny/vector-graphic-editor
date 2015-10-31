@@ -16,6 +16,7 @@ type
   TMainWindow = class(TForm)
     HorizontalSB: TScrollBar;
     ShowAllMI: TMenuItem;
+    ViewMI: TMenuItem;
     VerticalSB: TScrollBar;
     ZoomCB: TComboBox;
     ZoomLabel: TLabel;
@@ -182,8 +183,7 @@ begin
   Tools[CurrentToolIndex].DoubleClick;
   Cleared := True;
   VP.Scale := 1;
-  VP.ViewPosition := FloatPoint(PaintBox.Width / 2,
-    PaintBox.Height / 2);
+  VP.ViewPosition := FloatPoint(PaintBox.Width, PaintBox.Height) / 2;
   PaintBox.Invalidate;
 end;
 

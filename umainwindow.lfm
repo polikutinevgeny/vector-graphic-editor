@@ -251,10 +251,6 @@ object MainWindow: TMainWindow
     end
     object EditMI: TMenuItem
       Caption = 'Edit'
-      object ShowAllMI: TMenuItem
-        Caption = 'Show all'
-        OnClick = ShowAllMIClick
-      end
       object ClearMI: TMenuItem
         Caption = 'Clear'
         OnClick = ClearMIClick
@@ -268,6 +264,13 @@ object MainWindow: TMainWindow
         Caption = 'Redo'
         ShortCut = 16473
         OnClick = RedoMIClick
+      end
+    end
+    object ViewMI: TMenuItem
+      Caption = 'View'
+      object ShowAllMI: TMenuItem
+        Caption = 'Show all'
+        OnClick = ShowAllMIClick
       end
     end
     object AboutMI: TMenuItem
