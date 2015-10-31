@@ -16,8 +16,10 @@ type
       FFigures: array of TFigure;
       FNumberOfFiguresShown: integer;
       FZoomRect: TRectangle;
+      function FImageSize: TFloatRect;
     public
       property ZoomRectangle: TRectangle read FZoomRect write FZoomRect;
+      property ImageSize: TFloatRect read FImageSize;
       constructor Create;
       procedure Draw(ACanvas: TCanvas);
       procedure Add(AFigure: TFigure);
@@ -26,8 +28,6 @@ type
       procedure Redo;
       procedure RedoAll;
       function Last: TFigure;
-      function TopLeft: TFloatPoint;
-      function BottomRight: TFloatPoint;
       function IsEmpty: Boolean;
   end;
 
@@ -37,6 +37,24 @@ var
 implementation
 
 { TFiguresList }
+
+function TFiguresList.FImageSize: TFloatRect;
+var i: integer;
+begin
+  if FNumberOfFiguresShown > 0 then
+    begin
+      Result := FFigures[0].Rect;
+      for i := 1 to FNumberOfFiguresShown - 1 do
+      begin
+        Result.Left := Min(Result.Left, FFigures[i].Rect.Left);
+        Result.Right := Max(Result.Right, FFigures[i].Rect.Right);
+        Result.Top := Min(Result.Top, FFigures[i].Rect.Top);
+        Result.Bottom := Max(Result.Bottom, FFigures[i].Rect.Bottom);
+      end;
+    end
+  else
+    Result := FloatRect(FloatPoint(0, 0), FloatPoint(0, 0));
+end;
 
 constructor TFiguresList.Create;
 begin
@@ -87,36 +105,6 @@ end;
 function TFiguresList.Last: TFigure;
 begin
   Last := FFigures[FNumberOfFiguresShown - 1];
-end;
-
-function TFiguresList.TopLeft: TFloatPoint;
-var
-  t, l: Double;
-  i: integer;
-begin
-  t := FFigures[0].Top;
-  l := FFigures[0].Left;
-  for i := 1 to FNumberOfFiguresShown - 1 do
-  begin
-    t := Min(t, FFigures[i].Top);
-    l := Min(l, FFigures[i].Left);
-  end;
-  Result := FloatPoint(l, t);
-end;
-
-function TFiguresList.BottomRight: TFloatPoint;
-var
-  b, r: Double;
-  i: integer;
-begin
-  b := FFigures[0].Bottom;
-  r := FFigures[0].Right;
-  for i := 1 to FNumberOfFiguresShown - 1 do
-  begin
-    b := Max(b, FFigures[i].Bottom);
-    r := Max(r, FFigures[i].Right);
-  end;
-  Result := FloatPoint(r, b);
 end;
 
 function TFiguresList.IsEmpty: Boolean;

@@ -16,20 +16,14 @@ type
     FPen: TPen;
     FBrush: TBrush;
     FPoints: TFloatPoints;
-    FTop: Double;
-    FLeft: Double;
-    FBottom: Double;
-    FRight: Double;
+    FRect: TFloatRect;
   public
     constructor Create(APoint: TPoint; APen: TPen; ABrush: TBrush);
     procedure Draw(ACanvas: TCanvas); virtual;
     procedure MovePoint(APoint: TPoint);
     property Pen: TPen read FPen;
     property Brush: TBrush read FBrush;
-    property Top: Double read FTop;
-    property Bottom: Double read FBottom;
-    property Left: Double read FLeft;
-    property Right: Double read FRight;
+    property Rect: TFloatRect read FRect;
   end;
 
 type
@@ -91,10 +85,7 @@ begin
   FBrush.Assign(ABrush);
   FPoints[0] := VP.ScreenToWorld(APoint);
   FPoints[1] := VP.ScreenToWorld(APoint);
-  FLeft := FPoints[0].X;
-  FRight := FPoints[0].X;
-  FTop := FPoints[0].Y;
-  FBottom := FPoints[0].Y;
+  FRect := FloatRect(FPoints[0], FPoints[0]);
 end;
 
 procedure TFigure.Draw(ACanvas: TCanvas);
@@ -105,12 +96,18 @@ begin
 end;
 
 procedure TFigure.MovePoint(APoint: TPoint);
+var
+  i: integer;
 begin
   FPoints[High(FPoints)] := VP.ScreenToWorld(APoint);
-  FLeft := Min(FLeft, FPoints[High(FPoints)].X);
-  FRight := Max(FRight, FPoints[High(FPoints)].X);
-  FTop := Min(FTop, FPoints[High(FPoints)].Y);
-  FBottom := Max(FBottom, FPoints[High(FPoints)].Y);
+  FRect := FloatRect(FPoints[0], FPoints[0]);
+  for i := 1 to High(FPoints) do
+  begin
+    FRect.Left := Min(FRect.Left, FPoints[i].X);
+    FRect.Right := Max(FRect.Right, FPoints[i].X);
+    FRect.Top := Min(FRect.Top, FPoints[i].Y);
+    FRect.Bottom := Max(FRect.Bottom, FPoints[i].Y);
+  end;
 end;
 
 { TPolyline }
@@ -125,10 +122,10 @@ procedure TPolyline.AddPoint(APoint: TPoint);
 begin
   SetLength(FPoints, Length(FPoints) + 1);
   FPoints[High(FPoints)] := VP.ScreenToWorld(APoint);
-  FLeft := Min(FLeft, FPoints[High(FPoints)].X);
-  FRight := Max(FRight, FPoints[High(FPoints)].X);
-  FTop := Min(FTop, FPoints[High(FPoints)].Y);
-  FBottom := Max(FBottom, FPoints[High(FPoints)].Y);
+  FRect.Left := Min(FRect.Left, FPoints[High(FPoints)].X);
+  FRect.Right := Max(FRect.Right, FPoints[High(FPoints)].X);
+  FRect.Top := Min(FRect.Top, FPoints[High(FPoints)].Y);
+  FRect.Bottom := Max(FRect.Bottom, FPoints[High(FPoints)].Y);
 end;
 
 { TLine }

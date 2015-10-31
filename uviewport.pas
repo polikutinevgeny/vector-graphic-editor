@@ -31,9 +31,9 @@ type
       function WorldToScreen(APoint: TFloatPoint): TPoint;
       function WorldToScreen(APoints: TFloatPoints): TPoints; overload;
       function ScreenToWorld(APoint: TPoint): TFloatPoint;
-      procedure ScaleTo(APoint1, APoint2: TFloatPoint);
+      procedure ScaleTo(ARect: TFloatRect);
       procedure RecalculateScroll(APaintBox: TPaintBox; AHorizontalSB,
-        AVerticalSB: TScrollBar; ATopLeft, ABottomRight: TFloatPoint);
+        AVerticalSB: TScrollBar; ARect: TFloatRect);
       procedure ScaleMouseWheel(APoint: TPoint; Delta: Integer);
   end;
 
@@ -76,19 +76,19 @@ begin
   Result := (APoint + FViewPosition * FScale - FPortSize / 2) / FScale;
 end;
 
-procedure TViewPort.ScaleTo(APoint1, APoint2: TFloatPoint);
+procedure TViewPort.ScaleTo(ARect: TFloatRect);
 var scl: double;
 begin
-  if (APoint1.X = APoint2.X) or (APoint1.Y = APoint2.Y) then
+  if (ARect.Left = ARect.Right) or (ARect.Top = ARect.Bottom) then
     exit;
   scl := Min(
-    FPortSize.X / abs(APoint1.X - APoint2.X),
-    FPortSize.Y / abs(APoint1.Y - APoint2.Y));
+    FPortSize.X / abs(ARect.Left - ARect.Right),
+    FPortSize.Y / abs(ARect.Top - ARect.Bottom));
   FScale := EnsureRange(scl, MinScale, MaxScale);
 end;
 
 procedure TViewPort.RecalculateScroll(APaintBox: TPaintBox; AHorizontalSB,
-  AVerticalSB: TScrollBar; ATopLeft, ABottomRight: TFloatPoint);
+  AVerticalSB: TScrollBar; ARect: TFloatRect);
 var
   left, right, top, bottom: double;
   fp1, fp2, worldsize: TFloatPoint;
@@ -99,10 +99,10 @@ begin
   {Selecting maximum and minimum points}
   fp1 := ScreenToWorld(Point(0, 0));
   fp2 := ScreenToWorld(FPortSize);
-  left := Min(fp1.X, ATopLeft.X);
-  top := Min(fp1.Y, ATopLeft.Y);
-  right := Max(fp2.X, ABottomRight.X);
-  bottom := Max(fp2.Y, ABottomRight.Y);
+  left := Min(fp1.X, ARect.Left);
+  top := Min(fp1.Y, ARect.Top);
+  right := Max(fp2.X, ARect.Right);
+  bottom := Max(fp2.Y, ARect.Bottom);
   {Determining full size of our canvas}
   worldsize.X := right - left;
   worldsize.Y := bottom - top;

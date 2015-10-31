@@ -204,7 +204,7 @@ begin
   if not Figures.IsEmpty then
   begin
     VP.ViewPosition := (FPointOne + FPointTwo) / 2;
-    VP.ScaleTo(FPointOne, FPointTwo);
+    VP.ScaleTo(FloatRect(FPointOne, FPointTwo));
   end;
   Figures.ZoomRectangle.Free;
   Figures.ZoomRectangle := nil;

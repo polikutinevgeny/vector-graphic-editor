@@ -146,12 +146,7 @@ end;
 
 procedure TMainWindow.PaintBoxPaint(Sender: TObject);
 begin
-  if not Figures.IsEmpty then
-    VP.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB,
-      Figures.TopLeft, Figures.BottomRight)
-  else
-    VP.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB,
-      FloatPoint(0, 0), FloatPoint(0, 0));
+  VP.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB, Figures.ImageSize);
   ZoomCB.Text := FloatToStr(VP.Scale * 100);
   {Making canvas white}
   PaintBox.Canvas.Brush.Color := clWhite;
@@ -197,9 +192,10 @@ procedure TMainWindow.ShowAllMIClick(Sender: TObject);
 begin
   if not Figures.IsEmpty then
   begin
-    VP.ViewPosition := (Figures.TopLeft + Figures.BottomRight) / 2;
-    VP.ScaleTo(Figures.TopLeft - FloatPoint(10, 10) / VP.Scale,
-      Figures.BottomRight + FloatPoint(10, 10) / VP.Scale);
+    VP.ViewPosition := FloatPoint(
+      (Figures.ImageSize.Left + Figures.ImageSize.Right) / 2,
+      (Figures.ImageSize.Top + Figures.ImageSize.Bottom) / 2);
+    VP.ScaleTo(Figures.ImageSize);
   end;
   PaintBox.Invalidate;
 end;
