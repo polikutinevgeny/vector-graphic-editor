@@ -1,7 +1,7 @@
 object MainWindow: TMainWindow
-  Left = 651
+  Left = 562
   Height = 600
-  Top = 140
+  Top = 51
   Width = 850
   Caption = 'Vector Graphic Editor'
   ClientHeight = 570
@@ -22,11 +22,16 @@ object MainWindow: TMainWindow
   end
   object PaintBox: TPaintBox
     AnchorSideRight.Control = VerticalSB
-    Left = 150
-    Height = 471
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = HorizontalSB
+    AnchorSideBottom.Side = asrBottom
+    Left = 152
+    Height = 343
     Top = 45
-    Width = 674
+    Width = 672
     Anchors = [akTop, akLeft, akRight, akBottom]
+    BorderSpacing.Right = 26
+    BorderSpacing.Bottom = 26
     OnDblClick = PaintBoxDblClick
     OnMouseDown = PaintBoxMouseDown
     OnMouseMove = PaintBoxMouseMove
@@ -71,31 +76,13 @@ object MainWindow: TMainWindow
       Width = 92
       MaxValue = 20
       MinValue = 1
-      OnChange = SizeChanged
+      OnChange = PenChanged
       ParentShowHint = False
       TabOrder = 0
       Value = 1
     end
-    object PenColorLabel: TLabel
-      Left = 181
-      Height = 25
-      Top = 8
-      Width = 77
-      Caption = 'Pen color:'
-      ParentColor = False
-    end
-    object PenColorCB: TColorBox
-      Left = 272
-      Height = 26
-      Top = 8
-      Width = 144
-      Style = [cbStandardColors, cbExtendedColors, cbPrettyNames]
-      ItemHeight = 20
-      OnChange = PenColorCBChange
-      TabOrder = 1
-    end
     object LineStyleLabel: TLabel
-      Left = 424
+      Left = 184
       Height = 25
       Top = 8
       Width = 76
@@ -103,7 +90,7 @@ object MainWindow: TMainWindow
       ParentColor = False
     end
     object PenStyleCB: TComboBox
-      Left = 512
+      Left = 272
       Height = 33
       Top = 8
       Width = 128
@@ -116,46 +103,24 @@ object MainWindow: TMainWindow
         'Dash-Dot'
         'Dash-Dot-Dot'
       )
-      OnChange = PenStyleCBChange
+      OnChange = PenChanged
       Style = csDropDownList
-      TabOrder = 2
+      TabOrder = 1
       Text = 'Solid'
     end
-    object FillColorLabel: TLabel
-      Left = 8
-      Height = 25
-      Top = 48
-      Width = 70
-      Caption = 'Fill color:'
-      ParentColor = False
-      Visible = False
-    end
-    object FillColorCB: TColorBox
-      Left = 88
-      Height = 26
-      Top = 48
-      Width = 144
-      DefaultColorColor = clWhite
-      Selected = clWhite
-      Style = [cbStandardColors, cbExtendedColors, cbPrettyNames]
-      ItemHeight = 20
-      OnChange = FillColorCBChange
-      TabOrder = 3
-      Visible = False
-    end
     object FillStyleLabel: TLabel
-      Left = 240
+      Left = 416
       Height = 25
-      Top = 48
+      Top = 8
       Width = 66
       Caption = 'Fill style:'
       ParentColor = False
       Visible = False
     end
     object FillStyleCB: TComboBox
-      Left = 320
+      Left = 488
       Height = 33
-      Top = 48
+      Top = 8
       Width = 112
       ItemHeight = 25
       ItemIndex = 1
@@ -169,9 +134,8 @@ object MainWindow: TMainWindow
         'Cross'
         'DiagCross'
       )
-      OnChange = FillStyleCBChange
       Style = csDropDownList
-      TabOrder = 4
+      TabOrder = 2
       Text = 'Clear'
       Visible = False
     end
@@ -200,7 +164,7 @@ object MainWindow: TMainWindow
         '500'
       )
       OnChange = ZoomCBChange
-      TabOrder = 5
+      TabOrder = 3
       Text = '100'
     end
   end
@@ -211,10 +175,10 @@ object MainWindow: TMainWindow
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
-    AnchorSideBottom.Control = StatusBar
+    AnchorSideBottom.Control = PalettePanel
     Left = 150
     Height = 26
-    Top = 516
+    Top = 388
     Width = 674
     Align = alCustom
     Anchors = [akLeft, akRight, akBottom]
@@ -226,11 +190,15 @@ object MainWindow: TMainWindow
     OnScroll = HorizontalSBScroll
   end
   object VerticalSB: TScrollBar
-    Left = 824
-    Height = 471
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = PalettePanel
+    Left = 822
+    Height = 343
     Top = 45
-    Width = 26
-    Align = alRight
+    Width = 28
+    Align = alCustom
+    Anchors = [akTop, akRight, akBottom]
     BorderSpacing.Bottom = 26
     Kind = sbVertical
     Max = 999
@@ -239,9 +207,68 @@ object MainWindow: TMainWindow
     Visible = False
     OnScroll = VerticalSBScroll
   end
+  object PalettePanel: TPanel
+    AnchorSideLeft.Control = ControlsPanel
+    AnchorSideLeft.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = StatusBar
+    Left = 150
+    Height = 128
+    Top = 414
+    Width = 700
+    Align = alCustom
+    Anchors = [akLeft, akRight, akBottom]
+    ClientHeight = 128
+    ClientWidth = 700
+    ParentColor = False
+    TabOrder = 5
+    object PaletteDG: TDrawGrid
+      Left = 140
+      Height = 65
+      Top = 32
+      Width = 512
+      AutoEdit = False
+      Color = clNone
+      ColCount = 16
+      DefaultColWidth = 32
+      ExtendedSelect = False
+      FixedColor = clNone
+      FixedCols = 16
+      FixedRows = 2
+      Flat = True
+      HeaderHotZones = []
+      HeaderPushZones = []
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
+      RowCount = 2
+      ScrollBars = ssNone
+      TabOrder = 0
+      TabStop = False
+      OnDblClick = PaletteDGDblClick
+      OnDrawCell = PaletteDGDrawCell
+      OnMouseDown = PaletteDGMouseDown
+    end
+    object SecondaryColor: TShape
+      Left = 64
+      Height = 40
+      Top = 57
+      Width = 40
+      OnMouseDown = ColorMouseDown
+      Shape = stSquare
+    end
+    object MainColor: TShape
+      Left = 40
+      Height = 40
+      Top = 32
+      Width = 40
+      Brush.Color = clBlack
+      OnMouseDown = ColorMouseDown
+      Shape = stSquare
+    end
+  end
   object MainMenu: TMainMenu
-    left = 152
-    top = 88
+    left = 160
+    top = 56
     object FileMI: TMenuItem
       Caption = 'File'
       object ExitMI: TMenuItem
@@ -277,5 +304,32 @@ object MainWindow: TMainWindow
       Caption = 'About'
       OnClick = AboutMIClick
     end
+  end
+  object ColorDialog: TColorDialog
+    Color = clBlack
+    CustomColors.Strings = (
+      'ColorA=000000'
+      'ColorB=000080'
+      'ColorC=008000'
+      'ColorD=008080'
+      'ColorE=800000'
+      'ColorF=800080'
+      'ColorG=808000'
+      'ColorH=808080'
+      'ColorI=C0C0C0'
+      'ColorJ=0000FF'
+      'ColorK=00FF00'
+      'ColorL=00FFFF'
+      'ColorM=FF0000'
+      'ColorN=FF00FF'
+      'ColorO=FFFF00'
+      'ColorP=FFFFFF'
+      'ColorQ=C0DCC0'
+      'ColorR=F0CAA6'
+      'ColorS=F0FBFF'
+      'ColorT=A4A0A0'
+    )
+    left = 208
+    top = 56
   end
 end

@@ -6,15 +6,20 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
-  UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox, UViewPort,
-  UGeometry, types;
+  UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox, Grids,
+  UViewPort, UGeometry, types;
 
 type
 
   { TMainWindow }
 
   TMainWindow = class(TForm)
+    ColorDialog: TColorDialog;
+    PaletteDG: TDrawGrid;
     HorizontalSB: TScrollBar;
+    PalettePanel: TPanel;
+    MainColor: TShape;
+    SecondaryColor: TShape;
     ShowAllMI: TMenuItem;
     ViewMI: TMenuItem;
     VerticalSB: TScrollBar;
@@ -22,25 +27,28 @@ type
     ZoomLabel: TLabel;
     MainMenu: TMainMenu;
     EditMI, ClearMI, FileMI, AboutMI, ExitMI, UndoMI, RedoMI: TMenuItem;
-    PenSizeLabel, PenColorLabel, LineStyleLabel, FillColorLabel,
+    PenSizeLabel, LineStyleLabel,
       FillStyleLabel: TLabel;
     ControlsPanel, ModifierPanel: TPanel;
     FillStyleCB, PenStyleCB: TComboBox;
-    FillColorCB, PenColorCB: TColorBox;
     PaintBox: TPaintBox;
     SizeSE: TSpinEdit;
     StatusBar: TStatusBar;
     procedure AboutMIClick(Sender: TObject);
     procedure ClearMIClick(Sender: TObject);
-    procedure FillColorCBChange(Sender: TObject);
-    procedure FillStyleCBChange(Sender: TObject);
     procedure HorizontalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: Integer);
+    procedure ColorMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure PaintBoxMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure PenColorCBChange(Sender: TObject);
+    procedure PaletteDGDblClick(Sender: TObject);
+    procedure PaletteDGDrawCell(Sender: TObject; aCol, aRow: Integer;
+      aRect: TRect; aState: TGridDrawState);
+    procedure PaletteDGMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure ExitMIClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure PaintBoxDblClick(Sender: TObject);
@@ -50,10 +58,9 @@ type
       Y: Integer);
     procedure PaintBoxPaint(Sender: TObject);
     procedure RedoMIClick(Sender: TObject);
-    procedure PenStyleCBChange(Sender: TObject);
     procedure ShowAllMIClick(Sender: TObject);
     procedure ToolClick(Sender: TObject);
-    procedure SizeChanged(Sender: TObject);
+    procedure PenChanged(Sender: TObject);
     procedure UndoMIClick(Sender: TObject);
     procedure UpdatePen;
     procedure UpdateBrush;
@@ -62,16 +69,20 @@ type
       var ScrollPos: Integer);
     procedure ZoomCBChange(Sender: TObject);
   private
-    { private declarations }
+    FCurrentToolIndex: Integer;
+    FCleared: boolean;
+    FMousePressed: boolean;
+    FPaletteColors: array of TColor;
+    FPen: TPen;
+    FBrush: TBrush;
+    FPaletteCell: TPoint;
   public
     { public declarations }
   end;
 
 var
   MainWindow: TMainWindow;
-  CurrentToolIndex: Integer = 0;
-  Cleared: boolean = False;
-  MousePressed: boolean = False;
+
 implementation
 
 {$R *.lfm}
@@ -94,6 +105,11 @@ var
   i: integer;
   b: TSpeedButton;
 begin
+  FCurrentToolIndex := 0;
+  FCleared := False;
+  FMousePressed := False;
+  FPen := TPen.Create;
+  FBrush := TBrush.Create;
   for i := 0 to High(Tools) do
     begin
       b := TSpeedButton.Create(Self);
@@ -110,14 +126,32 @@ begin
       b.Hint := Tools[i].Caption;
     end;
   VP := TViewPort.Create;
-  VP.ViewPosition := FloatPoint(PaintBox.Width div 2,
-    PaintBox.Height div 2);
-  HorizontalSB.Parent.DoubleBuffered := True;
+  VP.ViewPosition := FloatPoint(PaintBox.Width / 2, PaintBox.Height / 2);
+  {Generating palette}
+  SetLength(FPaletteColors, PaletteDG.ColCount * PaletteDG.RowCount);
+  for i := 0 to High(FPaletteColors) do
+    FPaletteColors[i] := clWhite;
+  FPaletteColors[0] := clBlack;
+  FPaletteColors[1] := clMaroon;
+  FPaletteColors[2] := clGreen;
+  FPaletteColors[3] := clOlive;
+  FPaletteColors[4] := clNavy;
+  FPaletteColors[5] := clPurple;
+  FPaletteColors[6] := clTeal;
+  FPaletteColors[7] := clGray;
+  FPaletteColors[8] := clSilver;
+  FPaletteColors[9] := clRed;
+  FPaletteColors[10] := clLime;
+  FPaletteColors[11] := clYellow;
+  FPaletteColors[12] := clBlue;
+  FPaletteColors[13] := clFuchsia;
+  FPaletteColors[14] := clAqua;
+  FPaletteColors[15] := clWhite;
 end;
 
 procedure TMainWindow.PaintBoxDblClick(Sender: TObject);
 begin
-  Tools[CurrentToolIndex].DoubleClick;
+  Tools[FCurrentToolIndex].DoubleClick;
   PaintBox.Invalidate;
 end;
 
@@ -126,10 +160,11 @@ procedure TMainWindow.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
 begin
   if Button = mbLeft then
     begin
-      MousePressed := True;
-      Cleared := False;
-      Tools[CurrentToolIndex].MouseClick(Point(X, Y), PaintBox.Canvas.Pen,
-        PaintBox.Canvas.Brush);
+      UpdatePen;
+      UpdateBrush;
+      FMousePressed := True;
+      FCleared := False;
+      Tools[FCurrentToolIndex].MouseClick(Point(X, Y), FPen, FBrush);
       PaintBox.Invalidate;
     end;
 end;
@@ -137,9 +172,9 @@ end;
 procedure TMainWindow.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if MousePressed then
+  if FMousePressed then
     begin
-      Tools[CurrentToolIndex].MouseMove(Point(X, Y));
+      Tools[FCurrentToolIndex].MouseMove(Point(X, Y));
       PaintBox.Invalidate;
     end;
 end;
@@ -153,20 +188,18 @@ begin
   PaintBox.Canvas.FillRect(0, 0, PaintBox.Width, PaintBox.Height);
   {Drawing all figures}
   Figures.Draw(PaintBox.Canvas);
-  UpdatePen;
-  UpdateBrush;
 end;
 
 procedure TMainWindow.ToolClick(Sender: TObject);
 begin
-  Tools[CurrentToolIndex].DoubleClick;
-  CurrentToolIndex := TSpeedButton(Sender).Tag;
+  Tools[FCurrentToolIndex].DoubleClick;
+  FCurrentToolIndex := TSpeedButton(Sender).Tag;
   StatusBar.Panels[0].Text := 'Current tool: '
-    + Tools[CurrentToolIndex].Caption;
-  SwitchBrushModifiers(Tools[CurrentToolIndex].Fillable);
+    + Tools[FCurrentToolIndex].Caption;
+  SwitchBrushModifiers(Tools[FCurrentToolIndex].Fillable);
 end;
 
-procedure TMainWindow.SizeChanged(Sender: TObject);
+procedure TMainWindow.PenChanged(Sender: TObject);
 begin
   UpdatePen;
   PaintBox.Invalidate;
@@ -175,16 +208,10 @@ end;
 procedure TMainWindow.ClearMIClick(Sender: TObject);
 begin
   Figures.UndoAll;
-  Tools[CurrentToolIndex].DoubleClick;
-  Cleared := True;
+  Tools[FCurrentToolIndex].DoubleClick;
+  FCleared := True;
   VP.Scale := 1;
   VP.ViewPosition := FloatPoint(PaintBox.Width, PaintBox.Height) / 2;
-  PaintBox.Invalidate;
-end;
-
-procedure TMainWindow.PenStyleCBChange(Sender: TObject);
-begin
-  UpdatePen;
   PaintBox.Invalidate;
 end;
 
@@ -200,33 +227,29 @@ begin
   PaintBox.Invalidate;
 end;
 
-procedure TMainWindow.PenColorCBChange(Sender: TObject);
-begin
-  UpdatePen;
-  PaintBox.Invalidate;
-end;
-
-procedure TMainWindow.FillColorCBChange(Sender: TObject);
-begin
-  UpdateBrush;
-end;
-
-procedure TMainWindow.FillStyleCBChange(Sender: TObject);
-begin
-  UpdateBrush;
-end;
-
 procedure TMainWindow.HorizontalSBScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
   PaintBox.Invalidate;
 end;
 
+procedure TMainWindow.ColorMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  ColorDialog.Color := TShape(Sender).Brush.Color;
+  if not ColorDialog.Execute then
+    exit;
+  TShape(Sender).Brush.Color := ColorDialog.Color;
+  UpdatePen;
+  UpdateBrush;
+  PaintBox.Invalidate;
+end;
+
 procedure TMainWindow.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  MousePressed := False;
-  Tools[CurrentToolIndex].MouseUp;
+  FMousePressed := False;
+  Tools[FCurrentToolIndex].MouseUp;
   PaintBox.Invalidate;
 end;
 
@@ -238,15 +261,56 @@ begin
   PaintBox.Invalidate;
 end;
 
+procedure TMainWindow.PaletteDGDblClick(Sender: TObject);
+var t: integer;
+begin
+  t:= PaletteDG.ColCount * FPaletteCell.y + FPaletteCell.x;
+  ColorDialog.Color := FPaletteColors[t];
+  if not ColorDialog.Execute then
+    exit;
+  FPaletteColors[t] := ColorDialog.Color;
+  MainColor.Brush.Color := FPaletteColors[t];
+  UpdatePen;
+  PaletteDG.InvalidateCell(FPaletteCell.X, FPaletteCell.Y);
+  PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.PaletteDGDrawCell(Sender: TObject; aCol, aRow: Integer;
+  aRect: TRect; aState: TGridDrawState);
+begin
+  PaletteDG.Canvas.Brush.Color:= FPaletteColors[aRow*PaletteDG.ColCount+aCol];
+  PaletteDG.Canvas.FillRect(aRect);
+end;
+
+procedure TMainWindow.PaletteDGMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  t: Integer;
+begin
+  PaletteDG.MouseToCell(x, y, FPaletteCell.X, FPaletteCell.Y);
+  t := PaletteDG.ColCount * FPaletteCell.Y + FPaletteCell.X;
+  if Button = mbLeft then
+  begin
+    MainColor.Brush.Color:= FPaletteColors[t];
+    UpdatePen;
+  end;
+  if Button = mbRight then
+  begin
+    SecondaryColor.Brush.Color:= FPaletteColors[t];
+    UpdateBrush;
+  end;
+  PaintBox.Invalidate;
+end;
+
 procedure TMainWindow.UndoMIClick(Sender: TObject);
 begin
-  Tools[CurrentToolIndex].DoubleClick;
-  {If the previous action cleared everything we will undo it, otherwise we
+  Tools[FCurrentToolIndex].DoubleClick;
+  {If the previous action Cleared everything we will undo it, otherwise we
   will delete the last figure drawn}
-  if Cleared then
+  if FCleared then
   begin
     Figures.RedoAll;
-    Cleared := false;
+    FCleared := false;
   end
   else
     Figures.Undo;
@@ -255,28 +319,22 @@ end;
 
 procedure TMainWindow.UpdatePen;
 begin
-  PaintBox.Canvas.Pen.Style := TPenStyle(PenStyleCB.ItemIndex);
-  PaintBox.Canvas.Pen.Color := PenColorCB.Selected;
-  PaintBox.Canvas.Pen.Width := SizeSE.Value;
-  Tools[CurrentToolIndex].ChangePen(PaintBox.Canvas.Pen);
+  FPen.Color := MainColor.Brush.Color;
+  FPen.Style := TPenStyle(PenStyleCB.ItemIndex);
+  FPen.Width := SizeSE.Value;
+  Tools[FCurrentToolIndex].ChangePen(FPen);
 end;
 
 procedure TMainWindow.UpdateBrush;
 begin
-  PaintBox.Canvas.Brush.Style := TBrushStyle(FillStyleCB.ItemIndex);
-  {If we set color while using bsClear brush style the system automatically sets
-  brush style to bsSolid, so we need to avoid it}
-  if PaintBox.Canvas.Brush.Style <> bsClear then
-    PaintBox.Canvas.Brush.Color := FillColorCB.Selected;
+  FBrush.Color := SecondaryColor.Brush.Color;
+  FBrush.Style := TBrushStyle(FillStyleCB.ItemIndex);
 end;
 
 procedure TMainWindow.SwitchBrushModifiers(AState: boolean);
 begin
   FillStyleLabel.Visible := AState;
-  FillColorLabel.Visible := AState;
   FillStyleCB.Visible := AState;
-  FillColorCB.Visible := AState;
-  ModifierPanel.Height := 45 + 45 * ord(AState);
 end;
 
 procedure TMainWindow.VerticalSBScroll(Sender: TObject;

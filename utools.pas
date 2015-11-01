@@ -183,11 +183,9 @@ var
   b: TBrush;
 begin
   p := TPen.Create;
-  p.Color := clBlue;
   p.Style := psDot;
   b := TBrush.Create;
-  b.Color := clYellow;
-  b.Style := bsDiagCross;
+  b.Style := bsClear;
   Figures.ZoomRectangle := TRectangle.Create(APoint, p, b);
   FPointOne := VP.ScreenToWorld(APoint);
   FPointTwo := VP.ScreenToWorld(APoint);
