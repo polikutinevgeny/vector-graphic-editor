@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
-  UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, ColorBox, Grids,
+  UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, Grids,
   UViewPort, UGeometry, types;
 
 type
@@ -253,7 +253,7 @@ end;
 procedure TMainWindow.PaletteDGDblClick(Sender: TObject);
 var t: integer;
 begin
-  t:= PaletteDG.ColCount * FPaletteCell.y + FPaletteCell.x;
+  t := PaletteDG.ColCount * FPaletteCell.y + FPaletteCell.x;
   ColorDialog.Color := FPaletteColors[t];
   if not ColorDialog.Execute then
     exit;
@@ -273,10 +273,9 @@ end;
 
 procedure TMainWindow.PaletteDGMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
-var
-  t: Integer;
+var t: Integer;
 begin
-  PaletteDG.MouseToCell(x, y, FPaletteCell.X, FPaletteCell.Y);
+  PaletteDG.MouseToCell(X, Y, FPaletteCell.X, FPaletteCell.Y);
   t := PaletteDG.ColCount * FPaletteCell.Y + FPaletteCell.X;
   if Button = mbLeft then
   begin

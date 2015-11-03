@@ -236,7 +236,7 @@ object MainWindow: TMainWindow
       ExtendedSelect = False
       FixedColor = clNone
       FixedCols = 16
-      FixedRows = 2
+      FixedRows = 5
       Flat = True
       HeaderHotZones = []
       HeaderPushZones = []
