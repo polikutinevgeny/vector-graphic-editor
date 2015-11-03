@@ -129,12 +129,12 @@ begin
   VP.ViewPosition := FloatPoint(PaintBox.Width / 2, PaintBox.Height / 2);
   {Generating palette}
   SetLength(FPaletteColors, PaletteDG.ColCount * PaletteDG.RowCount);
-  for i := 0 to 15 do
+  for i := 64 to 79 do
     FPaletteColors[i] := RGBToColor(16 * i, 16 * i, 16 * i);
   for r := 0 to 3 do
     for g := 0 to 3 do
       for b := 0 to 3 do
-        FPaletteColors[r * 4 + g * 16 + b + 16] :=
+        FPaletteColors[r * 4 + g * 16 + b] :=
           RGBToColor(r * 85, g * 85, b * 85);
 end;
 
