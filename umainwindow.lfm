@@ -26,7 +26,7 @@ object MainWindow: TMainWindow
     AnchorSideBottom.Control = HorizontalSB
     AnchorSideBottom.Side = asrBottom
     Left = 152
-    Height = 343
+    Height = 327
     Top = 45
     Width = 672
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -178,7 +178,7 @@ object MainWindow: TMainWindow
     AnchorSideBottom.Control = PalettePanel
     Left = 150
     Height = 26
-    Top = 388
+    Top = 372
     Width = 674
     Align = alCustom
     Anchors = [akLeft, akRight, akBottom]
@@ -194,7 +194,7 @@ object MainWindow: TMainWindow
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = PalettePanel
     Left = 822
-    Height = 343
+    Height = 327
     Top = 45
     Width = 28
     Align = alCustom
@@ -214,24 +214,25 @@ object MainWindow: TMainWindow
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = StatusBar
     Left = 150
-    Height = 128
-    Top = 414
+    Height = 144
+    Top = 398
     Width = 700
     Align = alCustom
     Anchors = [akLeft, akRight, akBottom]
-    ClientHeight = 128
+    ClientHeight = 144
     ClientWidth = 700
     ParentColor = False
     TabOrder = 5
     object PaletteDG: TDrawGrid
-      Left = 140
-      Height = 65
-      Top = 32
-      Width = 512
+      Left = 136
+      Height = 125
+      Top = 8
+      Width = 400
       AutoEdit = False
       Color = clNone
       ColCount = 16
-      DefaultColWidth = 32
+      DefaultColWidth = 25
+      DefaultRowHeight = 25
       ExtendedSelect = False
       FixedColor = clNone
       FixedCols = 16
@@ -240,7 +241,6 @@ object MainWindow: TMainWindow
       HeaderHotZones = []
       HeaderPushZones = []
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
-      RowCount = 2
       ScrollBars = ssNone
       TabOrder = 0
       TabStop = False
@@ -249,18 +249,18 @@ object MainWindow: TMainWindow
       OnMouseDown = PaletteDGMouseDown
     end
     object SecondaryColor: TShape
-      Left = 64
-      Height = 40
-      Top = 57
-      Width = 40
+      Left = 48
+      Height = 70
+      Top = 52
+      Width = 70
       OnMouseDown = ColorMouseDown
       Shape = stSquare
     end
     object MainColor: TShape
-      Left = 40
-      Height = 40
-      Top = 32
-      Width = 40
+      Left = 16
+      Height = 70
+      Top = 20
+      Width = 70
       Brush.Color = clBlack
       OnMouseDown = ColorMouseDown
       Shape = stSquare

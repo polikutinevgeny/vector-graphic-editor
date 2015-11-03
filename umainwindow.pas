@@ -102,8 +102,8 @@ end;
 
 procedure TMainWindow.FormCreate(Sender: TObject);
 var
-  i: integer;
-  b: TSpeedButton;
+  i, r, g, b: integer;
+  bt: TSpeedButton;
 begin
   FCurrentToolIndex := 0;
   FCleared := False;
@@ -112,57 +112,30 @@ begin
   FBrush := TBrush.Create;
   for i := 0 to High(Tools) do
     begin
-      b := TSpeedButton.Create(Self);
-      b.Parent := Self.ControlsPanel;
-      b.Width := 60;
-      b.Height := 60;
-      b.Top := 10 + 70 * (i div 2);
-      b.Left := 10 + 70 * (i mod 2);
-      b.Glyph := Tools[i].Icon;
-      b.Tag := i;
-      b.OnClick := @ToolClick;
-      b.Flat := true;
-      b.ShowHint := true;
-      b.Hint := Tools[i].Caption;
+      bt := TSpeedButton.Create(Self);
+      bt.Parent := Self.ControlsPanel;
+      bt.Width := 60;
+      bt.Height := 60;
+      bt.Top := 10 + 70 * (i div 2);
+      bt.Left := 10 + 70 * (i mod 2);
+      bt.Glyph := Tools[i].Icon;
+      bt.Tag := i;
+      bt.OnClick := @ToolClick;
+      bt.Flat := true;
+      bt.ShowHint := true;
+      bt.Hint := Tools[i].Caption;
     end;
   VP := TViewPort.Create;
   VP.ViewPosition := FloatPoint(PaintBox.Width / 2, PaintBox.Height / 2);
   {Generating palette}
   SetLength(FPaletteColors, PaletteDG.ColCount * PaletteDG.RowCount);
-  for i := 0 to High(FPaletteColors) do
-    FPaletteColors[i] := clWhite;
-  FPaletteColors[0] := TColor($E373C0);
-  FPaletteColors[1] := TColor($38B25A);
-  FPaletteColors[2] := TColor($2041E5);
-  FPaletteColors[3] := TColor($6E613C);
-  FPaletteColors[4] := TColor($463290);
-  FPaletteColors[5] := TColor($226A93);
-  FPaletteColors[6] := TColor($DF9679);
-  FPaletteColors[7] := TColor($9D45DB);
-  FPaletteColors[8] := TColor($2F6041);
-  FPaletteColors[9] := TColor($A3AC4F);
-  FPaletteColors[10] := TColor($9A79D4);
-  FPaletteColors[11] := TColor($944575);
-  FPaletteColors[12] := TColor($74AD58);
-  FPaletteColors[13] := TColor($409B88);
-  FPaletteColors[14] := TColor($318BE5);
-  FPaletteColors[15] := TColor($6C39D9);
-  FPaletteColors[16] := TColor($C7A66A);
-  FPaletteColors[17] := TColor($AF88A4);
-  FPaletteColors[18] := TColor($37A5C4);
-  FPaletteColors[19] := TColor($203192);
-  FPaletteColors[20] := TColor($5C4570);
-  FPaletteColors[21] := TColor($DA6E6A);
-  FPaletteColors[22] := TColor($DE4AD8);
-  FPaletteColors[23] := TColor($5A84CC);
-  FPaletteColors[24] := TColor($4846DF);
-  FPaletteColors[25] := TColor($CA86D1);
-  FPaletteColors[26] := TColor($8D5348);
-  FPaletteColors[27] := TColor($70328A);
-  FPaletteColors[28] := TColor($7474DB);
-  FPaletteColors[29] := TColor($25476E);
-  FPaletteColors[30] := TColor($A83EAE);
-  FPaletteColors[31] := TColor($2C5CC9);
+  for i := 0 to 15 do
+    FPaletteColors[i] := RGBToColor(16 * i, 16 * i, 16 * i);
+  for r := 0 to 3 do
+    for g := 0 to 3 do
+      for b := 0 to 3 do
+        FPaletteColors[r * 4 + g * 16 + b + 16] :=
+          RGBToColor(r * 85, g * 85, b * 85);
 end;
 
 procedure TMainWindow.PaintBoxDblClick(Sender: TObject);
