@@ -70,6 +70,7 @@ type
     procedure ZoomCBChange(Sender: TObject);
     procedure UpdateScroll(AVisible: Boolean; APageSize, APosition: Integer;
       AKind: TScrollBarKind);
+    procedure RecalculateScrollbars;
   private
     FCurrentToolIndex: Integer;
     FCleared: boolean;
@@ -172,25 +173,9 @@ begin
 end;
 
 procedure TMainWindow.PaintBoxPaint(Sender: TObject);
-var
-  l, r, t, b: double;
-  fp1, fp2, worldsize: TFloatPoint;
-  imagesize: TFloatRect;
 begin
   VP.PortSize := Point(PaintBox.Width, PaintBox.Height);
-  imagesize := Figures.ImageSize;
-  fp1 := VP.ScreenToWorld(Point(0, 0));
-  fp2 := VP.ScreenToWorld(VP.PortSize);
-  l := Min(fp1.X, imagesize.Left);
-  t := Min(fp1.Y, imagesize.Top);
-  r := Max(fp2.X, imagesize.Right);
-  b := Max(fp2.Y, imagesize.Bottom);
-  worldsize := FloatPoint(r, b) - FloatPoint(l, t);
-  if not ((worldsize.X = 0) or (worldsize.Y = 0)) then
-  begin
-    VP.SetScroll(HorizontalSB.Position, worldsize.X, l, sbHorizontal);
-    VP.SetScroll(VerticalSB.Position, worldsize.Y, t, sbVertical);
-  end;
+  RecalculateScrollbars;
   ZoomCB.Text := FloatToStr(VP.Scale * 100);
   {Making canvas white}
   PaintBox.Canvas.Brush.Color := clWhite;
@@ -313,6 +298,7 @@ end;
 procedure TMainWindow.UndoMIClick(Sender: TObject);
 begin
   Tools[FCurrentToolIndex].DoubleClick;
+  FMousePressed := False;
   {If the previous action Cleared everything we will undo it, otherwise we
   will delete the last figure drawn}
   if FCleared then
@@ -372,6 +358,27 @@ begin
     VerticalSB.Visible := AVisible;
     VerticalSB.PageSize := APageSize;
     VerticalSB.Position := APosition;
+  end;
+end;
+
+procedure TMainWindow.RecalculateScrollbars;
+var
+  l, r, t, b: double;
+  fp1, fp2, worldsize: TFloatPoint;
+  imagesize: TFloatRect;
+begin
+  imagesize := Figures.ImageSize;
+  fp1 := VP.ScreenToWorld(Point(0, 0));
+  fp2 := VP.ScreenToWorld(VP.PortSize);
+  l := Min(fp1.X, imagesize.Left);
+  t := Min(fp1.Y, imagesize.Top);
+  r := Max(fp2.X, imagesize.Right);
+  b := Max(fp2.Y, imagesize.Bottom);
+  worldsize := FloatPoint(r, b) - FloatPoint(l, t);
+  if not ((worldsize.X = 0) or (worldsize.Y = 0)) then
+  begin
+    VP.SetScroll(HorizontalSB.Position, worldsize.X, l, sbHorizontal);
+    VP.SetScroll(VerticalSB.Position, worldsize.Y, t, sbVertical);
   end;
 end;
 
