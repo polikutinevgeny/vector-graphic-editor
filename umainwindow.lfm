@@ -219,6 +219,7 @@ object MainWindow: TMainWindow
     Width = 700
     Align = alCustom
     Anchors = [akLeft, akRight, akBottom]
+    BevelOuter = bvNone
     ClientHeight = 144
     ClientWidth = 700
     ParentColor = False
@@ -229,15 +230,17 @@ object MainWindow: TMainWindow
       Top = 8
       Width = 400
       AutoEdit = False
+      BorderStyle = bsNone
       Color = clNone
       ColCount = 16
       DefaultColWidth = 25
       DefaultRowHeight = 25
       ExtendedSelect = False
       FixedColor = clNone
-      FixedCols = 16
-      FixedRows = 5
+      FixedCols = 0
+      FixedRows = 0
       Flat = True
+      GridLineWidth = 0
       HeaderHotZones = []
       HeaderPushZones = []
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]

@@ -75,7 +75,6 @@ type
     FPaletteColors: array of TColor;
     FPen: TPen;
     FBrush: TBrush;
-    FPaletteCell: TPoint;
   public
     { public declarations }
   end;
@@ -253,14 +252,14 @@ end;
 procedure TMainWindow.PaletteDGDblClick(Sender: TObject);
 var t: integer;
 begin
-  t := PaletteDG.ColCount * FPaletteCell.y + FPaletteCell.x;
+  t := PaletteDG.ColCount * PaletteDG.Row + PaletteDG.Col;
   ColorDialog.Color := FPaletteColors[t];
   if not ColorDialog.Execute then
     exit;
   FPaletteColors[t] := ColorDialog.Color;
   MainColor.Brush.Color := FPaletteColors[t];
   UpdatePen;
-  PaletteDG.InvalidateCell(FPaletteCell.X, FPaletteCell.Y);
+  PaletteDG.InvalidateCell(PaletteDG.Col, PaletteDG.Row);
   PaintBox.Invalidate;
 end;
 
@@ -273,10 +272,10 @@ end;
 
 procedure TMainWindow.PaletteDGMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
-var t: Integer;
+var t, c, r: Integer;
 begin
-  PaletteDG.MouseToCell(X, Y, FPaletteCell.X, FPaletteCell.Y);
-  t := PaletteDG.ColCount * FPaletteCell.Y + FPaletteCell.X;
+  PaletteDG.MouseToCell(X, Y, c, r);
+  t := PaletteDG.ColCount * r + c;
   if Button = mbLeft then
   begin
     MainColor.Brush.Color:= FPaletteColors[t];
