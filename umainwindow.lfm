@@ -201,7 +201,7 @@ object MainWindow: TMainWindow
     Anchors = [akTop, akRight, akBottom]
     BorderSpacing.Bottom = 26
     Kind = sbVertical
-    Max = 999
+    Max = 1000
     PageSize = 1000
     TabOrder = 4
     Visible = False

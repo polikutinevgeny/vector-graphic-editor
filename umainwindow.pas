@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
   UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, Grids,
-  UViewPort, UGeometry, types;
+  UViewPort, UGeometry, types, math;
 
 type
 
@@ -68,6 +68,8 @@ type
     procedure VerticalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: Integer);
     procedure ZoomCBChange(Sender: TObject);
+    procedure UpdateScroll(AVisible: Boolean; APageSize, APosition: Integer;
+      AKind: TScrollBarKind);
   private
     FCurrentToolIndex: Integer;
     FCleared: boolean;
@@ -126,6 +128,7 @@ begin
     end;
   VP := TViewPort.Create;
   VP.ViewPosition := FloatPoint(PaintBox.Width / 2, PaintBox.Height / 2);
+  VP.ScrollUpdateEvent := @UpdateScroll;
   {Generating palette}
   SetLength(FPaletteColors, PaletteDG.ColCount * PaletteDG.RowCount);
   for i := 64 to 79 do
@@ -135,6 +138,7 @@ begin
       for b := 0 to 3 do
         FPaletteColors[r * 4 + g * 16 + b] :=
           RGBToColor(r * 85, g * 85, b * 85);
+  PaletteDG.FocusRectVisible := False;
 end;
 
 procedure TMainWindow.PaintBoxDblClick(Sender: TObject);
@@ -168,8 +172,25 @@ begin
 end;
 
 procedure TMainWindow.PaintBoxPaint(Sender: TObject);
+var
+  l, r, t, b: double;
+  fp1, fp2, worldsize: TFloatPoint;
+  imagesize: TFloatRect;
 begin
-  VP.RecalculateScroll(PaintBox, HorizontalSB, VerticalSB, Figures.ImageSize);
+  VP.PortSize := Point(PaintBox.Width, PaintBox.Height);
+  imagesize := Figures.ImageSize;
+  fp1 := VP.ScreenToWorld(Point(0, 0));
+  fp2 := VP.ScreenToWorld(VP.PortSize);
+  l := Min(fp1.X, imagesize.Left);
+  t := Min(fp1.Y, imagesize.Top);
+  r := Max(fp2.X, imagesize.Right);
+  b := Max(fp2.Y, imagesize.Bottom);
+  worldsize := FloatPoint(r, b) - FloatPoint(l, t);
+  if not ((worldsize.X = 0) or (worldsize.Y = 0)) then
+  begin
+    VP.SetScroll(HorizontalSB.Position, worldsize.X, l, sbHorizontal);
+    VP.SetScroll(VerticalSB.Position, worldsize.Y, t, sbVertical);
+  end;
   ZoomCB.Text := FloatToStr(VP.Scale * 100);
   {Making canvas white}
   PaintBox.Canvas.Brush.Color := clWhite;
@@ -335,6 +356,23 @@ begin
   if not Figures.IsEmpty then
     VP.Scale := StrToFloatDef(ZoomCB.Text, 100) / 100;
   PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.UpdateScroll(AVisible: Boolean; APageSize,
+  APosition: Integer; AKind: TScrollBarKind);
+begin
+  if AKind = sbHorizontal then
+  begin
+    HorizontalSB.Visible := AVisible;
+    HorizontalSB.PageSize := APageSize;
+    HorizontalSB.Position := APosition;
+  end
+  else
+  begin
+    VerticalSB.Visible := AVisible;
+    VerticalSB.PageSize := APageSize;
+    VerticalSB.Position := APosition;
+  end;
 end;
 
 procedure TMainWindow.RedoMIClick(Sender: TObject);

@@ -5,9 +5,12 @@ unit UViewPort;
 interface
 
 uses
-  Classes, StdCtrls, ExtCtrls, Math, UGeometry;
+  Classes, ExtCtrls, Forms, Math, UGeometry;
 
 type
+
+  TScrollUpdateEvent = procedure(AVisible: Boolean; APageSize,
+    APosition: Integer; AKind: TScrollBarKind) of object;
 
   { TViewPort }
 
@@ -21,22 +24,22 @@ type
       FPortSize: TPoint;
       FHorizontalSBPosition: Integer;
       FVerticalSBPosition: Integer;
+      FScrollUpdateEvent: TScrollUpdateEvent;
       procedure SetScale(AScale: Double);
     public
       property ViewPosition: TFloatPoint read FViewPosition
         write FViewPosition;
       property Scale: Double read FScale write SetScale;
-      property PortSize: TPoint read FPortSize;
+      property PortSize: TPoint read FPortSize write FPortSize;
+      property ScrollUpdateEvent: TScrollUpdateEvent read FScrollUpdateEvent
+        write FScrollUpdateEvent;
       constructor Create;
       function WorldToScreen(APoint: TFloatPoint): TPoint;
       function WorldToScreen(APoints: TFloatPoints): TPoints; overload;
       function ScreenToWorld(APoint: TPoint): TFloatPoint;
       procedure ScaleTo(ARect: TFloatRect);
-      procedure RecalculateScroll(APaintBox: TPaintBox; AHorizontalSB,
-        AVerticalSB: TScrollBar; ARect: TFloatRect);
-      procedure SetScroll(var APageSize: Integer; var AVisible: Boolean;
-        var APosition: Integer; AWSize, APSize, AMin: Double;
-        var SBPos: Integer; var AVPos: Double);
+      procedure SetScroll(APosition: Integer; AWSize, AMin: Double;
+        AKind: TScrollBarKind);
       procedure ScaleMouseWheel(APoint: TPoint; Delta: Integer);
   end;
 
@@ -90,65 +93,41 @@ begin
   FScale := EnsureRange(scl, MinScale, MaxScale);
 end;
 
-procedure TViewPort.RecalculateScroll(APaintBox: TPaintBox; AHorizontalSB,
-  AVerticalSB: TScrollBar; ARect: TFloatRect);
+procedure TViewPort.SetScroll(APosition: Integer; AWSize, AMin: Double;
+  AKind: TScrollBarKind);
 var
-  left, right, top, bottom: double;
-  fp1, fp2, worldsize: TFloatPoint;
-  sbp, sbps: Integer;
-  sbv: Boolean;
+  psshift: Double;
+  psize, pagesize: Integer;
+  visible: Boolean;
+  sbpos: ^Integer;
+  vpos: ^Double;
 begin
-  {Updating size of viewing port}
-  FPortSize := Point(APaintBox.Width, APaintBox.Height);
-  {Selecting maximum and minimum points}
-  fp1 := ScreenToWorld(Point(0, 0));
-  fp2 := ScreenToWorld(FPortSize);
-  left := Min(fp1.X, ARect.Left);
-  top := Min(fp1.Y, ARect.Top);
-  right := Max(fp2.X, ARect.Right);
-  bottom := Max(fp2.Y, ARect.Bottom);
-  {Determining full size of our canvas}
-  worldsize.X := right - left;
-  worldsize.Y := bottom - top;
-  if (worldsize.X = 0) or (worldsize.Y = 0) then
-    exit;
-  sbp := AHorizontalSB.Position;
-  sbv := AHorizontalSB.Visible;
-  sbps := AHorizontalSB.PageSize;
-  SetScroll(sbps, sbv, sbp,
-    worldsize.X, FPortSize.X, left, FHorizontalSBPosition, FViewPosition.X);
-  AHorizontalSB.Visible := sbv;
-  AHorizontalSB.PageSize := sbps;
-  AHorizontalSB.Position := sbp;
-  sbp := AVerticalSB.Position;
-  sbv := AVerticalSB.Visible;
-  sbps := AVerticalSB.PageSize;
-  SetScroll(sbps, sbv, sbp,
-    worldsize.Y, FPortSize.Y, top, FVerticalSBPosition, FViewPosition.Y);
-  AVerticalSB.Visible := sbv;
-  AVerticalSB.PageSize := sbps;
-  AVerticalSB.Position := sbp;
-end;
-
-procedure TViewPort.SetScroll(var APageSize: Integer; var AVisible: Boolean;
-  var APosition: Integer; AWSize, APSize, AMin: Double; var SBPos: Integer;
-  var AVPos: Double);
-var
-  psshift: double;
-begin
-  psshift := APSize / FScale / 2;
-  APageSize := round(APSize * 1000 / (AWSize * FScale));
-  if APageSize >= 1000 then
-    AVisible := False
+  if AKind = sbHorizontal then
+  begin
+    psize := FPortSize.X;
+    sbpos := @FHorizontalSBPosition;
+    vpos := @FViewPosition.X;
+  end
   else
   begin
-    AVisible := True;
-    if APosition = SBPos then
-      APosition := round((AVPos - AMin - psshift) * 1000 / AWSize)
-    else
-      AVPos := APosition * AWSize / 1000 + AMin + psshift;
-    SBPos := APosition;
+    psize := FPortSize.Y;
+    sbpos := @FVerticalSBPosition;
+    vpos := @FViewPosition.Y;
   end;
+  psshift := psize / FScale / 2;
+  pagesize := round(psize * 1000 / (AWSize * FScale));
+  if pagesize >= 1000 then
+    visible := False
+  else
+  begin
+    visible := True;
+    if APosition = sbpos^ then
+      APosition := round((vpos^ - AMin - psshift) * 1000 / AWSize)
+    else
+      vpos^ := APosition * AWSize / 1000 + AMin + psshift;
+    sbpos^ := APosition;
+  end;
+  FScrollUpdateEvent(visible, pagesize, APosition, AKind);
 end;
 
 procedure TViewPort.ScaleMouseWheel(APoint: TPoint; Delta: Integer);
