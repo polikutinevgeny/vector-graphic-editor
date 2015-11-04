@@ -34,6 +34,9 @@ type
       procedure ScaleTo(ARect: TFloatRect);
       procedure RecalculateScroll(APaintBox: TPaintBox; AHorizontalSB,
         AVerticalSB: TScrollBar; ARect: TFloatRect);
+      procedure SetScroll(var APageSize: Integer; var AVisible: Boolean;
+        var APosition: Integer; AWSize, APSize, AMin: Double;
+        var SBPos: Integer; var AVPos: Double);
       procedure ScaleMouseWheel(APoint: TPoint; Delta: Integer);
   end;
 
@@ -92,7 +95,8 @@ procedure TViewPort.RecalculateScroll(APaintBox: TPaintBox; AHorizontalSB,
 var
   left, right, top, bottom: double;
   fp1, fp2, worldsize: TFloatPoint;
-  amplitude: integer;
+  sbp, sbps: Integer;
+  sbv: Boolean;
 begin
   {Updating size of viewing port}
   FPortSize := Point(APaintBox.Width, APaintBox.Height);
@@ -108,39 +112,42 @@ begin
   worldsize.Y := bottom - top;
   if (worldsize.X = 0) or (worldsize.Y = 0) then
     exit;
-  {Setting an horizontal scrollbox}
-  amplitude := AHorizontalSB.Max - AHorizontalSB.Min;
-  AHorizontalSB.PageSize := round(FPortSize.X * amplitude / (worldsize.X * FScale));
-  if AHorizontalSB.PageSize >= amplitude then
-    AHorizontalSB.Visible := False
+  sbp := AHorizontalSB.Position;
+  sbv := AHorizontalSB.Visible;
+  sbps := AHorizontalSB.PageSize;
+  SetScroll(sbps, sbv, sbp,
+    worldsize.X, FPortSize.X, left, FHorizontalSBPosition, FViewPosition.X);
+  AHorizontalSB.Visible := sbv;
+  AHorizontalSB.PageSize := sbps;
+  AHorizontalSB.Position := sbp;
+  sbp := AVerticalSB.Position;
+  sbv := AVerticalSB.Visible;
+  sbps := AVerticalSB.PageSize;
+  SetScroll(sbps, sbv, sbp,
+    worldsize.Y, FPortSize.Y, top, FVerticalSBPosition, FViewPosition.Y);
+  AVerticalSB.Visible := sbv;
+  AVerticalSB.PageSize := sbps;
+  AVerticalSB.Position := sbp;
+end;
+
+procedure TViewPort.SetScroll(var APageSize: Integer; var AVisible: Boolean;
+  var APosition: Integer; AWSize, APSize, AMin: Double; var SBPos: Integer;
+  var AVPos: Double);
+var
+  psshift: double;
+begin
+  psshift := APSize / FScale / 2;
+  APageSize := round(APSize * 1000 / (AWSize * FScale));
+  if APageSize >= 1000 then
+    AVisible := False
   else
   begin
-    AHorizontalSB.Visible := True;
-    if AHorizontalSB.Position = FHorizontalSBPosition then
-      AHorizontalSB.Position := round(
-        (FViewPosition.X - (left + FPortSize.X / FScale / 2))
-        * amplitude / worldsize.X)
+    AVisible := True;
+    if APosition = SBPos then
+      APosition := round((AVPos - AMin - psshift) * 1000 / AWSize)
     else
-      FViewPosition.X := AHorizontalSB.Position * worldsize.X / amplitude
-        + (left + FPortSize.X / FScale / 2);
-    FHorizontalSBPosition := AHorizontalSB.Position;
-  end;
-  {Setting an vertical scrollbox}
-  amplitude := AVerticalSB.Max - AVerticalSB.Min;
-  AVerticalSB.PageSize := round(FPortSize.Y * amplitude / (worldsize.Y * FScale));
-  if AVerticalSB.PageSize >= amplitude then
-    AVerticalSB.Visible := False
-  else
-  begin
-    AVerticalSB.Visible := True;
-    if AVerticalSB.Position = FVerticalSBPosition then
-      AVerticalSB.Position := round((FViewPosition.Y
-        - (top + FPortSize.Y / FScale / 2))
-        / worldsize.Y * amplitude)
-    else
-      FViewPosition.Y := AVerticalSB.Position * worldsize.Y / amplitude
-        + (top + FPortSize.Y / FScale / 2);
-    FVerticalSBPosition := AVerticalSB.Position;
+      AVPos := APosition * AWSize / 1000 + AMin + psshift;
+    SBPos := APosition;
   end;
 end;
 

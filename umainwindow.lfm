@@ -183,7 +183,7 @@ object MainWindow: TMainWindow
     Align = alCustom
     Anchors = [akLeft, akRight, akBottom]
     BorderSpacing.Right = 26
-    Max = 999
+    Max = 1000
     PageSize = 1000
     TabOrder = 3
     Visible = False
