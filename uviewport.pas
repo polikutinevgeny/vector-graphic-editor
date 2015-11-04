@@ -145,16 +145,21 @@ begin
 end;
 
 procedure TViewPort.ScaleMouseWheel(APoint: TPoint; Delta: Integer);
+var mem: TFloatPoint;
 begin
   if not ((FScale <= MinScale) or (Delta < 0)) then
   begin
+    mem := ScreenToWorld(APoint);
     FViewPosition := ScreenToWorld(APoint);
     FScale := Max(FScale / 1.25, MinScale);
+    FViewPosition += mem - ScreenToWorld(APoint);
   end
   else if not ((FScale >= MaxScale) or (Delta > 0)) then
   begin
+    mem := ScreenToWorld(APoint);
     FViewPosition := ScreenToWorld(APoint);
     FScale := Min(FScale * 1.25, MaxScale);
+    FViewPosition += mem - ScreenToWorld(APoint);
   end;
 end;
 

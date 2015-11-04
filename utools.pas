@@ -239,11 +239,14 @@ begin
 end;
 
 procedure TZoomOutTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+var mem: TFloatPoint;
 begin
   if not Figures.IsEmpty then
   begin
+    mem := VP.ScreenToWorld(APoint);
     VP.ViewPosition := VP.ScreenToWorld(APoint);
     VP.Scale := VP.Scale - 0.25;
+    VP.ViewPosition := VP.ViewPosition + mem - VP.ScreenToWorld(APoint);
   end;
 end;
 
@@ -262,11 +265,14 @@ begin
 end;
 
 procedure TZoomInTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+var mem: TFloatPoint;
 begin
   if not Figures.IsEmpty then
   begin
+    mem := VP.ScreenToWorld(APoint);
     VP.ViewPosition := VP.ScreenToWorld(APoint);
     VP.Scale := VP.Scale + 0.25;
+    VP.ViewPosition := VP.ViewPosition + mem - VP.ScreenToWorld(APoint);
   end;
 end;
 
