@@ -19,14 +19,11 @@ type
       FCaption: string;
     public
       constructor Create; virtual;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        virtual; abstract;
+      procedure MouseClick(APoint: TPoint); virtual; abstract;
       procedure MouseMove(APoint: TPoint); virtual;
       procedure MouseUp; virtual;
       procedure DoubleClick; virtual;
-      procedure ChangePen(APen: TPen); virtual;
       property Icon: TBitmap read FIcon;
-      property Fillable: boolean read FFillable;
       property Caption: string read FCaption;
     end;
 
@@ -37,8 +34,7 @@ type
   TPenTool = Class(TTool)
     public
       constructor Create; override;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        override;
+      procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
     end;
 
@@ -49,8 +45,7 @@ type
   TLineTool = Class(TTool)
     public
       constructor Create; override;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        override;
+      procedure MouseClick(APoint: TPoint); override;
   end;
 
 type
@@ -60,11 +55,9 @@ type
   TPolylineTool = Class(TTool)
     public
       constructor Create; override;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        override;
+      procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
       procedure DoubleClick; override;
-      procedure ChangePen(APen: TPen); override;
     private
       FDrawingNow: boolean;
   end;
@@ -76,8 +69,7 @@ type
   TRectangleTool = Class(TTool)
     public
       constructor Create; override;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        override;
+      procedure MouseClick(APoint: TPoint); override;
   end;
 
 type
@@ -87,8 +79,7 @@ type
   TEllipseTool = Class(TTool)
     public
       constructor Create; override;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        override;
+      procedure MouseClick(APoint: TPoint); override;
   end;
 
 type
@@ -98,8 +89,7 @@ type
   TRoundRectTool = Class(TTool)
     public
       constructor Create; override;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        override;
+      procedure MouseClick(APoint: TPoint); override;
   end;
 
 type
@@ -109,8 +99,7 @@ type
   TZoomInTool = Class(TTool)
     public
       constructor Create; override;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        override;
+      procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
   end;
 
@@ -121,8 +110,7 @@ type
   TZoomOutTool = Class(TTool)
     public
       constructor Create; override;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        override;
+      procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
   end;
 
@@ -135,8 +123,7 @@ type
       FStartPoint: TPoint;
     public
       constructor Create; override;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        override;
+      procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
   end;
 
@@ -150,8 +137,7 @@ type
       FPointTwo: TFloatPoint;
     public
       constructor Create; override;
-      procedure MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
-        override;
+      procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
       procedure MouseUp; override;
   end;
@@ -176,17 +162,9 @@ begin
   FFillable := False;
 end;
 
-procedure TRectangleZoomTool.MouseClick(APoint: TPoint; APen: TPen;
-  ABrush: TBrush);
-var
-  p: TPen;
-  b: TBrush;
+procedure TRectangleZoomTool.MouseClick(APoint: TPoint);
 begin
-  p := TPen.Create;
-  p.Style := psDot;
-  b := TBrush.Create;
-  b.Style := bsClear;
-  Figures.ZoomRectangle := TRectangle.Create(APoint, p, b);
+  Figures.ZoomRectangle := TRectangle.Create(APoint);
   FPointOne := VP.ScreenToWorld(APoint);
   FPointTwo := VP.ScreenToWorld(APoint);
 end;
@@ -217,7 +195,7 @@ begin
   FFillable := False;
 end;
 
-procedure THandTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+procedure THandTool.MouseClick(APoint: TPoint);
 begin
   FStartPoint := APoint;
 end;
@@ -238,7 +216,7 @@ begin
   FFillable := False;
 end;
 
-procedure TZoomOutTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+procedure TZoomOutTool.MouseClick(APoint: TPoint);
 var mem: TFloatPoint;
 begin
   if not Figures.IsEmpty then
@@ -264,7 +242,7 @@ begin
   FFillable := False;
 end;
 
-procedure TZoomInTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+procedure TZoomInTool.MouseClick(APoint: TPoint);
 var mem: TFloatPoint;
 begin
   if not Figures.IsEmpty then
@@ -304,11 +282,6 @@ begin
   {Do nothing, because I need it to be called and not to throw exceptions}
 end;
 
-procedure TTool.ChangePen(APen: TPen);
-begin
-  {Do nothing, because I need it to be called and not to throw exceptions}
-end;
-
 { TRoundRectTool }
 
 constructor TRoundRectTool.Create;
@@ -318,10 +291,9 @@ begin
   FFillable := true;
 end;
 
-procedure TRoundRectTool.MouseClick(APoint: TPoint; APen: TPen;
-  ABrush: TBrush);
+procedure TRoundRectTool.MouseClick(APoint: TPoint);
 begin
-  Figures.Add(TRoundRect.Create(APoint, APen, ABrush));
+  Figures.Add(TRoundRect.Create(APoint));
 end;
 
 { TEllipseTool }
@@ -333,9 +305,9 @@ begin
   FFillable := true;
 end;
 
-procedure TEllipseTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+procedure TEllipseTool.MouseClick(APoint: TPoint);
 begin
-  Figures.Add(TEllipse.Create(APoint, APen, ABrush));
+  Figures.Add(TEllipse.Create(APoint));
 end;
 
 { TRectangleTool }
@@ -347,10 +319,9 @@ begin
   FFillable := true;
 end;
 
-procedure TRectangleTool.MouseClick(APoint: TPoint; APen: TPen;
-  ABrush: TBrush);
+procedure TRectangleTool.MouseClick(APoint: TPoint);
 begin
-  Figures.Add(TRectangle.Create(APoint, APen, ABrush));
+  Figures.Add(TRectangle.Create(APoint));
 end;
 
 { TPolylineTool }
@@ -362,12 +333,11 @@ begin
   FFillable := false;
 end;
 
-procedure TPolylineTool.MouseClick(APoint: TPoint; APen: TPen;
-  ABrush: TBrush);
+procedure TPolylineTool.MouseClick(APoint: TPoint);
 begin
   if not FDrawingNow then
   begin
-    Figures.Add(TPolyline.Create(APoint, APen, ABrush));
+    Figures.Add(TPolyline.Create(APoint));
     FDrawingNow := true;
   end
   else
@@ -384,11 +354,6 @@ begin
   FDrawingNow := false;
 end;
 
-procedure TPolylineTool.ChangePen(APen: TPen);
-begin
-  if FDrawingNow then TPolyline(Figures.Last).Pen.Assign(APen);
-end;
-
 { TLineTool }
 
 constructor TLineTool.Create;
@@ -398,9 +363,9 @@ begin
   FFillable := false;
 end;
 
-procedure TLineTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+procedure TLineTool.MouseClick(APoint: TPoint);
 begin
-  Figures.Add(TLine.Create(APoint, APen, ABrush));
+  Figures.Add(TLine.Create(APoint));
 end;
 
 { TPenTool }
@@ -412,9 +377,9 @@ begin
   FFillable := false;
 end;
 
-procedure TPenTool.MouseClick(APoint: TPoint; APen: TPen; ABrush: TBrush);
+procedure TPenTool.MouseClick(APoint: TPoint);
 begin
-  Figures.Add(TPolyline.Create(APoint, APen, ABrush));
+  Figures.Add(TPolyline.Create(APoint));
 end;
 
 procedure TPenTool.MouseMove(APoint: TPoint);

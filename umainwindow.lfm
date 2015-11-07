@@ -60,98 +60,26 @@ object MainWindow: TMainWindow
     ClientHeight = 45
     ClientWidth = 850
     TabOrder = 2
-    object PenSizeLabel: TLabel
-      Left = 8
-      Height = 25
-      Top = 8
-      Width = 66
-      Caption = 'Pen size:'
-      ParentColor = False
-    end
-    object SizeSE: TSpinEdit
-      Left = 80
-      Height = 33
-      Hint = 'Pen Size'
-      Top = 8
-      Width = 92
-      MaxValue = 20
-      MinValue = 1
-      OnChange = PenChanged
-      ParentShowHint = False
-      TabOrder = 0
-      Value = 1
-    end
-    object LineStyleLabel: TLabel
-      Left = 184
-      Height = 25
-      Top = 8
-      Width = 76
-      Caption = 'Line style:'
-      ParentColor = False
-    end
-    object PenStyleCB: TComboBox
-      Left = 272
-      Height = 33
-      Top = 8
-      Width = 128
-      ItemHeight = 25
-      ItemIndex = 0
-      Items.Strings = (
-        'Solid'
-        'Dash'
-        'Dot'
-        'Dash-Dot'
-        'Dash-Dot-Dot'
-      )
-      OnChange = PenChanged
-      Style = csDropDownList
-      TabOrder = 1
-      Text = 'Solid'
-    end
-    object FillStyleLabel: TLabel
-      Left = 416
-      Height = 25
-      Top = 8
-      Width = 66
-      Caption = 'Fill style:'
-      ParentColor = False
-      Visible = False
-    end
-    object FillStyleCB: TComboBox
-      Left = 488
-      Height = 33
-      Top = 8
-      Width = 112
-      ItemHeight = 25
-      ItemIndex = 1
-      Items.Strings = (
-        'Solid'
-        'Clear'
-        'Horizontal'
-        'Vertical'
-        'FDiagonal'
-        'BDiagonal '
-        'Cross'
-        'DiagCross'
-      )
-      Style = csDropDownList
-      TabOrder = 2
-      Text = 'Clear'
-      Visible = False
-    end
     object ZoomLabel: TLabel
-      Left = 648
+      AnchorSideRight.Control = ZoomCB
+      Left = 647
       Height = 25
       Top = 8
       Width = 82
+      Anchors = [akTop, akRight]
+      BorderSpacing.Right = 10
       Caption = 'Zoom (%):'
       ParentColor = False
     end
     object ZoomCB: TComboBox
-      Left = 736
+      AnchorSideRight.Control = ModifierPanel
+      AnchorSideRight.Side = asrBottom
+      Left = 739
       Height = 33
       Top = 8
       Width = 100
+      Anchors = [akTop, akRight]
+      BorderSpacing.Right = 10
       ItemHeight = 25
       ItemIndex = 2
       Items.Strings = (
@@ -164,7 +92,7 @@ object MainWindow: TMainWindow
         '500'
       )
       OnChange = ZoomCBChange
-      TabOrder = 3
+      TabOrder = 0
       Text = '100'
     end
   end

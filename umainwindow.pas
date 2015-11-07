@@ -27,12 +27,8 @@ type
     ZoomLabel: TLabel;
     MainMenu: TMainMenu;
     EditMI, ClearMI, FileMI, AboutMI, ExitMI, UndoMI, RedoMI: TMenuItem;
-    PenSizeLabel, LineStyleLabel,
-      FillStyleLabel: TLabel;
     ControlsPanel, ModifierPanel: TPanel;
-    FillStyleCB, PenStyleCB: TComboBox;
     PaintBox: TPaintBox;
-    SizeSE: TSpinEdit;
     StatusBar: TStatusBar;
     procedure AboutMIClick(Sender: TObject);
     procedure ClearMIClick(Sender: TObject);
@@ -60,11 +56,7 @@ type
     procedure RedoMIClick(Sender: TObject);
     procedure ShowAllMIClick(Sender: TObject);
     procedure ToolClick(Sender: TObject);
-    procedure PenChanged(Sender: TObject);
     procedure UndoMIClick(Sender: TObject);
-    procedure UpdatePen;
-    procedure UpdateBrush;
-    procedure SwitchBrushModifiers(AState: boolean);
     procedure VerticalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: Integer);
     procedure ZoomCBChange(Sender: TObject);
@@ -76,8 +68,6 @@ type
     FCleared: boolean;
     FMousePressed: boolean;
     FPaletteColors: array of TColor;
-    FPen: TPen;
-    FBrush: TBrush;
   public
     { public declarations }
   end;
@@ -110,8 +100,6 @@ begin
   FCurrentToolIndex := 0;
   FCleared := False;
   FMousePressed := False;
-  FPen := TPen.Create;
-  FBrush := TBrush.Create;
   for i := 0 to High(Tools) do
     begin
       bt := TSpeedButton.Create(Self);
@@ -153,11 +141,9 @@ procedure TMainWindow.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
 begin
   if Button = mbLeft then
     begin
-      UpdatePen;
-      UpdateBrush;
       FMousePressed := True;
       FCleared := False;
-      Tools[FCurrentToolIndex].MouseClick(Point(X, Y), FPen, FBrush);
+      Tools[FCurrentToolIndex].MouseClick(Point(X, Y));
       PaintBox.Invalidate;
     end;
 end;
@@ -190,13 +176,6 @@ begin
   FCurrentToolIndex := TSpeedButton(Sender).Tag;
   StatusBar.Panels[0].Text := 'Current tool: '
     + Tools[FCurrentToolIndex].Caption;
-  SwitchBrushModifiers(Tools[FCurrentToolIndex].Fillable);
-end;
-
-procedure TMainWindow.PenChanged(Sender: TObject);
-begin
-  UpdatePen;
-  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.ClearMIClick(Sender: TObject);
@@ -234,8 +213,6 @@ begin
   if not ColorDialog.Execute then
     exit;
   TShape(Sender).Brush.Color := ColorDialog.Color;
-  UpdatePen;
-  UpdateBrush;
   PaintBox.Invalidate;
 end;
 
@@ -264,7 +241,6 @@ begin
     exit;
   FPaletteColors[t] := ColorDialog.Color;
   MainColor.Brush.Color := FPaletteColors[t];
-  UpdatePen;
   PaletteDG.InvalidateCell(PaletteDG.Col, PaletteDG.Row);
   PaintBox.Invalidate;
 end;
@@ -285,12 +261,10 @@ begin
   if Button = mbLeft then
   begin
     MainColor.Brush.Color:= FPaletteColors[t];
-    UpdatePen;
   end;
   if Button = mbRight then
   begin
     SecondaryColor.Brush.Color:= FPaletteColors[t];
-    UpdateBrush;
   end;
   PaintBox.Invalidate;
 end;
@@ -309,26 +283,6 @@ begin
   else
     Figures.Undo;
   PaintBox.Invalidate;
-end;
-
-procedure TMainWindow.UpdatePen;
-begin
-  FPen.Color := MainColor.Brush.Color;
-  FPen.Style := TPenStyle(PenStyleCB.ItemIndex);
-  FPen.Width := SizeSE.Value;
-  Tools[FCurrentToolIndex].ChangePen(FPen);
-end;
-
-procedure TMainWindow.UpdateBrush;
-begin
-  FBrush.Color := SecondaryColor.Brush.Color;
-  FBrush.Style := TBrushStyle(FillStyleCB.ItemIndex);
-end;
-
-procedure TMainWindow.SwitchBrushModifiers(AState: boolean);
-begin
-  FillStyleLabel.Visible := AState;
-  FillStyleCB.Visible := AState;
 end;
 
 procedure TMainWindow.VerticalSBScroll(Sender: TObject;
