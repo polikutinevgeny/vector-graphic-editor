@@ -27,7 +27,7 @@ type
     ZoomLabel: TLabel;
     MainMenu: TMainMenu;
     EditMI, ClearMI, FileMI, AboutMI, ExitMI, UndoMI, RedoMI: TMenuItem;
-    ControlsPanel, ModifierPanel: TPanel;
+    EditorsPanel, ToolsPanel: TPanel;
     PaintBox: TPaintBox;
     StatusBar: TStatusBar;
     procedure AboutMIClick(Sender: TObject);
@@ -103,11 +103,11 @@ begin
   for i := 0 to High(Tools) do
     begin
       bt := TSpeedButton.Create(Self);
-      bt.Parent := Self.ControlsPanel;
+      bt.Parent := Self.ToolsPanel;
       bt.Width := 60;
       bt.Height := 60;
-      bt.Top := 10 + 70 * (i div 2);
-      bt.Left := 10 + 70 * (i mod 2);
+      bt.Top := 10;
+      bt.Left := 10 + 70 * i;
       bt.Glyph := Tools[i].Icon;
       bt.Tag := i;
       bt.OnClick := @ToolClick;

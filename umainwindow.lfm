@@ -2,33 +2,37 @@ object MainWindow: TMainWindow
   Left = 562
   Height = 600
   Top = 51
-  Width = 850
+  Width = 950
   Caption = 'Vector Graphic Editor'
   ClientHeight = 570
-  ClientWidth = 850
+  ClientWidth = 950
   Constraints.MinHeight = 600
-  Constraints.MinWidth = 850
+  Constraints.MinWidth = 950
   Menu = MainMenu
   OnCreate = FormCreate
   Position = poScreenCenter
   LCLVersion = '1.4.2.0'
-  object ControlsPanel: TPanel
+  object EditorsPanel: TPanel
     Left = 0
-    Height = 497
-    Top = 45
-    Width = 150
+    Height = 462
+    Top = 80
+    Width = 200
     Align = alLeft
     TabOrder = 0
   end
   object PaintBox: TPaintBox
+    AnchorSideLeft.Control = EditorsPanel
+    AnchorSideLeft.Side = asrBottom
+    AnchorSideTop.Control = ToolsPanel
+    AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = VerticalSB
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = HorizontalSB
     AnchorSideBottom.Side = asrBottom
-    Left = 152
-    Height = 327
-    Top = 45
-    Width = 672
+    Left = 200
+    Height = 292
+    Top = 80
+    Width = 724
     Anchors = [akTop, akLeft, akRight, akBottom]
     BorderSpacing.Right = 26
     BorderSpacing.Bottom = 26
@@ -43,7 +47,7 @@ object MainWindow: TMainWindow
     Left = 0
     Height = 28
     Top = 542
-    Width = 850
+    Width = 950
     Panels = <    
       item
         Text = 'Current tool: Pencil'
@@ -51,20 +55,20 @@ object MainWindow: TMainWindow
       end>
     SimplePanel = False
   end
-  object ModifierPanel: TPanel
+  object ToolsPanel: TPanel
     Left = 0
-    Height = 45
+    Height = 80
     Top = 0
-    Width = 850
+    Width = 950
     Align = alTop
-    ClientHeight = 45
-    ClientWidth = 850
+    ClientHeight = 80
+    ClientWidth = 950
     TabOrder = 2
     object ZoomLabel: TLabel
       AnchorSideRight.Control = ZoomCB
-      Left = 647
+      Left = 747
       Height = 25
-      Top = 8
+      Top = 25
       Width = 82
       Anchors = [akTop, akRight]
       BorderSpacing.Right = 10
@@ -72,11 +76,11 @@ object MainWindow: TMainWindow
       ParentColor = False
     end
     object ZoomCB: TComboBox
-      AnchorSideRight.Control = ModifierPanel
+      AnchorSideRight.Control = ToolsPanel
       AnchorSideRight.Side = asrBottom
-      Left = 739
+      Left = 839
       Height = 33
-      Top = 8
+      Top = 25
       Width = 100
       Anchors = [akTop, akRight]
       BorderSpacing.Right = 10
@@ -97,22 +101,20 @@ object MainWindow: TMainWindow
     end
   end
   object HorizontalSB: TScrollBar
-    AnchorSideLeft.Control = ControlsPanel
+    AnchorSideLeft.Control = EditorsPanel
     AnchorSideLeft.Side = asrBottom
     AnchorSideTop.Control = PaintBox
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = PalettePanel
-    Left = 150
+    Left = 200
     Height = 26
     Top = 372
-    Width = 674
+    Width = 724
     Align = alCustom
     Anchors = [akLeft, akRight, akBottom]
     BorderSpacing.Right = 26
-    Max = 1000
-    PageSize = 1000
     Max = 10000
     PageSize = 10000
     TabOrder = 3
@@ -120,19 +122,19 @@ object MainWindow: TMainWindow
     OnScroll = HorizontalSBScroll
   end
   object VerticalSB: TScrollBar
+    AnchorSideTop.Control = ToolsPanel
+    AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = PalettePanel
-    Left = 822
-    Height = 327
-    Top = 45
+    Left = 922
+    Height = 292
+    Top = 80
     Width = 28
     Align = alCustom
     Anchors = [akTop, akRight, akBottom]
     BorderSpacing.Bottom = 26
     Kind = sbVertical
-    Max = 1000
-    PageSize = 1000
     Max = 10000
     PageSize = 10000
     TabOrder = 4
@@ -140,20 +142,20 @@ object MainWindow: TMainWindow
     OnScroll = VerticalSBScroll
   end
   object PalettePanel: TPanel
-    AnchorSideLeft.Control = ControlsPanel
+    AnchorSideLeft.Control = EditorsPanel
     AnchorSideLeft.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = StatusBar
-    Left = 150
+    Left = 200
     Height = 144
     Top = 398
-    Width = 700
+    Width = 750
     Align = alCustom
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
     ClientHeight = 144
-    ClientWidth = 700
+    ClientWidth = 750
     ParentColor = False
     TabOrder = 5
     object PaletteDG: TDrawGrid
