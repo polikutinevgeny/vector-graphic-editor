@@ -113,6 +113,8 @@ object MainWindow: TMainWindow
     BorderSpacing.Right = 26
     Max = 1000
     PageSize = 1000
+    Max = 10000
+    PageSize = 10000
     TabOrder = 3
     Visible = False
     OnScroll = HorizontalSBScroll
@@ -131,6 +133,8 @@ object MainWindow: TMainWindow
     Kind = sbVertical
     Max = 1000
     PageSize = 1000
+    Max = 10000
+    PageSize = 10000
     TabOrder = 4
     Visible = False
     OnScroll = VerticalSBScroll

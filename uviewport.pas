@@ -116,17 +116,17 @@ begin
     vpos := @FViewPosition.Y;
   end;
   psshift := psize / FScale / 2;
-  pagesize := round(psize * 1000 / (AWSize * FScale));
-  if pagesize >= 1000 then
+  pagesize := round(psize * 10000 / (AWSize * FScale));
+  if pagesize >= 10000 then
     visible := False
   else
   begin
     visible := True;
     {Updating scrollbar position when it is not moved, else updating view position}
     if APosition = sbpos^ then
-      APosition := round((vpos^ - AMin - psshift) * 1000 / AWSize)
+      APosition := round((vpos^ - AMin - psshift) * 10000 / AWSize)
     else
-      vpos^ := APosition * AWSize / 1000 + AMin + psshift;
+      vpos^ := APosition * AWSize / 10000 + AMin + psshift;
     sbpos^ := APosition;
   end;
   FScrollUpdateEvent(visible, pagesize, APosition, AKind);
