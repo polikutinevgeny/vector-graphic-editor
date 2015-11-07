@@ -306,7 +306,7 @@ end;
 
 procedure TTool.ChangePen(APen: TPen);
 begin
-  {The same thing as above, but I think I will need it in the near future}
+  {Do nothing, because I need it to be called and not to throw exceptions}
 end;
 
 { TRoundRectTool }

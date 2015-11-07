@@ -230,7 +230,6 @@ object MainWindow: TMainWindow
       Top = 8
       Width = 400
       AutoEdit = False
-      BorderStyle = bsNone
       Color = clNone
       ColCount = 16
       DefaultColWidth = 25

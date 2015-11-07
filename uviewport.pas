@@ -5,12 +5,13 @@ unit UViewPort;
 interface
 
 uses
-  Classes, ExtCtrls, Forms, Math, UGeometry;
+  Classes, ExtCtrls, Math, UGeometry;
 
 type
+  TScrollBarType = (sbHorizontal, sbVertical);
 
   TScrollUpdateEvent = procedure(AVisible: Boolean; APageSize,
-    APosition: Integer; AKind: TScrollBarKind) of object;
+    APosition: Integer; AKind: TScrollBarType) of object;
 
   { TViewPort }
 
@@ -39,7 +40,7 @@ type
       function ScreenToWorld(APoint: TPoint): TFloatPoint;
       procedure ScaleTo(ARect: TFloatRect);
       procedure SetScroll(APosition: Integer; AWSize, AMin: Double;
-        AKind: TScrollBarKind);
+        AKind: TScrollBarType);
       procedure ScaleMouseWheel(APoint: TPoint; Delta: Integer);
   end;
 
@@ -94,7 +95,7 @@ begin
 end;
 
 procedure TViewPort.SetScroll(APosition: Integer; AWSize, AMin: Double;
-  AKind: TScrollBarKind);
+  AKind: TScrollBarType);
 var
   psshift: Double;
   psize, pagesize: Integer;
@@ -121,6 +122,7 @@ begin
   else
   begin
     visible := True;
+    {Updating scrollbar position when it is not moved, else updating view position}
     if APosition = sbpos^ then
       APosition := round((vpos^ - AMin - psshift) * 1000 / AWSize)
     else

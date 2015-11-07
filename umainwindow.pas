@@ -69,7 +69,7 @@ type
       var ScrollPos: Integer);
     procedure ZoomCBChange(Sender: TObject);
     procedure UpdateScroll(AVisible: Boolean; APageSize, APosition: Integer;
-      AKind: TScrollBarKind);
+      AKind: TScrollBarType);
     procedure RecalculateScrollbars;
   private
     FCurrentToolIndex: Integer;
@@ -130,7 +130,7 @@ begin
   VP := TViewPort.Create;
   VP.ViewPosition := FloatPoint(PaintBox.Width / 2, PaintBox.Height / 2);
   VP.ScrollUpdateEvent := @UpdateScroll;
-  {Generating palette}
+  {Generate palette}
   SetLength(FPaletteColors, PaletteDG.ColCount * PaletteDG.RowCount);
   for i := 64 to 79 do
     FPaletteColors[i] := RGBToColor(16 * i, 16 * i, 16 * i);
@@ -177,10 +177,10 @@ begin
   VP.PortSize := Point(PaintBox.Width, PaintBox.Height);
   RecalculateScrollbars;
   ZoomCB.Text := FloatToStr(VP.Scale * 100);
-  {Making canvas white}
+  {Make canvas white}
   PaintBox.Canvas.Brush.Color := clWhite;
   PaintBox.Canvas.FillRect(0, 0, PaintBox.Width, PaintBox.Height);
-  {Drawing all figures}
+  {Draw all figures}
   Figures.Draw(PaintBox.Canvas);
 end;
 
@@ -299,8 +299,8 @@ procedure TMainWindow.UndoMIClick(Sender: TObject);
 begin
   Tools[FCurrentToolIndex].DoubleClick;
   FMousePressed := False;
-  {If the previous action Cleared everything we will undo it, otherwise we
-  will delete the last figure drawn}
+  {If the previous action Cleared everything we undo it, otherwise we
+  delete the last figure drawn}
   if FCleared then
   begin
     Figures.RedoAll;
@@ -345,7 +345,7 @@ begin
 end;
 
 procedure TMainWindow.UpdateScroll(AVisible: Boolean; APageSize,
-  APosition: Integer; AKind: TScrollBarKind);
+  APosition: Integer; AKind: TScrollBarType);
 begin
   if AKind = sbHorizontal then
   begin
