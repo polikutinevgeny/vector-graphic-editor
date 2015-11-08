@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
   UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, Grids,
-  UViewPort, UGeometry, types, math;
+  UViewPort, UGeometry, types, math, UInspector;
 
 type
 
@@ -100,7 +100,9 @@ begin
   FCurrentToolIndex := 0;
   FCleared := False;
   FMousePressed := False;
-  for i := 0 to High(Tools) do
+  Inspector := TInspector.Create(EditorsPanel);
+  Inspector.ParamsUpdateEvent := @PaintBox.Invalidate;
+  for i := 0 to High(ToolContainer.Tools) do
     begin
       bt := TSpeedButton.Create(Self);
       bt.Parent := Self.ToolsPanel;
@@ -108,12 +110,14 @@ begin
       bt.Height := 60;
       bt.Top := 10;
       bt.Left := 10 + 70 * i;
-      bt.Glyph := Tools[i].Icon;
+      bt.Glyph := ToolContainer.Tools[i].Icon;
       bt.Tag := i;
       bt.OnClick := @ToolClick;
       bt.Flat := true;
       bt.ShowHint := true;
-      bt.Hint := Tools[i].Caption;
+      bt.Hint := ToolContainer.Tools[i].Caption;
+      if i = 0 then
+        bt.Click;
     end;
   VP := TViewPort.Create;
   VP.ViewPosition := FloatPoint(PaintBox.Width / 2, PaintBox.Height / 2);
@@ -132,7 +136,7 @@ end;
 
 procedure TMainWindow.PaintBoxDblClick(Sender: TObject);
 begin
-  Tools[FCurrentToolIndex].DoubleClick;
+  ToolContainer.Tools[FCurrentToolIndex].DoubleClick;
   PaintBox.Invalidate;
 end;
 
@@ -143,7 +147,7 @@ begin
     begin
       FMousePressed := True;
       FCleared := False;
-      Tools[FCurrentToolIndex].MouseClick(Point(X, Y));
+      ToolContainer.Tools[FCurrentToolIndex].MouseClick(Point(X, Y));
       PaintBox.Invalidate;
     end;
 end;
@@ -153,7 +157,7 @@ procedure TMainWindow.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
 begin
   if FMousePressed then
     begin
-      Tools[FCurrentToolIndex].MouseMove(Point(X, Y));
+      ToolContainer.Tools[FCurrentToolIndex].MouseMove(Point(X, Y));
       PaintBox.Invalidate;
     end;
 end;
@@ -172,16 +176,17 @@ end;
 
 procedure TMainWindow.ToolClick(Sender: TObject);
 begin
-  Tools[FCurrentToolIndex].DoubleClick;
+  ToolContainer.Tools[FCurrentToolIndex].DoubleClick;
   FCurrentToolIndex := TSpeedButton(Sender).Tag;
   StatusBar.Panels[0].Text := 'Current tool: '
-    + Tools[FCurrentToolIndex].Caption;
+    + ToolContainer.Tools[FCurrentToolIndex].Caption;
+  Inspector.LoadNew(ToolContainer.Tools[FCurrentToolIndex].CreateParamObject);
 end;
 
 procedure TMainWindow.ClearMIClick(Sender: TObject);
 begin
   Figures.UndoAll;
-  Tools[FCurrentToolIndex].DoubleClick;
+  ToolContainer.Tools[FCurrentToolIndex].DoubleClick;
   FCleared := True;
   VP.Scale := 1;
   VP.ViewPosition := FloatPoint(PaintBox.Width, PaintBox.Height) / 2;
@@ -203,6 +208,7 @@ end;
 procedure TMainWindow.HorizontalSBScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
+  ScrollPos := Min(ScrollPos, HorizontalSB.Max - HorizontalSB.PageSize);
   PaintBox.Invalidate;
 end;
 
@@ -220,7 +226,7 @@ procedure TMainWindow.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   FMousePressed := False;
-  Tools[FCurrentToolIndex].MouseUp;
+  ToolContainer.Tools[FCurrentToolIndex].MouseUp;
   PaintBox.Invalidate;
 end;
 
@@ -243,6 +249,7 @@ begin
   MainColor.Brush.Color := FPaletteColors[t];
   PaletteDG.InvalidateCell(PaletteDG.Col, PaletteDG.Row);
   PaintBox.Invalidate;
+  Inspector.SetPenColor(MainColor.Brush.Color);
 end;
 
 procedure TMainWindow.PaletteDGDrawCell(Sender: TObject; aCol, aRow: Integer;
@@ -261,17 +268,19 @@ begin
   if Button = mbLeft then
   begin
     MainColor.Brush.Color:= FPaletteColors[t];
+    Inspector.SetPenColor(MainColor.Brush.Color);
   end;
   if Button = mbRight then
   begin
     SecondaryColor.Brush.Color:= FPaletteColors[t];
+    Inspector.SetBrushColor(SecondaryColor.Brush.Color);
   end;
   PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.UndoMIClick(Sender: TObject);
 begin
-  Tools[FCurrentToolIndex].DoubleClick;
+  ToolContainer.Tools[FCurrentToolIndex].DoubleClick;
   FMousePressed := False;
   {If the previous action Cleared everything we undo it, otherwise we
   delete the last figure drawn}
@@ -288,6 +297,7 @@ end;
 procedure TMainWindow.VerticalSBScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
+  ScrollPos := Min(ScrollPos, VerticalSB.Max - VerticalSB.PageSize);
   PaintBox.Invalidate;
 end;
 

@@ -36,7 +36,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="7">
+    <Units Count="9">
       <Unit0>
         <Filename Value="VectorGraphicEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -74,6 +74,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UGeometry"/>
       </Unit6>
+      <Unit7>
+        <Filename Value="uparameditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UParamEditors"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="uinspector.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UInspector"/>
+      </Unit8>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

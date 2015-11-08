@@ -5,8 +5,7 @@ unit UTools;
 interface
 
 uses
-  Classes, Graphics, UFigures, UFiguresList, UViewPort,
-  UGeometry;
+  Classes, Graphics, UFigures, UFiguresList, UViewPort, UGeometry, UInspector;
 
 type
 
@@ -23,98 +22,105 @@ type
       procedure MouseMove(APoint: TPoint); virtual;
       procedure MouseUp; virtual;
       procedure DoubleClick; virtual;
+      function GetParamObject: TObject; virtual; abstract;
+      function CreateParamObject: TObject; virtual; abstract;
       property Icon: TBitmap read FIcon;
       property Caption: string read FCaption;
     end;
 
-type
+  { TShapeTool }
+
+  TShapeTool = Class(TTool)
+    private
+      FShape: TFigure;
+    public
+      function GetParamObject: TObject; override;
+      function CreateParamObject: TObject; override;
+      procedure MouseUp; override;
+      procedure MouseMove(APoint: TPoint); override;
+  end;
 
 { TPenTool }
 
-  TPenTool = Class(TTool)
+  TPenTool = Class(TShapeTool)
     public
       constructor Create; override;
+      function CreateParamObject: TObject; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
     end;
 
-type
-
   { TLineTool }
 
-  TLineTool = Class(TTool)
+  TLineTool = Class(TShapeTool)
     public
       constructor Create; override;
+      function CreateParamObject: TObject; override;
       procedure MouseClick(APoint: TPoint); override;
   end;
 
-type
-
   { TPolylineTool }
 
-  TPolylineTool = Class(TTool)
+  TPolylineTool = Class(TShapeTool)
     public
       constructor Create; override;
+      function CreateParamObject: TObject; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
+      procedure MouseUp; override;
       procedure DoubleClick; override;
     private
       FDrawingNow: boolean;
   end;
 
-type
-
   { TRectangleTool }
 
-  TRectangleTool = Class(TTool)
+  TRectangleTool = Class(TShapeTool)
     public
       constructor Create; override;
+      function CreateParamObject: TObject; override;
       procedure MouseClick(APoint: TPoint); override;
   end;
-
-type
 
   { TEllipseTool }
 
-  TEllipseTool = Class(TTool)
+  TEllipseTool = Class(TShapeTool)
     public
       constructor Create; override;
+      function CreateParamObject: TObject; override;
       procedure MouseClick(APoint: TPoint); override;
   end;
-
-type
 
   { TRoundRectTool }
 
-  TRoundRectTool = Class(TTool)
+  TRoundRectTool = Class(TShapeTool)
     public
       constructor Create; override;
+      function CreateParamObject: TObject; override;
       procedure MouseClick(APoint: TPoint); override;
   end;
-
-type
 
   { TZoomInTool }
 
   TZoomInTool = Class(TTool)
     public
       constructor Create; override;
+      function GetParamObject: TObject; override;
+      function CreateParamObject: TObject; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
   end;
-
-type
 
   { TZoomOutTool }
 
   TZoomOutTool = Class(TTool)
     public
       constructor Create; override;
+      function GetParamObject: TObject; override;
+      function CreateParamObject: TObject; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
   end;
-
-type
 
   { THandTool }
 
@@ -123,11 +129,11 @@ type
       FStartPoint: TPoint;
     public
       constructor Create; override;
+      function GetParamObject: TObject; override;
+      function CreateParamObject: TObject; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
   end;
-
-type
 
   { TRectangleZoomTool }
 
@@ -137,20 +143,59 @@ type
       FPointTwo: TFloatPoint;
     public
       constructor Create; override;
+      function GetParamObject: TObject; override;
+      function CreateParamObject: TObject; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
       procedure MouseUp; override;
   end;
 
+  ClassOfTool = class of TTool;
+  ArrayOfTool = array of TTool;
+
+  { TToolsContainer }
+
+  TToolsContainer = class
+    private
+      FTools: ArrayOfTool;
+    public
+      property Tools: ArrayOfTool read FTools;
+      procedure RegisterTool(AClass: ClassOfTool);
+  end;
+
 var
-  Tools: array of TTool;
+  ToolContainer: TToolsContainer;
 
 implementation
 
-procedure RegisterTool(ATool: TTool);
+{ TToolsContainer }
+
+procedure TToolsContainer.RegisterTool(AClass: ClassOfTool);
 begin
-  SetLength(Tools, Length(Tools) + 1);
-  Tools[High(Tools)] := ATool;
+  SetLength(FTools, Length(FTools) + 1);
+  FTools[High(FTools)] := AClass.Create;
+end;
+
+{ TShapeTool }
+
+function TShapeTool.GetParamObject: TObject;
+begin
+  Result := FShape;
+end;
+
+function TShapeTool.CreateParamObject: TObject;
+begin
+  Result := FShape;
+end;
+
+procedure TShapeTool.MouseUp;
+begin
+  Inspector.LoadNew(CreateParamObject);
+end;
+
+procedure TShapeTool.MouseMove(APoint: TPoint);
+begin
+  FShape.MovePoint(APoint);
 end;
 
 { TRectangleZoomTool }
@@ -162,9 +207,22 @@ begin
   FFillable := False;
 end;
 
+function TRectangleZoomTool.GetParamObject: TObject;
+begin
+  Result := nil;
+end;
+
+function TRectangleZoomTool.CreateParamObject: TObject;
+begin
+  Result := nil;
+end;
+
 procedure TRectangleZoomTool.MouseClick(APoint: TPoint);
 begin
-  Figures.ZoomRectangle := TRectangle.Create(APoint);
+  Figures.ZoomRectangle := TRectangle.Create;
+  Figures.ZoomRectangle.SetPoint(APoint);
+  Figures.ZoomRectangle.PenStyle := psDot;
+  Figures.ZoomRectangle.BrushStyle := bsClear;
   FPointOne := VP.ScreenToWorld(APoint);
   FPointTwo := VP.ScreenToWorld(APoint);
 end;
@@ -195,6 +253,16 @@ begin
   FFillable := False;
 end;
 
+function THandTool.GetParamObject: TObject;
+begin
+  Result := Nil;
+end;
+
+function THandTool.CreateParamObject: TObject;
+begin
+  Result := Nil;
+end;
+
 procedure THandTool.MouseClick(APoint: TPoint);
 begin
   FStartPoint := APoint;
@@ -214,6 +282,16 @@ begin
   inherited Create;
   FCaption := 'Zoom out';
   FFillable := False;
+end;
+
+function TZoomOutTool.GetParamObject: TObject;
+begin
+  Result := Nil;
+end;
+
+function TZoomOutTool.CreateParamObject: TObject;
+begin
+  Result := Nil;
 end;
 
 procedure TZoomOutTool.MouseClick(APoint: TPoint);
@@ -240,6 +318,16 @@ begin
   inherited Create;
   FCaption := 'Zoom in';
   FFillable := False;
+end;
+
+function TZoomInTool.GetParamObject: TObject;
+begin
+  Result := Nil;
+end;
+
+function TZoomInTool.CreateParamObject: TObject;
+begin
+  Result := Nil;
 end;
 
 procedure TZoomInTool.MouseClick(APoint: TPoint);
@@ -269,7 +357,7 @@ end;
 
 procedure TTool.MouseMove(APoint: TPoint);
 begin
-  Figures.Last.MovePoint(APoint);
+  {Do nothing, because I need it to be called and not to throw exceptions}
 end;
 
 procedure TTool.MouseUp;
@@ -291,9 +379,16 @@ begin
   FFillable := true;
 end;
 
+function TRoundRectTool.CreateParamObject: TObject;
+begin
+  FShape := TRoundRect.Create;
+  Result := inherited CreateParamObject;
+end;
+
 procedure TRoundRectTool.MouseClick(APoint: TPoint);
 begin
-  Figures.Add(TRoundRect.Create(APoint));
+  Figures.Add(FShape);
+  FShape.SetPoint(APoint);
 end;
 
 { TEllipseTool }
@@ -305,9 +400,16 @@ begin
   FFillable := true;
 end;
 
+function TEllipseTool.CreateParamObject: TObject;
+begin
+  FShape := TEllipse.Create;
+  Result := inherited CreateParamObject;
+end;
+
 procedure TEllipseTool.MouseClick(APoint: TPoint);
 begin
-  Figures.Add(TEllipse.Create(APoint));
+  Figures.Add(FShape);
+  FShape.SetPoint(APoint);
 end;
 
 { TRectangleTool }
@@ -319,9 +421,16 @@ begin
   FFillable := true;
 end;
 
+function TRectangleTool.CreateParamObject: TObject;
+begin
+  FShape := TRectangle.Create;
+  Result := inherited CreateParamObject;
+end;
+
 procedure TRectangleTool.MouseClick(APoint: TPoint);
 begin
-  Figures.Add(TRectangle.Create(APoint));
+  Figures.Add(FShape);
+  FShape.SetPoint(APoint);
 end;
 
 { TPolylineTool }
@@ -333,25 +442,38 @@ begin
   FFillable := false;
 end;
 
+function TPolylineTool.CreateParamObject: TObject;
+begin
+  FShape := TPolyline.Create;
+  Result := inherited CreateParamObject;
+end;
+
 procedure TPolylineTool.MouseClick(APoint: TPoint);
 begin
   if not FDrawingNow then
   begin
-    Figures.Add(TPolyline.Create(APoint));
+    Figures.Add(FShape);
+    FShape.SetPoint(APoint);
     FDrawingNow := true;
   end
   else
-    TPolyline(Figures.Last).AddPoint(APoint);
+    TPolyline(FShape).AddPoint(APoint);
 end;
 
 procedure TPolylineTool.MouseMove(APoint: TPoint);
 begin
-  if FDrawingNow then TPolyline(Figures.Last).MovePoint(APoint);
+  if FDrawingNow then FShape.MovePoint(APoint);
+end;
+
+procedure TPolylineTool.MouseUp;
+begin
+  {Do not create new shape}
 end;
 
 procedure TPolylineTool.DoubleClick;
 begin
   FDrawingNow := false;
+  Inspector.LoadNew(CreateParamObject);
 end;
 
 { TLineTool }
@@ -363,9 +485,16 @@ begin
   FFillable := false;
 end;
 
+function TLineTool.CreateParamObject: TObject;
+begin
+  FShape := TLine.Create;
+  Result := inherited CreateParamObject;
+end;
+
 procedure TLineTool.MouseClick(APoint: TPoint);
 begin
-  Figures.Add(TLine.Create(APoint));
+  Figures.Add(FShape);
+  FShape.SetPoint(APoint);
 end;
 
 { TPenTool }
@@ -377,26 +506,34 @@ begin
   FFillable := false;
 end;
 
+function TPenTool.CreateParamObject: TObject;
+begin
+  FShape := TPolyline.Create;
+  Result := inherited CreateParamObject;
+end;
+
 procedure TPenTool.MouseClick(APoint: TPoint);
 begin
-  Figures.Add(TPolyline.Create(APoint));
+  Figures.Add(FShape);
+  FShape.SetPoint(APoint);
 end;
 
 procedure TPenTool.MouseMove(APoint: TPoint);
 begin
-  TPolyline(Figures.Last).AddPoint(APoint);
+  TPolyline(FShape).AddPoint(APoint);
 end;
 
 initialization
-  RegisterTool(TPenTool.Create);
-  RegisterTool(TLineTool.Create);
-  RegisterTool(TPolylineTool.Create);
-  RegisterTool(TRectangleTool.Create);
-  RegisterTool(TEllipseTool.Create);
-  RegisterTool(TRoundRectTool.Create);
-  RegisterTool(TZoomInTool.Create);
-  RegisterTool(TZoomOutTool.Create);
-  RegisterTool(THandTool.Create);
-  RegisterTool(TRectangleZoomTool.Create);
+  ToolContainer := TToolsContainer.Create;
+  ToolContainer.RegisterTool(TPenTool);
+  ToolContainer.RegisterTool(TLineTool);
+  ToolContainer.RegisterTool(TPolylineTool);
+  ToolContainer.RegisterTool(TRectangleTool);
+  ToolContainer.RegisterTool(TEllipseTool);
+  ToolContainer.RegisterTool(TRoundRectTool);
+  ToolContainer.RegisterTool(TZoomInTool);
+  ToolContainer.RegisterTool(TZoomOutTool);
+  ToolContainer.RegisterTool(THandTool);
+  ToolContainer.RegisterTool(TRectangleZoomTool);
 end.
 

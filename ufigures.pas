@@ -15,14 +15,34 @@ type
   private
     FPoints: TFloatPoints;
     FRect: TFloatRect;
+    FPenColor: TColor;
+    FPenWidth: Integer;
+    FPenStyle: TPenStyle;
   public
-    constructor Create(APoint: TPoint);
+    constructor Create; virtual;
+    procedure SetPoint(APoint: TPoint);
     procedure Draw(ACanvas: TCanvas); virtual;
     procedure MovePoint(APoint: TPoint);
     property Rect: TFloatRect read FRect;
+  published
+    property PenColor: TColor read FPenColor write FPenColor;
+    property PenWidth: Integer read FPenWidth write FPenWidth;
+    property PenStyle: TPenStyle read FPenStyle write FPenStyle;
   end;
 
-type
+  { TFill }
+
+  TFill = class(TFigure)
+    private
+      FBrushColor: TColor;
+      FBrushStyle: TBrushStyle;
+    public
+      constructor Create; override;
+      procedure Draw(ACanvas: TCanvas); override;
+    published
+      property BrushColor: TColor read FBrushColor write FBrushColor;
+      property BrushStyle: TBrushStyle read FBrushStyle write FBrushStyle;
+  end;
 
   { TPolyline }
 
@@ -32,8 +52,6 @@ type
     procedure AddPoint(APoint: TPoint);
   end;
 
-type
-
   { TLine }
 
   TLine = class(TFigure)
@@ -41,48 +59,71 @@ type
     procedure Draw(ACanvas: TCanvas); override;
   end;
 
-type
-
   { TRectangle }
 
-  TRectangle = class(TFigure)
+  TRectangle = class(TFill)
   public
     procedure Draw(ACanvas: TCanvas); override;
   end;
-
-type
 
   { TEllipse }
 
-  TEllipse = class(TFigure)
+  TEllipse = class(TFill)
   public
     procedure Draw(ACanvas: TCanvas); override;
   end;
 
-type
-
   { TRoundRect }
 
-  TRoundRect = class(TFigure)
+  TRoundRect = class(TFill)
+  private
+    FRadius: Integer;
   public
     procedure Draw(ACanvas: TCanvas); override;
+  published
+    property Radius: Integer read FRadius write FRadius;
   end;
 
 implementation
 
+{ TFill }
+
+constructor TFill.Create;
+begin
+  inherited Create;
+  FBrushColor := clWhite;
+  FBrushStyle := bsSolid;
+end;
+
+procedure TFill.Draw(ACanvas: TCanvas);
+begin
+  inherited Draw(ACanvas);
+  ACanvas.Brush.Color := FBrushColor;
+  ACanvas.Brush.Style := FBrushStyle;
+end;
+
 { TFigure }
 
-constructor TFigure.Create(APoint: TPoint);
+constructor TFigure.Create;
+begin
+  FPenWidth := 1;
+  FPenColor := clBlack;
+  FPenStyle := psSolid;
+end;
+
+procedure TFigure.SetPoint(APoint: TPoint);
 begin
   SetLength(FPoints, 2);
   FPoints[0] := VP.ScreenToWorld(APoint);
-  FPoints[1] := VP.ScreenToWorld(APoint);
+  FPoints[1] := FPoints[0];
   FRect := FloatRect(FPoints[0], FPoints[0]);
 end;
 
 procedure TFigure.Draw(ACanvas: TCanvas);
 begin
-  ACanvas.Pen.Width := round(VP.Scale);
+  ACanvas.Pen.Width := round(FPenWidth * VP.Scale);
+  ACanvas.Pen.Color := FPenColor;
+  ACanvas.Pen.Style := FPenStyle;
 end;
 
 procedure TFigure.MovePoint(APoint: TPoint);
@@ -150,7 +191,7 @@ procedure TRoundRect.Draw(ACanvas: TCanvas);
 begin
   inherited;
   ACanvas.RoundRect(UGeometry.Rect(VP.WorldToScreen(FPoints[0]),
-    VP.WorldToScreen(FPoints[1])), 10, 10);
+    VP.WorldToScreen(FPoints[1])), Radius, Radius);
 end;
 
 end.

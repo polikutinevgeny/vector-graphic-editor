@@ -27,7 +27,6 @@ type
       procedure UndoAll;
       procedure Redo;
       procedure RedoAll;
-      function Last: TFigure;
       function IsEmpty: Boolean;
   end;
 
@@ -100,11 +99,6 @@ end;
 procedure TFiguresList.RedoAll;
 begin
   FNumberOfFiguresShown := Length(FFigures);
-end;
-
-function TFiguresList.Last: TFigure;
-begin
-  Last := FFigures[FNumberOfFiguresShown - 1];
 end;
 
 function TFiguresList.IsEmpty: Boolean;
