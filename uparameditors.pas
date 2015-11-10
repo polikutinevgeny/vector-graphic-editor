@@ -14,6 +14,7 @@ type
 
   TIntegerEditor = class(TParamEditor)
   private
+    FJustCreated: Boolean;
     FSpinEdit: TSpinEdit;
     procedure Change(Sender: TObject); override;
   public
@@ -213,6 +214,13 @@ end;
 procedure TIntegerEditor.Change(Sender: TObject);
 var i: integer;
 begin
+  {The change event is always fired after creation because value is changed,
+  so we simply do not change properties}
+  if FJustCreated then
+  begin
+    FJustCreated := False;
+    exit;
+  end;
   for i:= 0 to High(FShapes) do
     SetInt64Prop(FShapes[i], FPropInfo, TSpinEdit(Sender).Value);
   PropValues.Values[FPropInfo^.Name]:= IntToStr(TSpinEdit(Sender).Value);
@@ -224,9 +232,10 @@ constructor TIntegerEditor.Create(AShapes: array of TObject;
 var
   i: integer;
 begin
+  FJustCreated := True;
   FSpinEdit := TSpinEdit.Create(nil);
   FSpinEdit.MinValue := 1;
-  FSpinEdit.MaxValue := 40;
+  FSpinEdit.MaxValue := 100;
   FSpinEdit.Parent:= APanel;
   FSpinEdit.Left:= trunc(APanel.Width / 2) + 10;
   FSpinEdit.Width:= trunc(APanel.Width / 2) - 20;

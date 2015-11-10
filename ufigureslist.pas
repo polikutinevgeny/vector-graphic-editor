@@ -5,7 +5,7 @@ unit UFiguresList;
 interface
 
 uses
-  Graphics, UFigures, math, UGeometry, UViewPort;
+  Graphics, UFigures, math, UGeometry, UViewPort, UInspector;
 
 type
 
@@ -15,10 +15,11 @@ type
     private
       FFigures: array of TFigure;
       FNumberOfFiguresShown: integer;
-      FZoomRect: TRectangle;
+      FSelectionRectangle: TRectangle;
       function FImageSize: TFloatRect;
     public
-      property ZoomRectangle: TRectangle read FZoomRect write FZoomRect;
+      property SelectionRectangle: TRectangle read FSelectionRectangle
+        write FSelectionRectangle;
       property ImageSize: TFloatRect read FImageSize;
       constructor Create;
       procedure Draw(ACanvas: TCanvas);
@@ -27,6 +28,9 @@ type
       procedure UndoAll;
       procedure Redo;
       procedure RedoAll;
+      procedure Select;
+      procedure LoadSelected;
+      procedure UnSelect;
       function IsEmpty: Boolean;
   end;
 
@@ -65,8 +69,11 @@ var i: integer;
 begin
   for i := 0 to FNumberOfFiguresShown - 1 do
     FFigures[i].Draw(ACanvas);
-  if FZoomRect <> nil then
-    FZoomRect.Draw(ACanvas);
+  for i := 0 to FNumberOfFiguresShown - 1 do
+    if FFigures[i].Selected then
+      FFigures[i].DrawSelection(ACanvas);
+  if FSelectionRectangle <> nil then
+    FSelectionRectangle.Draw(ACanvas);
 end;
 
 procedure TFiguresList.Add(AFigure: TFigure);
@@ -99,6 +106,36 @@ end;
 procedure TFiguresList.RedoAll;
 begin
   FNumberOfFiguresShown := Length(FFigures);
+end;
+
+procedure TFiguresList.Select;
+var i: integer;
+begin
+  for i := 0 to FNumberOfFiguresShown - 1 do
+    FFigures[i].Select(VP.WorldToScreen(FSelectionRectangle.Rect));
+end;
+
+procedure TFiguresList.LoadSelected;
+var
+  a: array of TObject;
+  i: Integer;
+begin
+  SetLength(a, 0);
+  for i := 0 to FNumberOfFiguresShown - 1 do
+    if FFigures[i].Selected then
+    begin
+      SetLength(a, Length(a) + 1);
+      a[High(a)] := FFigures[i];
+    end;
+  Inspector.Load(a);
+end;
+
+procedure TFiguresList.UnSelect;
+var
+  i: Integer;
+begin
+  for i := 0 to High(FFigures) do
+    FFigures[i].Selected := False;
 end;
 
 function TFiguresList.IsEmpty: Boolean;

@@ -2,12 +2,12 @@ object MainWindow: TMainWindow
   Left = 562
   Height = 600
   Top = 51
-  Width = 950
+  Width = 1000
   Caption = 'Vector Graphic Editor'
   ClientHeight = 570
-  ClientWidth = 950
+  ClientWidth = 1000
   Constraints.MinHeight = 600
-  Constraints.MinWidth = 950
+  Constraints.MinWidth = 1000
   Menu = MainMenu
   OnCreate = FormCreate
   Position = poScreenCenter
@@ -32,7 +32,7 @@ object MainWindow: TMainWindow
     Left = 200
     Height = 292
     Top = 80
-    Width = 724
+    Width = 774
     Anchors = [akTop, akLeft, akRight, akBottom]
     BorderSpacing.Right = 26
     BorderSpacing.Bottom = 26
@@ -47,7 +47,7 @@ object MainWindow: TMainWindow
     Left = 0
     Height = 28
     Top = 542
-    Width = 950
+    Width = 1000
     Panels = <    
       item
         Text = 'Current tool: Pencil'
@@ -59,14 +59,14 @@ object MainWindow: TMainWindow
     Left = 0
     Height = 80
     Top = 0
-    Width = 950
+    Width = 1000
     Align = alTop
     ClientHeight = 80
-    ClientWidth = 950
+    ClientWidth = 1000
     TabOrder = 2
     object ZoomLabel: TLabel
       AnchorSideRight.Control = ZoomCB
-      Left = 747
+      Left = 797
       Height = 25
       Top = 25
       Width = 82
@@ -78,7 +78,7 @@ object MainWindow: TMainWindow
     object ZoomCB: TComboBox
       AnchorSideRight.Control = ToolsPanel
       AnchorSideRight.Side = asrBottom
-      Left = 839
+      Left = 889
       Height = 33
       Top = 25
       Width = 100
@@ -111,7 +111,7 @@ object MainWindow: TMainWindow
     Left = 200
     Height = 26
     Top = 372
-    Width = 724
+    Width = 774
     Align = alCustom
     Anchors = [akLeft, akRight, akBottom]
     BorderSpacing.Right = 26
@@ -127,7 +127,7 @@ object MainWindow: TMainWindow
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = PalettePanel
-    Left = 922
+    Left = 972
     Height = 292
     Top = 80
     Width = 28
@@ -150,12 +150,12 @@ object MainWindow: TMainWindow
     Left = 200
     Height = 144
     Top = 398
-    Width = 750
+    Width = 800
     Align = alCustom
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
     ClientHeight = 144
-    ClientWidth = 750
+    ClientWidth = 800
     ParentColor = False
     TabOrder = 5
     object PaletteDG: TDrawGrid

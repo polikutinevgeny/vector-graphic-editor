@@ -37,7 +37,9 @@ type
       constructor Create;
       function WorldToScreen(APoint: TFloatPoint): TPoint;
       function WorldToScreen(APoints: TFloatPoints): TPoints; overload;
+      function WorldToScreen(AFloatRect: TFloatRect): TRect; overload;
       function ScreenToWorld(APoint: TPoint): TFloatPoint;
+      function ScreenToWorld(ARect: TRect): TFloatRect; overload;
       procedure ScaleTo(ARect: TFloatRect);
       procedure SetScroll(APosition: Integer; AWSize, AMin: Double;
         AKind: TScrollBarType);
@@ -78,9 +80,23 @@ begin
   end;
 end;
 
+function TViewPort.WorldToScreen(AFloatRect: TFloatRect): TRect;
+begin
+  Result := Rect(
+    WorldToScreen(FloatPoint(AFloatRect.Left, AFloatRect.Top)),
+    WorldToScreen(FloatPoint(AFloatRect.Right, AFloatRect.Bottom)));
+end;
+
 function TViewPort.ScreenToWorld(APoint: TPoint): TFloatPoint;
 begin
   Result := (APoint + FViewPosition * FScale - FPortSize / 2) / FScale;
+end;
+
+function TViewPort.ScreenToWorld(ARect: TRect): TFloatRect;
+begin
+  Result := FloatRect(
+    ScreenToWorld(Point(ARect.Left, ARect.Top)),
+    ScreenToWorld(Point(ARect.Right, ARect.Bottom)));
 end;
 
 procedure TViewPort.ScaleTo(ARect: TFloatRect);

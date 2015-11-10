@@ -14,7 +14,6 @@ type
   TTool = Class abstract
     private
       FIcon: TBitmap;
-      FFillable: boolean;
       FCaption: string;
     public
       constructor Create; virtual;
@@ -150,6 +149,19 @@ type
       procedure MouseUp; override;
   end;
 
+  { TSelectionTool }
+
+  TSelectionTool = Class(TTool)
+  public
+    constructor Create; override;
+    function GetParamObject: TObject; override;
+    function CreateParamObject: TObject; override;
+    procedure MouseClick(APoint: TPoint); override;
+    procedure MouseMove(APoint: TPoint); override;
+    procedure MouseUp; override;
+    procedure DoubleClick; override;
+  end;
+
   ClassOfTool = class of TTool;
   ArrayOfTool = array of TTool;
 
@@ -167,6 +179,52 @@ var
   ToolContainer: TToolsContainer;
 
 implementation
+
+{ TSelectionTool }
+
+procedure TSelectionTool.MouseMove(APoint: TPoint);
+begin
+  Figures.SelectionRectangle.MovePoint(APoint);
+  Figures.Select;
+end;
+
+procedure TSelectionTool.MouseClick(APoint: TPoint);
+begin
+  Figures.UnSelect;
+  Figures.SelectionRectangle := TRectangle.Create;
+  Figures.SelectionRectangle.SetPoint(APoint);
+  Figures.SelectionRectangle.PenStyle := psDot;
+  Figures.SelectionRectangle.BrushStyle := bsClear;
+end;
+
+procedure TSelectionTool.MouseUp;
+begin
+  Figures.LoadSelected;
+  Figures.SelectionRectangle.Free;
+  Figures.SelectionRectangle := nil;
+end;
+
+procedure TSelectionTool.DoubleClick;
+begin
+  Figures.UnSelect;
+  Inspector.ParamsUpdateEvent;
+end;
+
+constructor TSelectionTool.Create;
+begin
+  inherited Create;
+  FCaption := 'Selection';
+end;
+
+function TSelectionTool.GetParamObject: TObject;
+begin
+  Result := nil;
+end;
+
+function TSelectionTool.CreateParamObject: TObject;
+begin
+  Result := nil;
+end;
 
 { TToolsContainer }
 
@@ -204,7 +262,6 @@ constructor TRectangleZoomTool.Create;
 begin
   inherited Create;
   FCaption := 'Zoom to area';
-  FFillable := False;
 end;
 
 function TRectangleZoomTool.GetParamObject: TObject;
@@ -219,17 +276,17 @@ end;
 
 procedure TRectangleZoomTool.MouseClick(APoint: TPoint);
 begin
-  Figures.ZoomRectangle := TRectangle.Create;
-  Figures.ZoomRectangle.SetPoint(APoint);
-  Figures.ZoomRectangle.PenStyle := psDot;
-  Figures.ZoomRectangle.BrushStyle := bsClear;
+  Figures.SelectionRectangle := TRectangle.Create;
+  Figures.SelectionRectangle.SetPoint(APoint);
+  Figures.SelectionRectangle.PenStyle := psDot;
+  Figures.SelectionRectangle.BrushStyle := bsClear;
   FPointOne := VP.ScreenToWorld(APoint);
   FPointTwo := VP.ScreenToWorld(APoint);
 end;
 
 procedure TRectangleZoomTool.MouseMove(APoint: TPoint);
 begin
-  Figures.ZoomRectangle.MovePoint(APoint);
+  Figures.SelectionRectangle.MovePoint(APoint);
   FPointTwo := VP.ScreenToWorld(APoint);
 end;
 
@@ -240,8 +297,8 @@ begin
     VP.ViewPosition := (FPointOne + FPointTwo) / 2;
     VP.ScaleTo(FloatRect(FPointOne, FPointTwo));
   end;
-  Figures.ZoomRectangle.Free;
-  Figures.ZoomRectangle := nil;
+  Figures.SelectionRectangle.Free;
+  Figures.SelectionRectangle := nil;
 end;
 
 { THandTool }
@@ -250,7 +307,6 @@ constructor THandTool.Create;
 begin
   inherited Create;
   FCaption := 'Hand';
-  FFillable := False;
 end;
 
 function THandTool.GetParamObject: TObject;
@@ -281,7 +337,6 @@ constructor TZoomOutTool.Create;
 begin
   inherited Create;
   FCaption := 'Zoom out';
-  FFillable := False;
 end;
 
 function TZoomOutTool.GetParamObject: TObject;
@@ -317,7 +372,6 @@ constructor TZoomInTool.Create;
 begin
   inherited Create;
   FCaption := 'Zoom in';
-  FFillable := False;
 end;
 
 function TZoomInTool.GetParamObject: TObject;
@@ -376,7 +430,6 @@ constructor TRoundRectTool.Create;
 begin
   inherited Create;
   FCaption := 'Rounded rectangle';
-  FFillable := true;
 end;
 
 function TRoundRectTool.CreateParamObject: TObject;
@@ -397,7 +450,6 @@ constructor TEllipseTool.Create;
 begin
   inherited Create;
   FCaption := 'Ellipse';
-  FFillable := true;
 end;
 
 function TEllipseTool.CreateParamObject: TObject;
@@ -418,7 +470,6 @@ constructor TRectangleTool.Create;
 begin
   inherited Create;
   FCaption := 'Rectangle';
-  FFillable := true;
 end;
 
 function TRectangleTool.CreateParamObject: TObject;
@@ -439,7 +490,6 @@ constructor TPolylineTool.Create;
 begin
   inherited Create;
   FCaption := 'Polyline';
-  FFillable := false;
 end;
 
 function TPolylineTool.CreateParamObject: TObject;
@@ -482,7 +532,6 @@ constructor TLineTool.Create;
 begin
   inherited Create;
   FCaption := 'Line';
-  FFillable := false;
 end;
 
 function TLineTool.CreateParamObject: TObject;
@@ -503,7 +552,6 @@ constructor TPenTool.Create;
 begin
   inherited Create;
   FCaption := 'Pencil';
-  FFillable := false;
 end;
 
 function TPenTool.CreateParamObject: TObject;
@@ -535,5 +583,6 @@ initialization
   ToolContainer.RegisterTool(TZoomOutTool);
   ToolContainer.RegisterTool(THandTool);
   ToolContainer.RegisterTool(TRectangleZoomTool);
+  ToolContainer.RegisterTool(TSelectionTool);
 end.
 
