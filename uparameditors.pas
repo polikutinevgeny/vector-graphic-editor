@@ -108,7 +108,7 @@ begin
   FComboBox.ReadOnly := True;
   FComboBox.Top := APanel.Tag;
   inherited Create(AShapes, APropInfo, APanel, ADefaultParams);
-  if ADefaultParams and (PropValues.Values[FPropInfo^.Name] <> '') Then
+  if ADefaultParams then
     for j:= 0 to High(FShapes) do
       SetInt64Prop(FShapes[j], FPropInfo, StrToInt64(PropValues.Values[FPropInfo^.Name]));
   Refresh;
@@ -127,7 +127,8 @@ var
 begin
   j := GetInt64Prop(FShapes[0], FPropInfo);
   for i := 1 to High(FShapes) do
-    if GetInt64Prop(FShapes[i], FPropInfo) <> j then begin
+    if GetInt64Prop(FShapes[i], FPropInfo) <> j then
+    begin
       j := ord(bsClear);
       break;
     end;
@@ -180,7 +181,7 @@ begin
   FComboBox.ReadOnly := True;
   FComboBox.Top := APanel.Tag;
   inherited Create(AShapes, APropInfo, APanel, ADefaultParams);
-  if ADefaultParams and (PropValues.Values[FPropInfo^.Name] <> '') then
+  if ADefaultParams then
     for j := 0 to high(FShapes) do
       SetInt64Prop(FShapes[j], FPropInfo,
         StrToInt64(PropValues.Values[FPropInfo^.Name]));
@@ -242,7 +243,7 @@ begin
   FSpinEdit.OnChange := @Change;
   FSpinEdit.Top:= APanel.Tag;
   inherited Create(AShapes, APropInfo, APanel, ADefaultParams);
-  if ADefaultParams and (PropValues.Values[FPropInfo^.Name] <> '') then
+  if ADefaultParams then
     for i:= 0 to High(FShapes) do
       SetInt64Prop(FShapes[i], FPropInfo,
         StrToInt64(PropValues.Values[FPropInfo^.Name]));
