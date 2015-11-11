@@ -36,6 +36,7 @@ type
       FDefaultParams: Boolean;
       FPanel: TPanel;
       FParamsUpdateEvent: TParamsUpdateEvent;
+      function SearchPropertyInObject(AShape: TObject; AProperty: PPropInfo): Boolean;
     public
       property ParamsUpdateEvent: TParamsUpdateEvent read FParamsUpdateEvent
         write FParamsUpdateEvent;
@@ -109,21 +110,23 @@ begin
   Load(shapes);
 end;
 
+function TInspector.SearchPropertyInObject(AShape: TObject;
+  AProperty: PPropInfo): Boolean;
+var
+  i, j: integer;
+  list: PPropList;
+begin
+  j := GetPropList(AShape, list);
+  Result := false;
+  for i := 0 to j - 1 do
+    if list^[i] = AProperty then
+    begin
+      Result := true;
+      exit;
+    end;
+end;
+
 procedure TInspector.Load(AShapes: array of TObject);
-  function SearchPropertyInObject(AShape: TObject; AProperty: PPropInfo): Boolean;
-  var
-    i, j: integer;
-    list: PPropList;
-  begin
-    j := GetPropList(AShape, list);
-    Result := false;
-    for i := 0 to j - 1 do
-      if list^[i] = AProperty then
-      begin
-        Result := true;
-        exit;
-      end;
-  end;
 var
   list: PPropList;
   i, j: integer;
@@ -131,7 +134,7 @@ var
 begin
   Clean;
   if Length(AShapes) = 0 then
-    exit;
+    Exit;
   SetLength(FShapes, Length(AShapes));
   for i := 0 to High(AShapes) do
     FShapes[i] := AShapes[i];
@@ -144,7 +147,7 @@ begin
       if not SearchPropertyInObject(FShapes[j], list^[i]) then
       begin
         b := False;
-        break;
+        Break;
       end;
     if b then
     begin
@@ -154,7 +157,7 @@ begin
           SetLength(FEditors, Length(FEditors) + 1);
           FEditors[High(FEditors)] := EditorContainer.Editors[j].Item.Create(
             FShapes, list^[i], FPanel, FDefaultParams);
-          break;
+          Break;
         end;
     end;
   end;
