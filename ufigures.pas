@@ -275,7 +275,8 @@ end;
 procedure TRoundRect.Draw(ACanvas: TCanvas);
 begin
   inherited;
-  ACanvas.RoundRect(VP.WorldToScreen(FRect), Radius, Radius);
+  ACanvas.RoundRect(VP.WorldToScreen(FRect), Round(Radius * VP.Scale),
+    Round(Radius * VP.Scale));
 end;
 
 end.
