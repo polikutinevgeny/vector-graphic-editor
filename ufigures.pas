@@ -173,8 +173,8 @@ var
   r: TRect;
 begin
   r := VP.WorldToScreen(FRect);
-  Result := (APoint.x >= r.Left) and (APoint.x <= r.Right) and
-    (APoint.y >= r.Top) and (APoint.y <= r.Bottom)
+  Result := (APoint.X >= r.Left) and (APoint.X <= r.Right) and
+    (APoint.Y >= r.Top) and (APoint.Y <= r.Bottom)
 end;
 
 procedure TFigure.Shift(AShift: TPoint);
@@ -182,14 +182,10 @@ var i: Integer;
 begin
   for i := 0 to High(FPoints) do
     FPoints[i] += FloatPoint(AShift) / VP.Scale;
-  FRect := FloatRect(FPoints[0], FPoints[0]);
-  for i := 1 to High(FPoints) do
-  begin
-    FRect.Left := Min(FRect.Left, FPoints[i].X);
-    FRect.Right := Max(FRect.Right, FPoints[i].X);
-    FRect.Top := Min(FRect.Top, FPoints[i].Y);
-    FRect.Bottom := Max(FRect.Bottom, FPoints[i].Y);
-  end;
+  FRect.Left += AShift.X / VP.Scale;
+  FRect.Right += AShift.X / VP.Scale;
+  FRect.Top += AShift.Y / VP.Scale;
+  FRect.Bottom += AShift.Y / VP.Scale;;
 end;
 
 { TPolyline }

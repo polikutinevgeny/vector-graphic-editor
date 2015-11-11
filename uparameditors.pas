@@ -76,8 +76,7 @@ begin
   combobox.Canvas.FillRect(ARect);
   combobox.Canvas.Brush.Color := clBlack;
   combobox.Canvas.Brush.Style := TFPBrushStyle(combobox.Items.Objects[AIndex]);
-  combobox.Canvas.FillRect(ARect.Left + 1, (ARect.Bottom + ARect.Top) div 2 - 7,
-    ARect.Right - 1, (ARect.Bottom + ARect.Top) div 2 + 7);
+  combobox.Canvas.FillRect(ARect);
 end;
 
 procedure TBrushStyleEditor.Change(Sender: TObject);
@@ -149,7 +148,8 @@ begin
   combobox.Canvas.FillRect(ARect);
   combobox.Canvas.Pen.Color := clBlack;
   combobox.Canvas.Pen.Style := TFPPenStyle(combobox.Items.Objects[AIndex]);
-  combobox.Canvas.Line(ARect.Left, (ARect.Bottom + ARect.Top) div 2,
+  combobox.Canvas.Line(
+    ARect.Left, (ARect.Bottom + ARect.Top) div 2,
     ARect.Right, (ARect.Bottom + ARect.Top) div 2);
 end;
 
@@ -266,7 +266,6 @@ begin
     if GetInt64Prop(FShapes[i], FPropInfo) <> j then
     begin
       j := Max(j, GetInt64Prop(FShapes[i], FPropInfo));
-      break;
     end;
   FSpinEdit.Value := j;
 end;
@@ -280,7 +279,7 @@ initialization
   PropValues := TStringList.Create;
   PropValues.Values['PenWidth'] := '3';
   PropValues.Values['PenStyle'] := '0';
-  PropValues.Values['BrushStyle']:= '0';
+  PropValues.Values['BrushStyle']:= '1';
   PropValues.Values['Radius']:= '10';
 
 end.
