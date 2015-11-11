@@ -96,9 +96,6 @@ var
   j: integer;
 begin
   FComboBox := TComboBox.Create(nil);
-  FComboBox.Parent := APanel;
-  FComboBox.Left := trunc(APanel.Width / 2) + 10;
-  FComboBox.Width := trunc(APanel.Width / 2) - 20;
   for i in TFPBrushStyle do
     if not (i in [bsImage, bsPattern]) then
       FComboBox.AddItem('', TObject(i));
@@ -107,6 +104,9 @@ begin
   FComboBox.Style := csOwnerDrawFixed;
   FComboBox.ReadOnly := True;
   FComboBox.Top := APanel.Tag;
+  FComboBox.Left := trunc(APanel.Width / 2) + 10;
+  FComboBox.Width := trunc(APanel.Width / 2) - 20;
+  FComboBox.Parent := APanel;
   inherited Create(AShapes, APropInfo, APanel, ADefaultParams);
   if ADefaultParams then
     for j:= 0 to High(FShapes) do
@@ -169,9 +169,6 @@ var
   j: integer;
 begin
   FComboBox := TComboBox.Create(nil);
-  FComboBox.Parent := APanel;
-  FComboBox.Left := trunc(APanel.Width / 2) + 10;
-  FComboBox.Width := trunc(APanel.Width / 2) - 20;
   for i in TFPPenStyle do
     if not (i in [psinsideFrame, psPattern, psClear]) then
       FComboBox.AddItem('', TObject(i));
@@ -180,6 +177,9 @@ begin
   FComboBox.Style := csOwnerDrawFixed;
   FComboBox.ReadOnly := True;
   FComboBox.Top := APanel.Tag;
+  FComboBox.Left := trunc(APanel.Width / 2) + 10;
+  FComboBox.Width := trunc(APanel.Width / 2) - 20;
+  FComboBox.Parent := APanel;
   inherited Create(AShapes, APropInfo, APanel, ADefaultParams);
   if ADefaultParams then
     for j := 0 to high(FShapes) do
@@ -237,11 +237,11 @@ begin
   FSpinEdit := TSpinEdit.Create(nil);
   FSpinEdit.MinValue := 1;
   FSpinEdit.MaxValue := 100;
-  FSpinEdit.Parent:= APanel;
-  FSpinEdit.Left:= trunc(APanel.Width / 2) + 10;
   FSpinEdit.Width:= trunc(APanel.Width / 2) - 20;
   FSpinEdit.OnChange := @Change;
+  FSpinEdit.Left:= trunc(APanel.Width / 2) + 10;
   FSpinEdit.Top:= APanel.Tag;
+  FSpinEdit.Parent:= APanel;
   inherited Create(AShapes, APropInfo, APanel, ADefaultParams);
   if ADefaultParams then
     for i:= 0 to High(FShapes) do
