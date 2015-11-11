@@ -26,6 +26,8 @@ type
     procedure MovePoint(APoint: TPoint);
     procedure Select(ARect: TRect); virtual; abstract;
     procedure DrawSelection(ACanvas: TCanvas);
+    function PointOnFigure(APoint: TPoint): Boolean;
+    procedure Shift(AShift: TPoint);
     property Rect: TFloatRect read FRect;
     property Selected: Boolean read FSelected write FSelected;
   published
@@ -166,21 +168,45 @@ begin
   ACanvas.Rectangle(UGeometry.Rect(p1, p2));
 end;
 
+function TFigure.PointOnFigure(APoint: TPoint): Boolean;
+var
+  r: TRect;
+begin
+  r := VP.WorldToScreen(FRect);
+  Result := (APoint.x >= r.Left) and (APoint.x <= r.Right) and
+    (APoint.y >= r.Top) and (APoint.y <= r.Bottom)
+end;
+
+procedure TFigure.Shift(AShift: TPoint);
+var i: Integer;
+begin
+  for i := 0 to High(FPoints) do
+    FPoints[i] += FloatPoint(AShift) / VP.Scale;
+  FRect := FloatRect(FPoints[0], FPoints[0]);
+  for i := 1 to High(FPoints) do
+  begin
+    FRect.Left := Min(FRect.Left, FPoints[i].X);
+    FRect.Right := Max(FRect.Right, FPoints[i].X);
+    FRect.Top := Min(FRect.Top, FPoints[i].Y);
+    FRect.Bottom := Max(FRect.Bottom, FPoints[i].Y);
+  end;
+end;
+
 { TPolyline }
 
 procedure TPolyline.Select(ARect: TRect);
 var
   i: integer;
 begin
-  FSelected := false;
+  FSelected := False;
   for i := 0 to High(FPoints) - 1 do
-    if Intersection(aRect,
+  begin
+    FSelected := Intersection(aRect,
       VP.WorldToScreen(FPoints[i]),
-      VP.WorldToScreen(FPoints[i+1])) then
-    begin
-      FSelected := true;
-      exit;
-    end;
+      VP.WorldToScreen(FPoints[i+1]));
+    if FSelected then
+      Exit;
+  end;
 end;
 
 procedure TPolyline.Draw(ACanvas: TCanvas);

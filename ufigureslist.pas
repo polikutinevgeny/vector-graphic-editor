@@ -5,7 +5,7 @@ unit UFiguresList;
 interface
 
 uses
-  Graphics, UFigures, math, UGeometry, UViewPort, UInspector;
+  Graphics, UFigures, math, UGeometry, UViewPort, UInspector, Classes;
 
 type
 
@@ -31,6 +31,8 @@ type
       procedure Select;
       procedure LoadSelected;
       procedure UnSelect;
+      function PointOnFigure(APoint: TPoint): Boolean;
+      procedure ShiftSelected(AShift: TPoint);
       function IsEmpty: Boolean;
   end;
 
@@ -136,6 +138,28 @@ var
 begin
   for i := 0 to High(FFigures) do
     FFigures[i].Selected := False;
+end;
+
+function TFiguresList.PointOnFigure(APoint: TPoint): Boolean;
+var i: Integer;
+begin
+  Result := False;
+  for i := 0 to FNumberOfFiguresShown - 1 do
+  begin
+    Result := FFigures[i].Selected and FFigures[i].PointOnFigure(APoint);
+    if Result then
+      exit;
+  end;
+end;
+
+procedure TFiguresList.ShiftSelected(AShift: TPoint);
+var i: Integer;
+begin
+  for i := 0 to FNumberOfFiguresShown - 1 do
+  begin
+    if FFigures[i].Selected then
+      FFigures[i].Shift(AShift);
+  end;
 end;
 
 function TFiguresList.IsEmpty: Boolean;

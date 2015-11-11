@@ -152,6 +152,9 @@ type
   { TSelectionTool }
 
   TSelectionTool = Class(TTool)
+  private
+    FMoveMode: Boolean;
+    FStartPoint: TPoint;
   public
     constructor Create; override;
     function GetParamObject: TObject; override;
@@ -184,12 +187,24 @@ implementation
 
 procedure TSelectionTool.MouseMove(APoint: TPoint);
 begin
+  if FMoveMode then
+  begin
+    Figures.ShiftSelected(APoint - FStartPoint);
+    FStartPoint := APoint;
+    exit;
+  end;
   Figures.SelectionRectangle.MovePoint(APoint);
   Figures.Select;
 end;
 
 procedure TSelectionTool.MouseClick(APoint: TPoint);
 begin
+  if Figures.PointOnFigure(APoint) then
+  begin
+    FMoveMode := True;
+    FStartPoint := APoint;
+    Exit;
+  end;
   Figures.UnSelect;
   Figures.SelectionRectangle := TRectangle.Create;
   Figures.SelectionRectangle.SetPoint(APoint);
@@ -202,18 +217,21 @@ begin
   Figures.LoadSelected;
   Figures.SelectionRectangle.Free;
   Figures.SelectionRectangle := nil;
+  FMoveMode := False;
 end;
 
 procedure TSelectionTool.DoubleClick;
 begin
   Figures.UnSelect;
   Inspector.ParamsUpdateEvent;
+  FMoveMode := False;
 end;
 
 constructor TSelectionTool.Create;
 begin
   inherited Create;
   FCaption := 'Selection';
+  FMoveMode := False;
 end;
 
 function TSelectionTool.GetParamObject: TObject;
