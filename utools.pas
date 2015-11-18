@@ -21,8 +21,8 @@ type
       procedure MouseMove(APoint: TPoint); virtual;
       procedure MouseUp; virtual;
       procedure DoubleClick; virtual;
-      function GetShape: TObject; virtual; abstract;
-      function CreateShape: TObject; virtual; abstract;
+      function GetShape: TShape; virtual; abstract;
+      function CreateShape: TShape; virtual; abstract;
       property Icon: TBitmap read FIcon;
       property Caption: string read FCaption;
     end;
@@ -33,8 +33,8 @@ type
     private
       FShape: TShape;
     public
-      function GetShape: TObject; override;
-      function CreateShape: TObject; override;
+      function GetShape: TShape; override;
+      function CreateShape: TShape; override;
       procedure MouseUp; override;
       procedure MouseMove(APoint: TPoint); override;
   end;
@@ -44,7 +44,7 @@ type
   TPenTool = Class(TShapeTool)
     public
       constructor Create; override;
-      function CreateShape: TObject; override;
+      function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
     end;
@@ -54,7 +54,7 @@ type
   TLineTool = Class(TShapeTool)
     public
       constructor Create; override;
-      function CreateShape: TObject; override;
+      function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint); override;
   end;
 
@@ -63,7 +63,7 @@ type
   TPolylineTool = Class(TShapeTool)
     public
       constructor Create; override;
-      function CreateShape: TObject; override;
+      function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
       procedure MouseUp; override;
@@ -77,7 +77,7 @@ type
   TRectangleTool = Class(TShapeTool)
     public
       constructor Create; override;
-      function CreateShape: TObject; override;
+      function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint); override;
   end;
 
@@ -86,7 +86,7 @@ type
   TEllipseTool = Class(TShapeTool)
     public
       constructor Create; override;
-      function CreateShape: TObject; override;
+      function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint); override;
   end;
 
@@ -95,7 +95,7 @@ type
   TRoundRectTool = Class(TShapeTool)
     public
       constructor Create; override;
-      function CreateShape: TObject; override;
+      function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint); override;
   end;
 
@@ -104,8 +104,8 @@ type
   TZoomInTool = Class(TTool)
     public
       constructor Create; override;
-      function GetShape: TObject; override;
-      function CreateShape: TObject; override;
+      function GetShape: TShape; override;
+      function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
   end;
@@ -115,8 +115,8 @@ type
   TZoomOutTool = Class(TTool)
     public
       constructor Create; override;
-      function GetShape: TObject; override;
-      function CreateShape: TObject; override;
+      function GetShape: TShape; override;
+      function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
   end;
@@ -128,8 +128,8 @@ type
       FStartPoint: TPoint;
     public
       constructor Create; override;
-      function GetShape: TObject; override;
-      function CreateShape: TObject; override;
+      function GetShape: TShape; override;
+      function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
   end;
@@ -142,8 +142,8 @@ type
       FPointTwo: TFloatPoint;
     public
       constructor Create; override;
-      function GetShape: TObject; override;
-      function CreateShape: TObject; override;
+      function GetShape: TShape; override;
+      function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint); override;
       procedure MouseMove(APoint: TPoint); override;
       procedure MouseUp; override;
@@ -157,8 +157,8 @@ type
     FStartPoint: TPoint;
   public
     constructor Create; override;
-    function GetShape: TObject; override;
-    function CreateShape: TObject; override;
+    function GetShape: TShape; override;
+    function CreateShape: TShape; override;
     procedure MouseClick(APoint: TPoint); override;
     procedure MouseMove(APoint: TPoint); override;
     procedure MouseUp; override;
@@ -223,7 +223,7 @@ end;
 procedure TSelectionTool.DoubleClick;
 begin
   Figures.UnSelect;
-  Inspector.ParamsUpdateEvent;
+  Inspector.OnParamsUpdate;
   FMoveMode := False;
 end;
 
@@ -234,12 +234,12 @@ begin
   FMoveMode := False;
 end;
 
-function TSelectionTool.GetShape: TObject;
+function TSelectionTool.GetShape: TShape;
 begin
   Result := nil;
 end;
 
-function TSelectionTool.CreateShape: TObject;
+function TSelectionTool.CreateShape: TShape;
 begin
   Result := nil;
 end;
@@ -254,12 +254,12 @@ end;
 
 { TShapeTool }
 
-function TShapeTool.GetShape: TObject;
+function TShapeTool.GetShape: TShape;
 begin
   Result := FShape;
 end;
 
-function TShapeTool.CreateShape: TObject;
+function TShapeTool.CreateShape: TShape;
 begin
   Result := FShape;
 end;
@@ -282,12 +282,12 @@ begin
   FCaption := 'Zoom to area';
 end;
 
-function TRectangleZoomTool.GetShape: TObject;
+function TRectangleZoomTool.GetShape: TShape;
 begin
   Result := nil;
 end;
 
-function TRectangleZoomTool.CreateShape: TObject;
+function TRectangleZoomTool.CreateShape: TShape;
 begin
   Result := nil;
 end;
@@ -327,12 +327,12 @@ begin
   FCaption := 'Hand';
 end;
 
-function THandTool.GetShape: TObject;
+function THandTool.GetShape: TShape;
 begin
   Result := Nil;
 end;
 
-function THandTool.CreateShape: TObject;
+function THandTool.CreateShape: TShape;
 begin
   Result := Nil;
 end;
@@ -357,12 +357,12 @@ begin
   FCaption := 'Zoom out';
 end;
 
-function TZoomOutTool.GetShape: TObject;
+function TZoomOutTool.GetShape: TShape;
 begin
   Result := Nil;
 end;
 
-function TZoomOutTool.CreateShape: TObject;
+function TZoomOutTool.CreateShape: TShape;
 begin
   Result := Nil;
 end;
@@ -392,12 +392,12 @@ begin
   FCaption := 'Zoom in';
 end;
 
-function TZoomInTool.GetShape: TObject;
+function TZoomInTool.GetShape: TShape;
 begin
   Result := Nil;
 end;
 
-function TZoomInTool.CreateShape: TObject;
+function TZoomInTool.CreateShape: TShape;
 begin
   Result := Nil;
 end;
@@ -450,7 +450,7 @@ begin
   FCaption := 'Rounded rectangle';
 end;
 
-function TRoundRectTool.CreateShape: TObject;
+function TRoundRectTool.CreateShape: TShape;
 begin
   FShape := TRoundRect.Create;
   Result := inherited CreateShape;
@@ -470,7 +470,7 @@ begin
   FCaption := 'Ellipse';
 end;
 
-function TEllipseTool.CreateShape: TObject;
+function TEllipseTool.CreateShape: TShape;
 begin
   FShape := TEllipse.Create;
   Result := inherited CreateShape;
@@ -490,7 +490,7 @@ begin
   FCaption := 'Rectangle';
 end;
 
-function TRectangleTool.CreateShape: TObject;
+function TRectangleTool.CreateShape: TShape;
 begin
   FShape := TRectangle.Create;
   Result := inherited CreateShape;
@@ -510,7 +510,7 @@ begin
   FCaption := 'Polyline';
 end;
 
-function TPolylineTool.CreateShape: TObject;
+function TPolylineTool.CreateShape: TShape;
 begin
   FShape := TPolyline.Create;
   Result := inherited CreateShape;
@@ -552,7 +552,7 @@ begin
   FCaption := 'Line';
 end;
 
-function TLineTool.CreateShape: TObject;
+function TLineTool.CreateShape: TShape;
 begin
   FShape := TLine.Create;
   Result := inherited CreateShape;
@@ -572,7 +572,7 @@ begin
   FCaption := 'Pencil';
 end;
 
-function TPenTool.CreateShape: TObject;
+function TPenTool.CreateShape: TShape;
 begin
   FShape := TPolyline.Create;
   Result := inherited CreateShape;

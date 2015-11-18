@@ -32,7 +32,7 @@ type
         write FViewPosition;
       property Scale: Double read FScale write SetScale;
       property PortSize: TPoint read FPortSize write FPortSize;
-      property ScrollUpdateEvent: TScrollUpdateEvent read FScrollUpdateEvent
+      property OnScrollUpdate: TScrollUpdateEvent read FScrollUpdateEvent
         write FScrollUpdateEvent;
       constructor Create;
       function WorldToScreen(APoint: TFloatPoint): TPoint;

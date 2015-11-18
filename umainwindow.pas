@@ -101,7 +101,7 @@ begin
   FCleared := False;
   FMousePressed := False;
   Inspector := TInspector.Create(EditorsPanel);
-  Inspector.ParamsUpdateEvent := @PaintBox.Invalidate;
+  Inspector.OnParamsUpdate := @PaintBox.Invalidate;
   for i := 0 to High(ToolContainer.Tools) do
     begin
       bt := TSpeedButton.Create(Self);
@@ -121,7 +121,7 @@ begin
     end;
   VP := TViewPort.Create;
   VP.ViewPosition := FloatPoint(PaintBox.Width / 2, PaintBox.Height / 2);
-  VP.ScrollUpdateEvent := @UpdateScroll;
+  VP.OnScrollUpdate := @UpdateScroll;
   {Generate palette}
   SetLength(FPaletteColors, PaletteDG.ColCount * PaletteDG.RowCount);
   for i := 64 to 79 do

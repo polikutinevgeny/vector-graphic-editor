@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Spin, ExtCtrls, StdCtrls, Controls, FPCanvas, typinfo,
-  UInspector, LCLType, Graphics, math;
+  UInspector, LCLType, Graphics, math, UShapes;
 
 type
 
@@ -17,7 +17,7 @@ type
     FSpinEdit: TSpinEdit;
     procedure Change(Sender: TObject); override;
   public
-    constructor Create(AShapes: array of TObject; APropInfo: PPropInfo;
+    constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
         APanel: TPanel; ADefaultParams: Boolean); override;
     destructor Destroy; override;
     procedure Refresh; override;
@@ -32,7 +32,7 @@ type
         ARect: TRect; AState: TOwnerDrawState);
       procedure Change(Sender: TObject); override;
     public
-      constructor Create(AShapes: array of TObject; APropInfo: PPropInfo;
+      constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
         APanel: TPanel; ADefaultParams: Boolean); override;
       destructor Destroy; override;
       procedure Refresh; override;
@@ -47,7 +47,7 @@ type
         ARect: TRect; AState: TOwnerDrawState);
       procedure Change(Sender: TObject); override;
     public
-      constructor Create(AShapes: array of TObject; APropInfo: PPropInfo;
+      constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
         APanel: TPanel; ADefaultParams: Boolean); override;
       destructor Destroy; override;
       procedure Refresh; override;
@@ -87,7 +87,7 @@ begin
   inherited Change(Sender);
 end;
 
-constructor TBrushStyleEditor.Create(AShapes: array of TObject;
+constructor TBrushStyleEditor.Create(AShapes: array of TShape;
   APropInfo: PPropInfo; APanel: TPanel; ADefaultParams: Boolean);
 var
   i: TFPBrushStyle;
@@ -96,7 +96,7 @@ begin
   FComboBox := TComboBox.Create(nil);
   for i in TFPBrushStyle do
     if not (i in [bsImage, bsPattern]) then
-      FComboBox.AddItem('', TObject(i));
+      FComboBox.AddItem('', TShape(i));
   FComboBox.OnDrawItem := @ComboBoxDrawItem;
   FComboBox.OnChange := @Change;
   FComboBox.Style := csOwnerDrawFixed;
@@ -161,7 +161,7 @@ begin
   inherited Change(Sender);
 end;
 
-constructor TPenStyleEditor.Create(AShapes: array of TObject;
+constructor TPenStyleEditor.Create(AShapes: array of TShape;
   APropInfo: PPropInfo; APanel: TPanel; ADefaultParams: Boolean);
 var
   i: TFPPenStyle;
@@ -170,7 +170,7 @@ begin
   FComboBox := TComboBox.Create(nil);
   for i in TFPPenStyle do
     if not (i in [psinsideFrame, psPattern, psClear]) then
-      FComboBox.AddItem('', TObject(i));
+      FComboBox.AddItem('', TShape(i));
   FComboBox.OnDrawItem := @ComboBoxDrawItem;
   FComboBox.OnChange := @Change;
   FComboBox.Style := csOwnerDrawFixed;
@@ -220,7 +220,7 @@ begin
   inherited Change(Sender);
 end;
 
-constructor TIntegerEditor.Create(AShapes: array of TObject;
+constructor TIntegerEditor.Create(AShapes: array of TShape;
   APropInfo: PPropInfo; APanel: TPanel; ADefaultParams: Boolean);
 var
   i: integer;

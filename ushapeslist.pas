@@ -119,7 +119,7 @@ end;
 
 procedure TShapesList.LoadSelected;
 var
-  a: array of TObject;
+  a: array of TShape;
   i: Integer;
 begin
   SetLength(a, 0);

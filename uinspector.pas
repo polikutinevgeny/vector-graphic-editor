@@ -5,7 +5,7 @@ unit UInspector;
 interface
 
 uses
-  Classes, SysUtils, typinfo, Graphics, ExtCtrls, StdCtrls;
+  Classes, SysUtils, typinfo, Graphics, ExtCtrls, StdCtrls, UShapes;
 
 type
 
@@ -15,12 +15,12 @@ type
 
   TParamEditor = class
     protected
-      FShapes: array of TObject;
+      FShapes: array of TShape;
       FLabel: TLabel;
       FPropInfo: PPropInfo;
       procedure Change(Sender: TObject); virtual;
     public
-      constructor Create(AShapes: array of TObject; APropInfo: PPropInfo;
+      constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
         APanel: TPanel; ADefaultParams: Boolean); virtual;
       destructor Destroy; override;
       procedure Refresh; virtual; abstract;
@@ -30,20 +30,20 @@ type
 
   TInspector = class
     private
-      FShapes: array of TObject;
+      FShapes: array of TShape;
       FEditors: array of TParamEditor;
       FPenColor, FBrushColor: TColor;
       FDefaultParams: Boolean;
       FPanel: TPanel;
       FParamsUpdateEvent: TParamsUpdateEvent;
-      function SearchPropertyInObject(AShape: TObject; AProperty: PPropInfo): Boolean;
-      function CheckPropertyInAllObjects(AShapes: array of TObject; AProperty: PPropInfo): Boolean;
+      function SearchPropertyInObject(AShape: TShape; AProperty: PPropInfo): Boolean;
+      function CheckPropertyInAllObjects(AShapes: array of TShape; AProperty: PPropInfo): Boolean;
     public
-      property ParamsUpdateEvent: TParamsUpdateEvent read FParamsUpdateEvent
+      property OnParamsUpdate: TParamsUpdateEvent read FParamsUpdateEvent
         write FParamsUpdateEvent;
       constructor Create(APanel: TPanel);
-      procedure LoadNew(AShape: TObject);
-      procedure Load(AShapes: array of TObject);
+      procedure LoadNew(AShape: TShape);
+      procedure Load(AShapes: array of TShape);
       procedure Refresh;
       procedure SetPenColor(AColor: TColor);
       procedure SetBrushColor(AColor: TColor);
@@ -97,9 +97,9 @@ begin
   FBrushColor:= clWhite;
 end;
 
-procedure TInspector.LoadNew(AShape: TObject);
+procedure TInspector.LoadNew(AShape: TShape);
 var
-  shapes: array of TObject;
+  shapes: array of TShape;
 begin
   if AShape = nil then begin
     Clean;
@@ -111,7 +111,7 @@ begin
   Load(shapes);
 end;
 
-function TInspector.SearchPropertyInObject(AShape: TObject;
+function TInspector.SearchPropertyInObject(AShape: TShape;
   AProperty: PPropInfo): Boolean;
 var
   i, j: integer;
@@ -127,7 +127,7 @@ begin
     end;
 end;
 
-function TInspector.CheckPropertyInAllObjects(AShapes: array of TObject;
+function TInspector.CheckPropertyInAllObjects(AShapes: array of TShape;
   AProperty: PPropInfo): Boolean;
 var
   j: Integer;
@@ -141,7 +141,7 @@ begin
     end;
 end;
 
-procedure TInspector.Load(AShapes: array of TObject);
+procedure TInspector.Load(AShapes: array of TShape);
 var
   list: PPropList;
   i, j: integer;
@@ -227,10 +227,10 @@ end;
 
 procedure TParamEditor.Change(Sender: TObject);
 begin
-  Inspector.ParamsUpdateEvent;
+  Inspector.OnParamsUpdate;
 end;
 
-constructor TParamEditor.Create(AShapes: array of TObject;
+constructor TParamEditor.Create(AShapes: array of TShape;
   APropInfo: PPropInfo; APanel: TPanel; ADefaultParams: Boolean);
 var i: integer;
 begin
