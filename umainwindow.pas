@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
-  UTools, UFiguresList, Buttons, Spin, StdCtrls, ComCtrls, Grids,
+  UTools, UShapesList, Buttons, Spin, StdCtrls, ComCtrls, Grids,
   UViewPort, UGeometry, types, math, UInspector;
 
 type
@@ -180,7 +180,7 @@ begin
   FCurrentToolIndex := TSpeedButton(Sender).Tag;
   StatusBar.Panels[0].Text := 'Current tool: '
     + ToolContainer.Tools[FCurrentToolIndex].Caption;
-  Inspector.LoadNew(ToolContainer.Tools[FCurrentToolIndex].CreateParamObject);
+  Inspector.LoadNew(ToolContainer.Tools[FCurrentToolIndex].CreateShape);
 end;
 
 procedure TMainWindow.ClearMIClick(Sender: TObject);

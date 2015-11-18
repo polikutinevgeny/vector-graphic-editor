@@ -37,6 +37,7 @@ type
       FPanel: TPanel;
       FParamsUpdateEvent: TParamsUpdateEvent;
       function SearchPropertyInObject(AShape: TObject; AProperty: PPropInfo): Boolean;
+      function CheckPropertyInAllObjects(AShapes: array of TObject; AProperty: PPropInfo): Boolean;
     public
       property ParamsUpdateEvent: TParamsUpdateEvent read FParamsUpdateEvent
         write FParamsUpdateEvent;
@@ -126,11 +127,24 @@ begin
     end;
 end;
 
+function TInspector.CheckPropertyInAllObjects(AShapes: array of TObject;
+  AProperty: PPropInfo): Boolean;
+var
+  j: Integer;
+begin
+  Result := True;
+  for j := 1 to High(AShapes) do
+    begin
+      Result := SearchPropertyInObject(AShapes[j], AProperty);
+      if not Result then
+        exit;
+    end;
+end;
+
 procedure TInspector.Load(AShapes: array of TObject);
 var
   list: PPropList;
   i, j: integer;
-  b: boolean;
 begin
   Clean;
   if Length(AShapes) = 0 then
@@ -142,14 +156,7 @@ begin
   j := GetPropList(FShapes[0], list);
   for i := 0 to j - 1 do
   begin
-    b := True;
-    for j := 1 to High(FShapes) do
-      if not SearchPropertyInObject(FShapes[j], list^[i]) then
-      begin
-        b := False;
-        Break;
-      end;
-    if b then
+    if CheckPropertyInAllObjects(FShapes, list^[i]) then
     begin
       for j := 0 to High(EditorContainer.Editors) do
         if list^[i]^.PropType^.Name = EditorContainer.Editors[j].Kind then
@@ -249,10 +256,11 @@ end;
 initialization
 
 PropNames := TStringList.Create;
-PropNames.Values['BrushStyle']:='Fill style:';
-PropNames.Values['PenWidth']:='Pen width:';
-PropNames.Values['PenStyle']:='Pen style:';
-PropNames.Values['Radius']:='Radius:';
+PropNames.Values['BrushStyle'] :='Fill style:';
+PropNames.Values['PenWidth'] :='Pen width:';
+PropNames.Values['PenStyle'] :='Pen style:';
+PropNames.Values['RadiusX'] :='Radius X:';
+PropNames.Values['RadiusY'] := 'Radius Y:';
 
 end.
 

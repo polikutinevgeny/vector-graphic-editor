@@ -55,14 +55,14 @@
         <UnitName Value="UTools"/>
       </Unit2>
       <Unit3>
-        <Filename Value="ufigures.pas"/>
+        <Filename Value="ushapes.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="UFigures"/>
+        <UnitName Value="UShapes"/>
       </Unit3>
       <Unit4>
-        <Filename Value="ufigureslist.pas"/>
+        <Filename Value="ushapeslist.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="UFiguresList"/>
+        <UnitName Value="UShapesList"/>
       </Unit4>
       <Unit5>
         <Filename Value="uviewport.pas"/>

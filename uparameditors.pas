@@ -14,7 +14,6 @@ type
 
   TIntegerEditor = class(TParamEditor)
   private
-    FJustCreated: Boolean;
     FSpinEdit: TSpinEdit;
     procedure Change(Sender: TObject); override;
   public
@@ -215,13 +214,6 @@ end;
 procedure TIntegerEditor.Change(Sender: TObject);
 var i: integer;
 begin
-  {The change event is always fired after creation because value is changed,
-  so we simply do not change properties}
-  if FJustCreated then
-  begin
-    FJustCreated := False;
-    exit;
-  end;
   for i:= 0 to High(FShapes) do
     SetInt64Prop(FShapes[i], FPropInfo, TSpinEdit(Sender).Value);
   PropValues.Values[FPropInfo^.Name]:= IntToStr(TSpinEdit(Sender).Value);
@@ -233,12 +225,10 @@ constructor TIntegerEditor.Create(AShapes: array of TObject;
 var
   i: integer;
 begin
-  FJustCreated := True;
   FSpinEdit := TSpinEdit.Create(nil);
   FSpinEdit.MinValue := 1;
   FSpinEdit.MaxValue := 100;
   FSpinEdit.Width:= trunc(APanel.Width / 2) - 20;
-  FSpinEdit.OnChange := @Change;
   FSpinEdit.Left:= trunc(APanel.Width / 2) + 10;
   FSpinEdit.Top:= APanel.Tag;
   FSpinEdit.Parent:= APanel;
@@ -248,6 +238,7 @@ begin
       SetInt64Prop(FShapes[i], FPropInfo,
         StrToInt64(PropValues.Values[FPropInfo^.Name]));
   Refresh;
+  FSpinEdit.OnChange := @Change;
 end;
 
 destructor TIntegerEditor.Destroy;
@@ -273,14 +264,17 @@ end;
 initialization
 
   EditorContainer := TEditorContainer.Create;
-  EditorContainer.RegisterEditor(TIntegerEditor, 'LongInt');
+  EditorContainer.RegisterEditor(TIntegerEditor, 'TPenWidth');
+  EditorContainer.RegisterEditor(TIntegerEditor, 'TRadius');
+  EditorContainer.RegisterEditor(TIntegerEditor, 'TRadius');
   EditorContainer.RegisterEditor(TPenStyleEditor, 'TFPPenStyle');
   EditorContainer.RegisterEditor(TBrushStyleEditor, 'TFPBrushStyle');
   PropValues := TStringList.Create;
   PropValues.Values['PenWidth'] := '3';
   PropValues.Values['PenStyle'] := '0';
-  PropValues.Values['BrushStyle']:= '1';
-  PropValues.Values['Radius']:= '10';
+  PropValues.Values['BrushStyle'] := '1';
+  PropValues.Values['RadiusX'] := '10';
+  PropValues.Values['RadiusY'] := '10';
 
 end.
 

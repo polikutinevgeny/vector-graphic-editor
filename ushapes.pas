@@ -1,4 +1,4 @@
-unit UFigures;
+unit UShapes;
 
 {$mode objfpc}{$H+}
 
@@ -9,14 +9,15 @@ uses
 
 type
 
-  { TFigure }
+  { TShape }
 
-  TFigure = class abstract
+  TPenWidth = type Integer;
+  TShape = class abstract
   private
     FPoints: TFloatPoints;
     FRect: TFloatRect;
     FPenColor: TColor;
-    FPenWidth: Integer;
+    FPenWidth: TPenWidth;
     FPenStyle: TPenStyle;
     FSelected: Boolean;
   public
@@ -32,13 +33,13 @@ type
     property Selected: Boolean read FSelected write FSelected;
   published
     property PenColor: TColor read FPenColor write FPenColor;
-    property PenWidth: Integer read FPenWidth write FPenWidth;
+    property PenWidth: TPenWidth read FPenWidth write FPenWidth;
     property PenStyle: TPenStyle read FPenStyle write FPenStyle;
   end;
 
   { TFill }
 
-  TFill = class abstract(TFigure)
+  TFill = class abstract(TShape)
     private
       FBrushColor: TColor;
       FBrushStyle: TBrushStyle;
@@ -52,7 +53,7 @@ type
 
   { TPolyline }
 
-  TPolyline = class(TFigure)
+  TPolyline = class(TShape)
   public
     procedure Select(ARect: TRect); override;
     procedure Draw(ACanvas: TCanvas); override;
@@ -61,7 +62,7 @@ type
 
   { TLine }
 
-  TLine = class(TFigure)
+  TLine = class(TShape)
   public
     procedure Select(ARect: TRect); override;
     procedure Draw(ACanvas: TCanvas); override;
@@ -85,14 +86,17 @@ type
 
   { TRoundRect }
 
+  TRadius = type Integer;
   TRoundRect = class(TFill)
   private
-    FRadius: Integer;
+    FRadiusX: Integer;
+    FRadiusY: Integer;
   public
     procedure Select(ARect: TRect); override;
     procedure Draw(ACanvas: TCanvas); override;
   published
-    property Radius: Integer read FRadius write FRadius;
+    property RadiusX: TRadius read FRadiusX write FRadiusX;
+    property RadiusY: TRadius read FRadiusY write FRadiusY;
   end;
 
 implementation
@@ -113,9 +117,9 @@ begin
   ACanvas.Brush.Style := FBrushStyle;
 end;
 
-{ TFigure }
+{ TShape }
 
-constructor TFigure.Create;
+constructor TShape.Create;
 begin
   FPenWidth := 1;
   FPenColor := clBlack;
@@ -123,7 +127,7 @@ begin
   FSelected := False;
 end;
 
-procedure TFigure.SetPoint(APoint: TPoint);
+procedure TShape.SetPoint(APoint: TPoint);
 begin
   SetLength(FPoints, 2);
   FPoints[0] := VP.ScreenToWorld(APoint);
@@ -131,14 +135,14 @@ begin
   FRect := FloatRect(FPoints[0], FPoints[0]);
 end;
 
-procedure TFigure.Draw(ACanvas: TCanvas);
+procedure TShape.Draw(ACanvas: TCanvas);
 begin
   ACanvas.Pen.Width := round(FPenWidth * VP.Scale);
   ACanvas.Pen.Color := FPenColor;
   ACanvas.Pen.Style := FPenStyle;
 end;
 
-procedure TFigure.MovePoint(APoint: TPoint);
+procedure TShape.MovePoint(APoint: TPoint);
 var
   i: integer;
 begin
@@ -153,7 +157,7 @@ begin
   end;
 end;
 
-procedure TFigure.DrawSelection(ACanvas: TCanvas);
+procedure TShape.DrawSelection(ACanvas: TCanvas);
 var
   p1, p2: TPoint;
 begin
@@ -168,7 +172,7 @@ begin
   ACanvas.Rectangle(UGeometry.Rect(p1, p2));
 end;
 
-function TFigure.PointOnFigure(APoint: TPoint): Boolean;
+function TShape.PointOnFigure(APoint: TPoint): Boolean;
 var
   r: TRect;
 begin
@@ -177,7 +181,7 @@ begin
     (APoint.Y >= r.Top) and (APoint.Y <= r.Bottom)
 end;
 
-procedure TFigure.Shift(AShift: TPoint);
+procedure TShape.Shift(AShift: TPoint);
 var i: Integer;
 begin
   for i := 0 to High(FPoints) do
@@ -197,7 +201,7 @@ begin
   FSelected := False;
   for i := 0 to High(FPoints) - 1 do
   begin
-    FSelected := Intersection(aRect,
+    FSelected := Intersection(ARect,
       VP.WorldToScreen(FPoints[i]),
       VP.WorldToScreen(FPoints[i+1]));
     if FSelected then
@@ -271,8 +275,8 @@ end;
 procedure TRoundRect.Draw(ACanvas: TCanvas);
 begin
   inherited;
-  ACanvas.RoundRect(VP.WorldToScreen(FRect), Round(Radius * VP.Scale),
-    Round(Radius * VP.Scale));
+  ACanvas.RoundRect(VP.WorldToScreen(FRect), Round(FRadiusX * VP.Scale),
+    Round(FRadiusY * VP.Scale));
 end;
 
 end.

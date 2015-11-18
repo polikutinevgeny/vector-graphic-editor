@@ -1,19 +1,19 @@
-unit UFiguresList;
+unit UShapesList;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Graphics, UFigures, math, UGeometry, UViewPort, UInspector, Classes;
+  Graphics, UShapes, math, UGeometry, UViewPort, UInspector, Classes;
 
 type
 
-  { TFiguresList }
+  { TShapesList }
 
-  TFiguresList = class
+  TShapesList = class
     private
-      FFigures: array of TFigure;
+      FFigures: array of TShape;
       FNumberOfFiguresShown: integer;
       FSelectionRectangle: TRectangle;
       function FImageSize: TFloatRect;
@@ -23,7 +23,7 @@ type
       property ImageSize: TFloatRect read FImageSize;
       constructor Create;
       procedure Draw(ACanvas: TCanvas);
-      procedure Add(AFigure: TFigure);
+      procedure Add(AFigure: TShape);
       procedure Undo;
       procedure UndoAll;
       procedure Redo;
@@ -37,13 +37,13 @@ type
   end;
 
 var
-  Figures: TFiguresList;
+  Figures: TShapesList;
 
 implementation
 
-{ TFiguresList }
+{ TShapesList }
 
-function TFiguresList.FImageSize: TFloatRect;
+function TShapesList.FImageSize: TFloatRect;
 var i: integer;
 begin
   if FNumberOfFiguresShown > 0 then
@@ -61,12 +61,12 @@ begin
     Result := FloatRect(FloatPoint(0, 0), FloatPoint(0, 0));
 end;
 
-constructor TFiguresList.Create;
+constructor TShapesList.Create;
 begin
   FNumberOfFiguresShown := 0;
 end;
 
-procedure TFiguresList.Draw(ACanvas: TCanvas);
+procedure TShapesList.Draw(ACanvas: TCanvas);
 var i: integer;
 begin
   for i := 0 to FNumberOfFiguresShown - 1 do
@@ -78,14 +78,14 @@ begin
     FSelectionRectangle.Draw(ACanvas);
 end;
 
-procedure TFiguresList.Add(AFigure: TFigure);
+procedure TShapesList.Add(AFigure: TShape);
 begin
   inc(FNumberOfFiguresShown);
   SetLength(FFigures, FNumberOfFiguresShown);
   FFigures[High(FFigures)] := AFigure;
 end;
 
-procedure TFiguresList.Undo;
+procedure TShapesList.Undo;
 begin
   FNumberOfFiguresShown := max(FNumberOfFiguresShown - 1, 0);
   if IsEmpty then
@@ -95,29 +95,29 @@ begin
     end;
 end;
 
-procedure TFiguresList.UndoAll;
+procedure TShapesList.UndoAll;
 begin
   FNumberOfFiguresShown := 0;
 end;
 
-procedure TFiguresList.Redo;
+procedure TShapesList.Redo;
 begin
   FNumberOfFiguresShown := min(FNumberOfFiguresShown + 1, Length(FFigures));
 end;
 
-procedure TFiguresList.RedoAll;
+procedure TShapesList.RedoAll;
 begin
   FNumberOfFiguresShown := Length(FFigures);
 end;
 
-procedure TFiguresList.Select;
+procedure TShapesList.Select;
 var i: integer;
 begin
   for i := 0 to FNumberOfFiguresShown - 1 do
     FFigures[i].Select(VP.WorldToScreen(FSelectionRectangle.Rect));
 end;
 
-procedure TFiguresList.LoadSelected;
+procedure TShapesList.LoadSelected;
 var
   a: array of TObject;
   i: Integer;
@@ -132,7 +132,7 @@ begin
   Inspector.Load(a);
 end;
 
-procedure TFiguresList.UnSelect;
+procedure TShapesList.UnSelect;
 var
   i: Integer;
 begin
@@ -140,7 +140,7 @@ begin
     FFigures[i].Selected := False;
 end;
 
-function TFiguresList.PointOnFigure(APoint: TPoint): Boolean;
+function TShapesList.PointOnFigure(APoint: TPoint): Boolean;
 var i: Integer;
 begin
   Result := False;
@@ -152,7 +152,7 @@ begin
   end;
 end;
 
-procedure TFiguresList.ShiftSelected(AShift: TPoint);
+procedure TShapesList.ShiftSelected(AShift: TPoint);
 var i: Integer;
 begin
   for i := 0 to FNumberOfFiguresShown - 1 do
@@ -162,12 +162,12 @@ begin
   end;
 end;
 
-function TFiguresList.IsEmpty: Boolean;
+function TShapesList.IsEmpty: Boolean;
 begin
   Result := FNumberOfFiguresShown < 1;
 end;
 
 initialization
-  Figures := TFiguresList.Create;
+  Figures := TShapesList.Create;
 end.
 
