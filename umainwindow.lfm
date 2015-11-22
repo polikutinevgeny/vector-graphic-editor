@@ -219,6 +219,22 @@ object MainWindow: TMainWindow
         ShortCut = 46
         OnClick = DeleteMIClick
       end
+      object MoveUpMI: TMenuItem
+        Caption = 'Move up'
+        OnClick = MoveUpMIClick
+      end
+      object MoveDownMI: TMenuItem
+        Caption = 'Move down'
+        OnClick = MoveDownMIClick
+      end
+      object BottomMI: TMenuItem
+        Caption = 'Move to the bottom'
+        OnClick = BottomMIClick
+      end
+      object TopMI: TMenuItem
+        Caption = 'Move to the top'
+        OnClick = TopMIClick
+      end
     end
     object ViewMI: TMenuItem
       Caption = 'View'

@@ -27,6 +27,10 @@ type
       procedure Delete;
       procedure LoadSelected;
       procedure UnSelect;
+      procedure ZUp;
+      procedure ZDown;
+      procedure ZTop;
+      procedure ZBottom;
       function PointOnFigure(APoint: TPoint): Boolean;
       procedure ShiftSelected(AShift: TPoint);
       function IsEmpty: Boolean;
@@ -140,6 +144,77 @@ var
 begin
   for i := 0 to High(FShapes) do
     FShapes[i].Selected := False;
+end;
+
+procedure TShapesList.ZUp;
+var
+  i: Integer;
+  s: TShape;
+begin
+  for i := High(FShapes) downto 0 do
+  begin
+    if FShapes[i].Selected and (i < High(FShapes)) and
+      not FShapes[i + 1].Selected then
+    begin
+      s := FShapes[i];
+      FShapes[i] := FShapes[i + 1];
+      FShapes[i + 1] := s;
+    end;
+  end;
+end;
+
+procedure TShapesList.ZDown;
+var
+  i: Integer;
+  s: TShape;
+begin
+  for i := 0 to High(FShapes) do
+  begin
+    if FShapes[i].Selected and (i > 0) and not FShapes[i - 1].Selected then
+    begin
+      s := FShapes[i];
+      FShapes[i] := FShapes[i - 1];
+      FShapes[i - 1] := s;
+    end;
+  end;
+end;
+
+procedure TShapesList.ZTop;
+var
+  i, j: Integer;
+  s: TShape;
+begin
+  for i := High(FShapes) downto 0 do
+  begin
+    if FShapes[i].Selected then
+      for j := i to High(FShapes) - 1 do
+      begin
+        if FShapes[j + 1].Selected then
+          break;
+        s := FShapes[j];
+        FShapes[j] := FShapes[j + 1];
+        FShapes[j + 1] := s;
+      end;
+  end;
+end;
+
+procedure TShapesList.ZBottom;
+var
+  i, j: Integer;
+  s: TShape;
+begin
+  for i := 0 to High(FShapes) do
+  begin
+    if FShapes[i].Selected then
+      for j := i downto 1 do
+      begin
+        if FShapes[j - 1].Selected then
+          break;
+        s := FShapes[j];
+        FShapes[j] := FShapes[j - 1];
+        FShapes[j - 1] := s;
+      end;
+  end;
 end;
 
 function TShapesList.PointOnFigure(APoint: TPoint): Boolean;

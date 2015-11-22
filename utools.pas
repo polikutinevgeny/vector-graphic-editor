@@ -193,8 +193,11 @@ begin
     FStartPoint := APoint;
     exit;
   end;
-  Figures.SelectionRectangle.MovePoint(APoint);
-  Figures.Select;
+  if Figures.SelectionRectangle <> nil then
+  begin
+    Figures.SelectionRectangle.MovePoint(APoint);
+    Figures.Select;
+  end;
 end;
 
 procedure TSelectionTool.MouseClick(APoint: TPoint);

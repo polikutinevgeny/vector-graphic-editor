@@ -15,6 +15,10 @@ type
 
   TMainWindow = class(TForm)
     ColorDialog: TColorDialog;
+    MoveUpMI: TMenuItem;
+    MoveDownMI: TMenuItem;
+    BottomMI: TMenuItem;
+    TopMI: TMenuItem;
     PaletteDG: TDrawGrid;
     HorizontalSB: TScrollBar;
     PalettePanel: TPanel;
@@ -31,11 +35,14 @@ type
     PaintBox: TPaintBox;
     StatusBar: TStatusBar;
     procedure AboutMIClick(Sender: TObject);
+    procedure BottomMIClick(Sender: TObject);
     procedure DeleteMIClick(Sender: TObject);
     procedure HorizontalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: Integer);
     procedure ColorMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure MoveDownMIClick(Sender: TObject);
+    procedure MoveUpMIClick(Sender: TObject);
     procedure PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure PaintBoxMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -55,6 +62,7 @@ type
     procedure PaintBoxPaint(Sender: TObject);
     procedure ShowAllMIClick(Sender: TObject);
     procedure ToolClick(Sender: TObject);
+    procedure TopMIClick(Sender: TObject);
     procedure VerticalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: Integer);
     procedure ZoomCBChange(Sender: TObject);
@@ -83,6 +91,12 @@ procedure TMainWindow.AboutMIClick(Sender: TObject);
 begin
   ShowMessage('Vector Graphic Editor' + chr(10) +
     'Поликутин Евгений, Б8103а, 2015');
+end;
+
+procedure TMainWindow.BottomMIClick(Sender: TObject);
+begin
+  Figures.ZBottom;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.ExitMIClick(Sender: TObject);
@@ -181,6 +195,12 @@ begin
   Inspector.LoadNew(ToolContainer.Tools[FCurrentToolIndex].CreateShape);
 end;
 
+procedure TMainWindow.TopMIClick(Sender: TObject);
+begin
+  Figures.ZTop;
+  PaintBox.Invalidate;
+end;
+
 procedure TMainWindow.DeleteMIClick(Sender: TObject);
 begin
   Figures.Delete;
@@ -213,6 +233,18 @@ begin
   if not ColorDialog.Execute then
     exit;
   TShape(Sender).Brush.Color := ColorDialog.Color;
+  PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.MoveDownMIClick(Sender: TObject);
+begin
+  Figures.ZDown;
+  PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.MoveUpMIClick(Sender: TObject);
+begin
+  Figures.ZUp;
   PaintBox.Invalidate;
 end;
 
