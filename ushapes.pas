@@ -127,13 +127,17 @@ end;
 { TShape }
 
 function TShape.GetRect: TFloatRect;
-var p1, p2, dp: TFloatPoint;
+var
+  p1, p2, dp: TPoint;
+  r: TRect;
 begin
-  dp := FloatPoint(PenWidth * VP.Scale / 2 + 5 * VP.Scale,
-    PenWidth * VP.Scale / 2 + 5 * VP.Scale);
-  p1 := FloatPoint(FRect.Left, FRect.Top) - dp;
-  p2 := FloatPoint(FRect.Right, FRect.Bottom) + dp;
-  Result := FloatRect(p1, p2);
+  dp := Point(
+    Round(PenWidth * VP.Scale / 2) + 5,
+    Round(PenWidth * VP.Scale / 2) + 5);
+  r := VP.WorldToScreen(FRect);
+  p1 := r.TopLeft - dp;
+  p2 := r.BottomRight + dp;
+  Result := VP.ScreenToWorld(UGeometry.Rect(p1, p2));
 end;
 
 constructor TShape.Create;
