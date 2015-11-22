@@ -5,7 +5,7 @@ unit UShapes;
 interface
 
 uses
-  Classes, Graphics, UViewPort, UGeometry, math;
+  Classes, Graphics, UViewPort, UGeometry, math, LCLIntf, LCLType;
 
 type
 
@@ -26,6 +26,7 @@ type
     procedure Draw(ACanvas: TCanvas); virtual;
     procedure MovePoint(APoint: TPoint);
     procedure Select(ARect: TRect); virtual; abstract;
+    procedure Select(APoint: TPoint); virtual; abstract;
     procedure DrawSelection(ACanvas: TCanvas);
     function PointOnFigure(APoint: TPoint): Boolean;
     procedure Shift(AShift: TPoint);
@@ -56,6 +57,7 @@ type
   TPolyline = class(TShape)
   public
     procedure Select(ARect: TRect); override;
+    procedure Select(APoint: TPoint); override;
     procedure Draw(ACanvas: TCanvas); override;
     procedure AddPoint(APoint: TPoint);
   end;
@@ -65,6 +67,7 @@ type
   TLine = class(TShape)
   public
     procedure Select(ARect: TRect); override;
+    procedure Select(APoint: TPoint); override;
     procedure Draw(ACanvas: TCanvas); override;
   end;
 
@@ -73,6 +76,7 @@ type
   TRectangle = class(TFill)
   public
     procedure Select(ARect: TRect); override;
+    procedure Select(APoint: TPoint); override;
     procedure Draw(ACanvas: TCanvas); override;
   end;
 
@@ -81,6 +85,7 @@ type
   TEllipse = class(TFill)
   public
     procedure Select(ARect: TRect); override;
+    procedure Select(APoint: TPoint); override;
     procedure Draw(ACanvas: TCanvas); override;
   end;
 
@@ -93,6 +98,7 @@ type
     FRadiusY: Integer;
   public
     procedure Select(ARect: TRect); override;
+    procedure Select(APoint: TPoint); override;
     procedure Draw(ACanvas: TCanvas); override;
   published
     property RadiusX: TRadius read FRadiusX write FRadiusX;
@@ -159,17 +165,19 @@ end;
 
 procedure TShape.DrawSelection(ACanvas: TCanvas);
 var
-  p1, p2: TPoint;
+  p1, p2, dp: TPoint;
 begin
   ACanvas.Pen.Width := 3;
   ACanvas.Pen.Color := clGreen;
   ACanvas.Pen.Style := psDash;
   ACanvas.Brush.Style := bsClear;
-  p1 := VP.WorldToScreen(FloatPoint(FRect.Left, FRect.Top)) -
-    Point(PenWidth div 2 + 5, PenWidth div 2 + 5);
-  p2 := VP.WorldToScreen(FloatPoint(FRect.Right, FRect.Bottom)) +
-    Point(PenWidth div 2 + 5, PenWidth div 2 + 5);
+  dp := Point(
+    Round(PenWidth * VP.Scale) div 2 + 5,
+    Round(PenWidth * VP.Scale) div 2 + 5);
+  p1 := VP.WorldToScreen(FloatPoint(FRect.Left, FRect.Top)) - dp;
+  p2 := VP.WorldToScreen(FloatPoint(FRect.Right, FRect.Bottom)) + dp;
   ACanvas.Rectangle(UGeometry.Rect(p1, p2));
+
 end;
 
 function TShape.PointOnFigure(APoint: TPoint): Boolean;
@@ -198,12 +206,28 @@ procedure TPolyline.Select(ARect: TRect);
 var
   i: integer;
 begin
+  //I don't know how to do this with regions, so I wrote it myself
   FSelected := False;
   for i := 0 to High(FPoints) - 1 do
   begin
     FSelected := Intersection(ARect,
       VP.WorldToScreen(FPoints[i]),
       VP.WorldToScreen(FPoints[i+1]));
+    if FSelected then
+      Exit;
+  end;
+end;
+
+procedure TPolyline.Select(APoint: TPoint);
+var
+  i: integer;
+begin
+  FSelected := False;
+  for i := 0 to High(FPoints) - 1 do
+  begin
+    FSelected := CircleSegmentIntersection(
+      VP.WorldToScreen(FPoints[i]), VP.WorldToScreen(FPoints[i+1]), APoint,
+      Round(FPenWidth * VP.Scale + 3));
     if FSelected then
       Exit;
   end;
@@ -229,8 +253,16 @@ end;
 
 procedure TLine.Select(ARect: TRect);
 begin
+  //I don't know how to do this with regions, so I wrote it myself
   FSelected := Intersection(ARect, VP.WorldToScreen(FPoints[0]),
     VP.WorldToScreen(FPoints[1]));
+end;
+
+procedure TLine.Select(APoint: TPoint);
+begin
+  FSelected := CircleSegmentIntersection(
+    VP.WorldToScreen(FPoints[0]), VP.WorldToScreen(FPoints[1]), APoint,
+    Round(FPenWidth * VP.Scale + 3));
 end;
 
 procedure TLine.Draw(ACanvas: TCanvas);
@@ -242,40 +274,81 @@ end;
 { TRectangle }
 
 procedure TRectangle.Select(ARect: TRect);
+var r: HRGN;
 begin
-  FSelected := Intersection(ARect, VP.WorldToScreen(FRect));
+  r := CreateRectRgnIndirect(VP.WorldToScreen(FRect));
+  FSelected := RectInRegion(r, ARect);
+  DeleteObject(r);
+end;
+
+procedure TRectangle.Select(APoint: TPoint);
+var r: HRGN;
+begin
+  r := CreateRectRgnIndirect(VP.WorldToScreen(FRect));
+  FSelected := PtInRegion(r, APoint.X, APoint.Y);
+  DeleteObject(r);
 end;
 
 procedure TRectangle.Draw(ACanvas: TCanvas);
 begin
   inherited;
-  ACanvas.Rectangle(VP.WorldToScreen(FRect));
+  ACanvas.Rectangle(VP.WorldToScreen(UGeometry.FloatRect(FPoints[0], FPoints[1])));
 end;
 
 { TEllipse }
 
 procedure TEllipse.Select(ARect: TRect);
+var r: HRGN;
 begin
-  FSelected := Intersection(ARect, VP.WorldToScreen(FRect));
+  r := CreateEllipticRgnIndirect(VP.WorldToScreen(FRect));
+  FSelected := RectInRegion(r, ARect);
+  DeleteObject(r);
+end;
+
+procedure TEllipse.Select(APoint: TPoint);
+var r: HRGN;
+begin
+  r := CreateEllipticRgnIndirect(VP.WorldToScreen(FRect));
+  FSelected := PtInRegion(r, APoint.X, APoint.Y);
+  DeleteObject(r);
 end;
 
 procedure TEllipse.Draw(ACanvas: TCanvas);
 begin
   inherited;
-  ACanvas.Ellipse(VP.WorldToScreen(FRect));
+  ACanvas.Ellipse(VP.WorldToScreen(UGeometry.FloatRect(FPoints[0], FPoints[1])));
 end;
 
 { TRoundRect }
 
 procedure TRoundRect.Select(ARect: TRect);
+var r: HRGN;
 begin
-  FSelected := Intersection(ARect, VP.WorldToScreen(FRect));
+  r := CreateRoundRectRgn(
+    VP.WorldToScreen(FPoints[0]).X, VP.WorldToScreen(FPoints[0]).Y,
+    VP.WorldToScreen(FPoints[1]).X, VP.WorldToScreen(FPoints[1]).Y,
+    Round(FRadiusX * VP.Scale), Round(FRadiusY * VP.Scale)
+    );
+  FSelected := RectInRegion(r, ARect);
+  DeleteObject(r);
+end;
+
+procedure TRoundRect.Select(APoint: TPoint);
+var r: HRGN;
+begin
+  r := CreateRoundRectRgn(
+    VP.WorldToScreen(FPoints[0]).X, VP.WorldToScreen(FPoints[0]).Y,
+    VP.WorldToScreen(FPoints[1]).X, VP.WorldToScreen(FPoints[1]).Y,
+    Round(FRadiusX * VP.Scale), Round(FRadiusY * VP.Scale));
+  FSelected := PtInRegion(r, APoint.X, APoint.Y);
+  DeleteObject(r);
 end;
 
 procedure TRoundRect.Draw(ACanvas: TCanvas);
 begin
   inherited;
-  ACanvas.RoundRect(VP.WorldToScreen(FRect), Round(FRadiusX * VP.Scale),
+  ACanvas.RoundRect(VP.WorldToScreen(UGeometry.FloatRect(FPoints[0], FPoints[1])),
+    Round(FRadiusX * VP.Scale),
     Round(FRadiusY * VP.Scale));
 end;
 

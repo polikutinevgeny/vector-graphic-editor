@@ -28,6 +28,7 @@ function Intersection(ARect1, ARect2: TRect): Boolean; overload;
 function IsPointIn(p, p1, p2: TPoint): Boolean;
 function IsPointIn(p: TPoint; rect: TRect): Boolean; overload;
 function IsRectIn(rect1, rect2: TRect): Boolean;
+function CircleSegmentIntersection(p1, p2, center: TPoint; r: Integer): Boolean;
 operator +(a, b: TFloatPoint): TFloatPoint;
 operator -(a, b: TFloatPoint): TFloatPoint;
 operator +(a, b: TPoint): TPoint;
@@ -157,6 +158,32 @@ begin
     IsPointIn(Point(rect1.right, rect1.top), rect2) or
     IsPointIn(Point(rect1.left, rect1.bottom), rect2) or
     IsPointIn(Point(rect1.right, rect1.bottom), rect2);
+end;
+
+function CircleSegmentIntersection(p1, p2, center: TPoint; r: Integer): Boolean;
+var
+  x1, y1, x2, y2, dx, dy, a, b, c: Double;
+begin
+  x1 := p1.X - center.X;
+  x2 := p2.X - center.X;
+  y1 := p1.Y - center.Y;
+  y2 := p2.Y - center.Y;
+  dx := x2 - x1;
+  dy := y2 - y1;
+  a := dx * dx + dy * dy;
+  b := 2 * (x1 * dx + y1 * dy);
+  c := x1 * x1 + y1 * y1 - R * R;
+  if -b < 0 then
+  begin
+    Result := c < 0;
+    exit;
+  end;
+  if -b < (2 * a) then
+  begin
+    Result := (4 * a * c - b * b) < 0;
+    exit;
+  end;
+  Result := a + b + c < 0;
 end;
 
 operator +(a, b: TFloatPoint): TFloatPoint;

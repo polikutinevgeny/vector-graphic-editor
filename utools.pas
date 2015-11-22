@@ -206,6 +206,7 @@ begin
     Exit;
   end;
   Figures.UnSelect;
+  Figures.Select(APoint);
   Figures.SelectionRectangle := TRectangle.Create;
   Figures.SelectionRectangle.SetPoint(APoint);
   Figures.SelectionRectangle.PenStyle := psDot;

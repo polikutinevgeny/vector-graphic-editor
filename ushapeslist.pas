@@ -29,6 +29,7 @@ type
       procedure Redo;
       procedure RedoAll;
       procedure Select;
+      procedure Select(APoint: TPoint);
       procedure LoadSelected;
       procedure UnSelect;
       function PointOnFigure(APoint: TPoint): Boolean;
@@ -111,10 +112,17 @@ begin
 end;
 
 procedure TShapesList.Select;
-var i: integer;
+var i: Integer;
 begin
   for i := 0 to FNumberOfFiguresShown - 1 do
     FFigures[i].Select(VP.WorldToScreen(FSelectionRectangle.Rect));
+end;
+
+procedure TShapesList.Select(APoint: TPoint);
+var i: Integer;
+begin
+  for i := 0 to FNumberOfFiguresShown - 1 do
+    FFigures[i].Select(APoint);
 end;
 
 procedure TShapesList.LoadSelected;
