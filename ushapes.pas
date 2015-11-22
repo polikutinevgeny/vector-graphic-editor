@@ -132,8 +132,8 @@ var
   r: TRect;
 begin
   dp := Point(
-    Round(PenWidth * VP.Scale / 2) + 5,
-    Round(PenWidth * VP.Scale / 2) + 5);
+    Round(PenWidth * VP.Scale / 2 + 5 * VP.Scale),
+    Round(PenWidth * VP.Scale / 2 + 5 * VP.Scale));
   r := VP.WorldToScreen(FRect);
   p1 := r.TopLeft - dp;
   p2 := r.BottomRight + dp;
@@ -179,8 +179,6 @@ begin
 end;
 
 procedure TShape.DrawSelection(ACanvas: TCanvas);
-var
-  p1, p2, dp: TPoint;
 begin
   ACanvas.Pen.Width := 3;
   ACanvas.Pen.Color := clGreen;

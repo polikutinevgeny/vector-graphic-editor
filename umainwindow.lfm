@@ -214,9 +214,10 @@ object MainWindow: TMainWindow
     end
     object EditMI: TMenuItem
       Caption = 'Edit'
-      object ClearMI: TMenuItem
-        Caption = 'Clear'
-        OnClick = ClearMIClick
+      object DeleteMI: TMenuItem
+        Caption = 'Delete'
+        ShortCut = 46
+        OnClick = DeleteMIClick
       end
     end
     object ViewMI: TMenuItem

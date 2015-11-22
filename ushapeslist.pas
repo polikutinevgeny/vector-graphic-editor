@@ -24,6 +24,7 @@ type
       procedure Add(AShape: TShape);
       procedure Select;
       procedure Select(APoint: TPoint);
+      procedure Delete;
       procedure LoadSelected;
       procedure UnSelect;
       function PointOnFigure(APoint: TPoint): Boolean;
@@ -86,6 +87,35 @@ var i: Integer;
 begin
   for i := 0 to High(FShapes) do
     FShapes[i].Select(APoint);
+end;
+
+procedure TShapesList.Delete;
+var i, c: Integer;
+begin
+  for i := 0 to High(FShapes) do
+  begin
+    if FShapes[i].Selected then
+    begin
+      FShapes[i].Free;
+      FShapes[i] := nil;
+    end;
+  end;
+  c := 0;
+  i := 0;
+  while i <= High(FShapes) do
+  begin
+    if FShapes[i] = nil then
+      c += 1
+    else
+      FShapes[i - c] := FShapes[i];
+    i += 1;
+  end;
+  SetLength(FShapes, Length(FShapes) - c);
+  if Length(FShapes) = 0 then
+  begin
+    VP.Scale := 1;
+    VP.ViewPosition := VP.PortSize / 2;
+  end;
 end;
 
 procedure TShapesList.LoadSelected;

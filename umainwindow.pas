@@ -26,12 +26,12 @@ type
     ZoomCB: TComboBox;
     ZoomLabel: TLabel;
     MainMenu: TMainMenu;
-    EditMI, ClearMI, FileMI, AboutMI, ExitMI: TMenuItem;
+    EditMI, DeleteMI, FileMI, AboutMI, ExitMI: TMenuItem;
     EditorsPanel, ToolsPanel: TPanel;
     PaintBox: TPaintBox;
     StatusBar: TStatusBar;
     procedure AboutMIClick(Sender: TObject);
-    procedure ClearMIClick(Sender: TObject);
+    procedure DeleteMIClick(Sender: TObject);
     procedure HorizontalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: Integer);
     procedure ColorMouseDown(Sender: TObject; Button: TMouseButton;
@@ -181,9 +181,10 @@ begin
   Inspector.LoadNew(ToolContainer.Tools[FCurrentToolIndex].CreateShape);
 end;
 
-procedure TMainWindow.ClearMIClick(Sender: TObject);
+procedure TMainWindow.DeleteMIClick(Sender: TObject);
 begin
-
+  Figures.Delete;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.ShowAllMIClick(Sender: TObject);
