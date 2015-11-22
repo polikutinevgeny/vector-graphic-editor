@@ -13,21 +13,15 @@ type
 
   TShapesList = class
     private
-      FFigures: array of TShape;
-      FNumberOfFiguresShown: integer;
+      FShapes: array of TShape;
       FSelectionRectangle: TRectangle;
-      function FImageSize: TFloatRect;
+      function GetImageSize: TFloatRect;
     public
       property SelectionRectangle: TRectangle read FSelectionRectangle
         write FSelectionRectangle;
-      property ImageSize: TFloatRect read FImageSize;
-      constructor Create;
+      property ImageSize: TFloatRect read GetImageSize;
       procedure Draw(ACanvas: TCanvas);
-      procedure Add(AFigure: TShape);
-      procedure Undo;
-      procedure UndoAll;
-      procedure Redo;
-      procedure RedoAll;
+      procedure Add(AShape: TShape);
       procedure Select;
       procedure Select(APoint: TPoint);
       procedure LoadSelected;
@@ -44,85 +38,54 @@ implementation
 
 { TShapesList }
 
-function TShapesList.FImageSize: TFloatRect;
+function TShapesList.GetImageSize: TFloatRect;
 var i: integer;
 begin
-  if FNumberOfFiguresShown > 0 then
+  if Length(FShapes) > 0 then
     begin
-      Result := FFigures[0].Rect;
-      for i := 1 to FNumberOfFiguresShown - 1 do
+      Result := FShapes[0].Rect;
+      for i := 1 to High(FShapes) do
       begin
-        Result.Left := Min(Result.Left, FFigures[i].Rect.Left);
-        Result.Right := Max(Result.Right, FFigures[i].Rect.Right);
-        Result.Top := Min(Result.Top, FFigures[i].Rect.Top);
-        Result.Bottom := Max(Result.Bottom, FFigures[i].Rect.Bottom);
+        Result.Left := Min(Result.Left, FShapes[i].Rect.Left);
+        Result.Right := Max(Result.Right, FShapes[i].Rect.Right);
+        Result.Top := Min(Result.Top, FShapes[i].Rect.Top);
+        Result.Bottom := Max(Result.Bottom, FShapes[i].Rect.Bottom);
       end;
     end
   else
     Result := FloatRect(FloatPoint(0, 0), FloatPoint(0, 0));
 end;
 
-constructor TShapesList.Create;
-begin
-  FNumberOfFiguresShown := 0;
-end;
-
 procedure TShapesList.Draw(ACanvas: TCanvas);
 var i: integer;
 begin
-  for i := 0 to FNumberOfFiguresShown - 1 do
-    FFigures[i].Draw(ACanvas);
-  for i := 0 to FNumberOfFiguresShown - 1 do
-    if FFigures[i].Selected then
-      FFigures[i].DrawSelection(ACanvas);
+  for i := 0 to High(FShapes) do
+    FShapes[i].Draw(ACanvas);
+  for i := 0 to High(FShapes) do
+    if FShapes[i].Selected then
+      FShapes[i].DrawSelection(ACanvas);
   if FSelectionRectangle <> nil then
     FSelectionRectangle.Draw(ACanvas);
 end;
 
-procedure TShapesList.Add(AFigure: TShape);
+procedure TShapesList.Add(AShape: TShape);
 begin
-  inc(FNumberOfFiguresShown);
-  SetLength(FFigures, FNumberOfFiguresShown);
-  FFigures[High(FFigures)] := AFigure;
-end;
-
-procedure TShapesList.Undo;
-begin
-  FNumberOfFiguresShown := max(FNumberOfFiguresShown - 1, 0);
-  if IsEmpty then
-    begin
-      VP.Scale := 1;
-      VP.ViewPosition := VP.PortSize / 2;
-    end;
-end;
-
-procedure TShapesList.UndoAll;
-begin
-  FNumberOfFiguresShown := 0;
-end;
-
-procedure TShapesList.Redo;
-begin
-  FNumberOfFiguresShown := min(FNumberOfFiguresShown + 1, Length(FFigures));
-end;
-
-procedure TShapesList.RedoAll;
-begin
-  FNumberOfFiguresShown := Length(FFigures);
+  SetLength(FShapes, Length(FShapes) + 1);
+  FShapes[High(FShapes)] := AShape;
 end;
 
 procedure TShapesList.Select;
 var i: Integer;
 begin
-  for i := 0 to FNumberOfFiguresShown - 1 do
-    FFigures[i].Select(VP.WorldToScreen(FSelectionRectangle.Rect));
+  for i := 0 to High(FShapes) do
+    FShapes[i].Select(VP.WorldToScreen(FSelectionRectangle.Rect));
 end;
 
 procedure TShapesList.Select(APoint: TPoint);
 var i: Integer;
 begin
-  for i := 0 to FNumberOfFiguresShown - 1 do
-    FFigures[i].Select(APoint);
+  for i := 0 to High(FShapes) do
+    FShapes[i].Select(APoint);
 end;
 
 procedure TShapesList.LoadSelected;
@@ -131,11 +94,11 @@ var
   i: Integer;
 begin
   SetLength(a, 0);
-  for i := 0 to FNumberOfFiguresShown - 1 do
-    if FFigures[i].Selected then
+  for i := 0 to High(FShapes) do
+    if FShapes[i].Selected then
     begin
       SetLength(a, Length(a) + 1);
-      a[High(a)] := FFigures[i];
+      a[High(a)] := FShapes[i];
     end;
   Inspector.Load(a);
 end;
@@ -144,17 +107,17 @@ procedure TShapesList.UnSelect;
 var
   i: Integer;
 begin
-  for i := 0 to High(FFigures) do
-    FFigures[i].Selected := False;
+  for i := 0 to High(FShapes) do
+    FShapes[i].Selected := False;
 end;
 
 function TShapesList.PointOnFigure(APoint: TPoint): Boolean;
 var i: Integer;
 begin
   Result := False;
-  for i := 0 to FNumberOfFiguresShown - 1 do
+  for i := 0 to High(FShapes) do
   begin
-    Result := FFigures[i].Selected and FFigures[i].PointOnFigure(APoint);
+    Result := FShapes[i].Selected and FShapes[i].PointOnFigure(APoint);
     if Result then
       exit;
   end;
@@ -163,16 +126,16 @@ end;
 procedure TShapesList.ShiftSelected(AShift: TPoint);
 var i: Integer;
 begin
-  for i := 0 to FNumberOfFiguresShown - 1 do
+  for i := 0 to High(FShapes) do
   begin
-    if FFigures[i].Selected then
-      FFigures[i].Shift(AShift);
+    if FShapes[i].Selected then
+      FShapes[i].Shift(AShift);
   end;
 end;
 
 function TShapesList.IsEmpty: Boolean;
 begin
-  Result := FNumberOfFiguresShown < 1;
+  Result := Length(FShapes) < 1;
 end;
 
 initialization

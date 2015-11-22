@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
-  UTools, UShapesList, Buttons, Spin, StdCtrls, ComCtrls, Grids,
+  UTools, UShapesList, Buttons, StdCtrls, ComCtrls, Grids,
   UViewPort, UGeometry, types, math, UInspector;
 
 type
@@ -26,7 +26,7 @@ type
     ZoomCB: TComboBox;
     ZoomLabel: TLabel;
     MainMenu: TMainMenu;
-    EditMI, ClearMI, FileMI, AboutMI, ExitMI, UndoMI, RedoMI: TMenuItem;
+    EditMI, ClearMI, FileMI, AboutMI, ExitMI: TMenuItem;
     EditorsPanel, ToolsPanel: TPanel;
     PaintBox: TPaintBox;
     StatusBar: TStatusBar;
@@ -53,10 +53,8 @@ type
     procedure PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure PaintBoxPaint(Sender: TObject);
-    procedure RedoMIClick(Sender: TObject);
     procedure ShowAllMIClick(Sender: TObject);
     procedure ToolClick(Sender: TObject);
-    procedure UndoMIClick(Sender: TObject);
     procedure VerticalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: Integer);
     procedure ZoomCBChange(Sender: TObject);
@@ -185,12 +183,7 @@ end;
 
 procedure TMainWindow.ClearMIClick(Sender: TObject);
 begin
-  Figures.UndoAll;
-  ToolContainer.Tools[FCurrentToolIndex].DoubleClick;
-  FCleared := True;
-  VP.Scale := 1;
-  VP.ViewPosition := FloatPoint(PaintBox.Width, PaintBox.Height) / 2;
-  PaintBox.Invalidate;
+
 end;
 
 procedure TMainWindow.ShowAllMIClick(Sender: TObject);
@@ -278,22 +271,6 @@ begin
   PaintBox.Invalidate;
 end;
 
-procedure TMainWindow.UndoMIClick(Sender: TObject);
-begin
-  ToolContainer.Tools[FCurrentToolIndex].DoubleClick;
-  FMousePressed := False;
-  {If the previous action Cleared everything we undo it, otherwise we
-  delete the last figure drawn}
-  if FCleared then
-  begin
-    Figures.RedoAll;
-    FCleared := false;
-  end
-  else
-    Figures.Undo;
-  PaintBox.Invalidate;
-end;
-
 procedure TMainWindow.VerticalSBScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
@@ -344,12 +321,6 @@ begin
     VP.SetScroll(HorizontalSB.Position, worldsize.X, l, sbHorizontal);
     VP.SetScroll(VerticalSB.Position, worldsize.Y, t, sbVertical);
   end;
-end;
-
-procedure TMainWindow.RedoMIClick(Sender: TObject);
-begin
-  Figures.Redo;
-  PaintBox.Invalidate;
 end;
 
 end.

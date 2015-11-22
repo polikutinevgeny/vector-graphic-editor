@@ -218,16 +218,6 @@ object MainWindow: TMainWindow
         Caption = 'Clear'
         OnClick = ClearMIClick
       end
-      object UndoMI: TMenuItem
-        Caption = 'Undo'
-        ShortCut = 16474
-        OnClick = UndoMIClick
-      end
-      object RedoMI: TMenuItem
-        Caption = 'Redo'
-        ShortCut = 16473
-        OnClick = RedoMIClick
-      end
     end
     object ViewMI: TMenuItem
       Caption = 'View'
