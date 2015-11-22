@@ -20,6 +20,7 @@ type
     FPenWidth: TPenWidth;
     FPenStyle: TPenStyle;
     FSelected: Boolean;
+    function GetRect: TFloatRect;
   public
     constructor Create; virtual;
     procedure SetPoint(APoint: TPoint);
@@ -30,7 +31,7 @@ type
     procedure DrawSelection(ACanvas: TCanvas);
     function PointOnFigure(APoint: TPoint): Boolean;
     procedure Shift(AShift: TPoint);
-    property Rect: TFloatRect read FRect;
+    property Rect: TFloatRect read GetRect;
     property Selected: Boolean read FSelected write FSelected;
   published
     property PenColor: TColor read FPenColor write FPenColor;
@@ -125,6 +126,16 @@ end;
 
 { TShape }
 
+function TShape.GetRect: TFloatRect;
+var p1, p2, dp: TFloatPoint;
+begin
+  dp := FloatPoint(PenWidth * VP.Scale / 2 + 5 * VP.Scale,
+    PenWidth * VP.Scale / 2 + 5 * VP.Scale);
+  p1 := FloatPoint(FRect.Left, FRect.Top) - dp;
+  p2 := FloatPoint(FRect.Right, FRect.Bottom) + dp;
+  Result := FloatRect(p1, p2);
+end;
+
 constructor TShape.Create;
 begin
   FPenWidth := 1;
@@ -171,13 +182,7 @@ begin
   ACanvas.Pen.Color := clGreen;
   ACanvas.Pen.Style := psDash;
   ACanvas.Brush.Style := bsClear;
-  dp := Point(
-    Round(PenWidth * VP.Scale) div 2 + 5,
-    Round(PenWidth * VP.Scale) div 2 + 5);
-  p1 := VP.WorldToScreen(FloatPoint(FRect.Left, FRect.Top)) - dp;
-  p2 := VP.WorldToScreen(FloatPoint(FRect.Right, FRect.Bottom)) + dp;
-  ACanvas.Rectangle(UGeometry.Rect(p1, p2));
-
+  ACanvas.Rectangle(VP.WorldToScreen(GetRect));
 end;
 
 function TShape.PointOnFigure(APoint: TPoint): Boolean;
