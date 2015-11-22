@@ -116,6 +116,7 @@ begin
     VP.Scale := 1;
     VP.ViewPosition := VP.PortSize / 2;
   end;
+  Inspector.LoadNew(nil);
 end;
 
 procedure TShapesList.LoadSelected;

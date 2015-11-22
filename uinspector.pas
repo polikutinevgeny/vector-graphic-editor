@@ -221,6 +221,7 @@ begin
   for i := 0 to High(FEditors) do
     FEditors[i].Destroy;
   SetLength(FEditors, 0);
+  SetLength(FShapes, 0);
 end;
 
 { TParamEditor }
