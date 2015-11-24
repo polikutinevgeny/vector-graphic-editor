@@ -191,7 +191,7 @@ function TShape.PointOnFigure(APoint: TPoint): Boolean;
 var
   r: TRect;
 begin
-  r := VP.WorldToScreen(FRect);
+  r := VP.WorldToScreen(Rect);
   Result := PtInRect(r, APoint);
 end;
 
@@ -213,6 +213,8 @@ var
   i: integer;
 begin
   //I don't know how to do this with regions, so I wrote it myself
+  if FSelected then
+    Exit;
   FSelected := False;
   for i := 0 to High(FPoints) - 1 do
   begin
@@ -228,6 +230,8 @@ procedure TPolyline.Select(APoint: TPoint);
 var
   i: integer;
 begin
+  if FSelected then
+    Exit;
   FSelected := False;
   for i := 0 to High(FPoints) - 1 do
   begin
@@ -260,12 +264,16 @@ end;
 procedure TLine.Select(ARect: TRect);
 begin
   //I don't know how to do this with regions, so I wrote it myself
+  if FSelected then
+    Exit;
   FSelected := Intersection(ARect, VP.WorldToScreen(FPoints[0]),
     VP.WorldToScreen(FPoints[1]));
 end;
 
 procedure TLine.Select(APoint: TPoint);
 begin
+  if FSelected then
+    Exit;
   FSelected := CircleSegmentIntersection(
     VP.WorldToScreen(FPoints[0]), VP.WorldToScreen(FPoints[1]), APoint,
     Round(FPenWidth * VP.Scale + 3));
@@ -282,6 +290,8 @@ end;
 procedure TRectangle.Select(ARect: TRect);
 var r: HRGN;
 begin
+  if FSelected then
+    Exit;
   r := CreateRectRgnIndirect(VP.WorldToScreen(FRect));
   FSelected := RectInRegion(r, ARect);
   DeleteObject(r);
@@ -290,6 +300,8 @@ end;
 procedure TRectangle.Select(APoint: TPoint);
 var r: HRGN;
 begin
+  if FSelected then
+    Exit;
   r := CreateRectRgnIndirect(VP.WorldToScreen(FRect));
   FSelected := PtInRegion(r, APoint.X, APoint.Y);
   DeleteObject(r);
@@ -306,6 +318,8 @@ end;
 procedure TEllipse.Select(ARect: TRect);
 var r: HRGN;
 begin
+  if FSelected then
+    Exit;
   r := CreateEllipticRgnIndirect(VP.WorldToScreen(FRect));
   FSelected := RectInRegion(r, ARect);
   DeleteObject(r);
@@ -314,6 +328,8 @@ end;
 procedure TEllipse.Select(APoint: TPoint);
 var r: HRGN;
 begin
+  if FSelected then
+    Exit;
   r := CreateEllipticRgnIndirect(VP.WorldToScreen(FRect));
   FSelected := PtInRegion(r, APoint.X, APoint.Y);
   DeleteObject(r);
@@ -330,6 +346,8 @@ end;
 procedure TRoundRect.Select(ARect: TRect);
 var r: HRGN;
 begin
+  if FSelected then
+    Exit;
   r := CreateRoundRectRgn(
     VP.WorldToScreen(FPoints[0]).X, VP.WorldToScreen(FPoints[0]).Y,
     VP.WorldToScreen(FPoints[1]).X, VP.WorldToScreen(FPoints[1]).Y,
@@ -342,6 +360,8 @@ end;
 procedure TRoundRect.Select(APoint: TPoint);
 var r: HRGN;
 begin
+  if FSelected then
+    Exit;
   r := CreateRoundRectRgn(
     VP.WorldToScreen(FPoints[0]).X, VP.WorldToScreen(FPoints[0]).Y,
     VP.WorldToScreen(FPoints[1]).X, VP.WorldToScreen(FPoints[1]).Y,

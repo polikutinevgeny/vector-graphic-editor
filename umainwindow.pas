@@ -162,7 +162,7 @@ begin
     begin
       FMousePressed := True;
       FCleared := False;
-      ToolContainer.Tools[FCurrentToolIndex].MouseClick(Point(X, Y));
+      ToolContainer.Tools[FCurrentToolIndex].MouseClick(Point(X, Y), Shift);
       PaintBox.Invalidate;
     end;
 end;
