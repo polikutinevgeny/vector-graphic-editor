@@ -132,8 +132,8 @@ var
   r: TRect;
 begin
   dp := Point(
-    Round(PenWidth * VP.Scale / 2 + 5 * VP.Scale),
-    Round(PenWidth * VP.Scale / 2 + 5 * VP.Scale));
+    Round(PenWidth * VP.Scale + 5 / VP.Scale),
+    Round(PenWidth * VP.Scale + 5 / VP.Scale));
   r := VP.WorldToScreen(FRect);
   p1 := r.TopLeft - dp;
   p2 := r.BottomRight + dp;
@@ -192,8 +192,7 @@ var
   r: TRect;
 begin
   r := VP.WorldToScreen(FRect);
-  Result := (APoint.X >= r.Left) and (APoint.X <= r.Right) and
-    (APoint.Y >= r.Top) and (APoint.Y <= r.Bottom)
+  Result := PtInRect(r, APoint);
 end;
 
 procedure TShape.Shift(AShift: TPoint);
