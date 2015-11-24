@@ -15,6 +15,7 @@ type
 
   TMainWindow = class(TForm)
     ColorDialog: TColorDialog;
+    ZOrderMI: TMenuItem;
     MoveUpMI: TMenuItem;
     MoveDownMI: TMenuItem;
     BottomMI: TMenuItem;
@@ -69,6 +70,7 @@ type
     procedure UpdateScroll(AVisible: Boolean; APageSize, APosition: Integer;
       AKind: TScrollBarType);
     procedure RecalculateScrollbars;
+    procedure ZOrderSwitch(AEnabled: Boolean);
   private
     FCurrentToolIndex: Integer;
     FCleared: boolean;
@@ -114,6 +116,7 @@ begin
   FMousePressed := False;
   Inspector := TInspector.Create(EditorsPanel);
   Inspector.OnParamsUpdate := @PaintBox.Invalidate;
+  Figures.OnZOrderSwitch := @ZOrderSwitch;
   for i := 0 to High(ToolContainer.Tools) do
     begin
       bt := TSpeedButton.Create(Self);
@@ -354,6 +357,11 @@ begin
     VP.SetScroll(HorizontalSB.Position, worldsize.X, l, sbHorizontal);
     VP.SetScroll(VerticalSB.Position, worldsize.Y, t, sbVertical);
   end;
+end;
+
+procedure TMainWindow.ZOrderSwitch(AEnabled: Boolean);
+begin
+  ZOrderMI.Enabled := AEnabled;
 end;
 
 end.

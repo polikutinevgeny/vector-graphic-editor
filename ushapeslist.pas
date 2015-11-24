@@ -10,9 +10,10 @@ uses
 type
 
   { TShapesList }
-
+  TZOrderEvent = procedure(Enabled: Boolean) of object;
   TShapesList = class
     private
+      FOnZOrderSwitch: TZOrderEvent;
       FShapes: array of TShape;
       FSelectionRectangle: TRectangle;
       function GetImageSize: TFloatRect;
@@ -20,6 +21,8 @@ type
       property SelectionRectangle: TRectangle read FSelectionRectangle
         write FSelectionRectangle;
       property ImageSize: TFloatRect read GetImageSize;
+      property OnZOrderSwitch: TZOrderEvent read FOnZOrderSwitch
+        write FOnZOrderSwitch;
       procedure Draw(ACanvas: TCanvas);
       procedure Add(AShape: TShape);
       procedure Select;
@@ -96,20 +99,15 @@ end;
 procedure TShapesList.Delete;
 var i, c: Integer;
 begin
-  for i := 0 to High(FShapes) do
-  begin
-    if FShapes[i].Selected then
-    begin
-      FShapes[i].Free;
-      FShapes[i] := nil;
-    end;
-  end;
   c := 0;
   i := 0;
   while i <= High(FShapes) do
   begin
-    if FShapes[i] = nil then
-      c += 1
+    if FShapes[i].Selected then
+    begin
+      c += 1;
+      FShapes[i].Free;
+    end
     else
       FShapes[i - c] := FShapes[i];
     i += 1;
@@ -121,19 +119,24 @@ begin
     VP.ViewPosition := VP.PortSize / 2;
   end;
   Inspector.LoadNew(nil);
+  FOnZOrderSwitch(False);
 end;
 
 procedure TShapesList.LoadSelected;
 var
   a: array of TShape;
   i: Integer;
+  f: Boolean;
 begin
+  f := True;
   SetLength(a, 0);
   for i := 0 to High(FShapes) do
     if FShapes[i].Selected then
     begin
       SetLength(a, Length(a) + 1);
       a[High(a)] := FShapes[i];
+      if f then
+        FOnZOrderSwitch(True);
     end;
   Inspector.Load(a);
 end;
@@ -144,6 +147,7 @@ var
 begin
   for i := 0 to High(FShapes) do
     FShapes[i].Selected := False;
+  FOnZOrderSwitch(False);
 end;
 
 procedure TShapesList.ZUp;
