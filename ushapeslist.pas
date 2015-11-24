@@ -27,6 +27,8 @@ type
       procedure Add(AShape: TShape);
       procedure Select;
       procedure Select(APoint: TPoint);
+      procedure SwitchSelect;
+      procedure SwitchSelect(APoint: TPoint);
       procedure Delete;
       procedure LoadSelected;
       procedure UnSelect;
@@ -86,14 +88,32 @@ procedure TShapesList.Select;
 var i: Integer;
 begin
   for i := 0 to High(FShapes) do
-    FShapes[i].Select(VP.WorldToScreen(FSelectionRectangle.Rect));
+    FShapes[i].Selected :=
+      FShapes[i].RectInShape(VP.WorldToScreen(FSelectionRectangle.Rect));
 end;
 
 procedure TShapesList.Select(APoint: TPoint);
 var i: Integer;
 begin
   for i := 0 to High(FShapes) do
-    FShapes[i].Select(APoint);
+    FShapes[i].Selected := FShapes[i].PointInShape(APoint);
+end;
+
+procedure TShapesList.SwitchSelect;
+var i: Integer;
+begin
+  for i := 0 to High(FShapes) do
+    FShapes[i].Selected :=
+      FShapes[i].RectInShape(VP.WorldToScreen(FSelectionRectangle.Rect)) xor
+      FShapes[i].PrevSelected;
+end;
+
+procedure TShapesList.SwitchSelect(APoint: TPoint);
+var i: Integer;
+begin
+  for i := 0 to High(FShapes) do
+    FShapes[i].Selected := FShapes[i].PointInShape(APoint) xor
+      FShapes[i].PrevSelected;
 end;
 
 procedure TShapesList.Delete;
@@ -137,7 +157,10 @@ begin
       a[High(a)] := FShapes[i];
       if f then
         FOnZOrderSwitch(True);
-    end;
+      FShapes[i].PrevSelected := True;
+    end
+    else
+      FShapes[i].PrevSelected := False;
   Inspector.Load(a);
 end;
 
@@ -146,7 +169,10 @@ var
   i: Integer;
 begin
   for i := 0 to High(FShapes) do
+  begin
     FShapes[i].Selected := False;
+    FShapes[i].PrevSelected := False;
+  end;
   FOnZOrderSwitch(False);
 end;
 
@@ -227,7 +253,7 @@ begin
   Result := False;
   for i := 0 to High(FShapes) do
   begin
-    Result := FShapes[i].Selected and FShapes[i].PointOnFigure(APoint);
+    Result := FShapes[i].Selected and FShapes[i].PointOnSelectionRect(APoint);
     if Result then
       exit;
   end;

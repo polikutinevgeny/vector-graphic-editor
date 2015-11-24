@@ -20,19 +20,21 @@ type
     FPenWidth: TPenWidth;
     FPenStyle: TPenStyle;
     FSelected: Boolean;
+    FPrevSelected: Boolean;
     function GetRect: TFloatRect;
   public
     constructor Create; virtual;
     procedure SetPoint(APoint: TPoint);
     procedure Draw(ACanvas: TCanvas); virtual;
     procedure MovePoint(APoint: TPoint);
-    procedure Select(ARect: TRect); virtual; abstract;
-    procedure Select(APoint: TPoint); virtual; abstract;
     procedure DrawSelection(ACanvas: TCanvas);
-    function PointOnFigure(APoint: TPoint): Boolean;
+    function PointOnSelectionRect(APoint: TPoint): Boolean;
+    function PointInShape(APoint: TPoint): Boolean; virtual; abstract;
+    function RectInShape(ARect: TRect): Boolean; virtual; abstract;
     procedure Shift(AShift: TPoint);
     property Rect: TFloatRect read GetRect;
     property Selected: Boolean read FSelected write FSelected;
+    property PrevSelected: Boolean read FPrevSelected write FPrevSelected;
   published
     property PenColor: TColor read FPenColor write FPenColor;
     property PenWidth: TPenWidth read FPenWidth write FPenWidth;
@@ -57,8 +59,8 @@ type
 
   TPolyline = class(TShape)
   public
-    procedure Select(ARect: TRect); override;
-    procedure Select(APoint: TPoint); override;
+    function PointInShape(APoint: TPoint): Boolean; override;
+    function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
     procedure AddPoint(APoint: TPoint);
   end;
@@ -67,8 +69,8 @@ type
 
   TLine = class(TShape)
   public
-    procedure Select(ARect: TRect); override;
-    procedure Select(APoint: TPoint); override;
+    function PointInShape(APoint: TPoint): Boolean; override;
+    function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
   end;
 
@@ -76,8 +78,8 @@ type
 
   TRectangle = class(TFill)
   public
-    procedure Select(ARect: TRect); override;
-    procedure Select(APoint: TPoint); override;
+    function PointInShape(APoint: TPoint): Boolean; override;
+    function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
   end;
 
@@ -85,8 +87,8 @@ type
 
   TEllipse = class(TFill)
   public
-    procedure Select(ARect: TRect); override;
-    procedure Select(APoint: TPoint); override;
+    function PointInShape(APoint: TPoint): Boolean; override;
+    function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
   end;
 
@@ -98,8 +100,8 @@ type
     FRadiusX: Integer;
     FRadiusY: Integer;
   public
-    procedure Select(ARect: TRect); override;
-    procedure Select(APoint: TPoint); override;
+    function PointInShape(APoint: TPoint): Boolean; override;
+    function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
   published
     property RadiusX: TRadius read FRadiusX write FRadiusX;
@@ -146,6 +148,7 @@ begin
   FPenColor := clBlack;
   FPenStyle := psSolid;
   FSelected := False;
+  FPrevSelected := False;
 end;
 
 procedure TShape.SetPoint(APoint: TPoint);
@@ -187,7 +190,7 @@ begin
   ACanvas.Rectangle(VP.WorldToScreen(GetRect));
 end;
 
-function TShape.PointOnFigure(APoint: TPoint): Boolean;
+function TShape.PointOnSelectionRect(APoint: TPoint): Boolean;
 var
   r: TRect;
 begin
@@ -208,37 +211,32 @@ end;
 
 { TPolyline }
 
-procedure TPolyline.Select(ARect: TRect);
+function TPolyline.PointInShape(APoint: TPoint): Boolean;
 var
   i: integer;
 begin
   //I don't know how to do this with regions, so I wrote it myself
-  if FSelected then
-    Exit;
-  FSelected := False;
   for i := 0 to High(FPoints) - 1 do
   begin
-    FSelected := Intersection(ARect,
-      VP.WorldToScreen(FPoints[i]),
-      VP.WorldToScreen(FPoints[i+1]));
-    if FSelected then
+    Result := CircleSegmentIntersection(
+      VP.WorldToScreen(FPoints[i]), VP.WorldToScreen(FPoints[i+1]), APoint,
+      Round(FPenWidth * VP.Scale + 3));
+    if Result then
       Exit;
   end;
 end;
 
-procedure TPolyline.Select(APoint: TPoint);
+function TPolyline.RectInShape(ARect: TRect): Boolean;
 var
   i: integer;
 begin
-  if FSelected then
-    Exit;
-  FSelected := False;
+  //I don't know how to do this with regions, so I wrote it myself
   for i := 0 to High(FPoints) - 1 do
   begin
-    FSelected := CircleSegmentIntersection(
-      VP.WorldToScreen(FPoints[i]), VP.WorldToScreen(FPoints[i+1]), APoint,
-      Round(FPenWidth * VP.Scale + 3));
-    if FSelected then
+    Result := Intersection(ARect,
+      VP.WorldToScreen(FPoints[i]),
+      VP.WorldToScreen(FPoints[i+1]));
+    if Result then
       Exit;
   end;
 end;
@@ -261,22 +259,19 @@ end;
 
 { TLine }
 
-procedure TLine.Select(ARect: TRect);
+function TLine.PointInShape(APoint: TPoint): Boolean;
 begin
   //I don't know how to do this with regions, so I wrote it myself
-  if FSelected then
-    Exit;
-  FSelected := Intersection(ARect, VP.WorldToScreen(FPoints[0]),
-    VP.WorldToScreen(FPoints[1]));
-end;
-
-procedure TLine.Select(APoint: TPoint);
-begin
-  if FSelected then
-    Exit;
-  FSelected := CircleSegmentIntersection(
+  Result := CircleSegmentIntersection(
     VP.WorldToScreen(FPoints[0]), VP.WorldToScreen(FPoints[1]), APoint,
     Round(FPenWidth * VP.Scale + 3));
+end;
+
+function TLine.RectInShape(ARect: TRect): Boolean;
+begin
+  //I don't know how to do this with regions, so I wrote it myself
+  Result := Intersection(ARect, VP.WorldToScreen(FPoints[0]),
+    VP.WorldToScreen(FPoints[1]));
 end;
 
 procedure TLine.Draw(ACanvas: TCanvas);
@@ -287,23 +282,21 @@ end;
 
 { TRectangle }
 
-procedure TRectangle.Select(ARect: TRect);
+function TRectangle.PointInShape(APoint: TPoint): Boolean;
 var r: HRGN;
 begin
   if FSelected then
     Exit;
   r := CreateRectRgnIndirect(VP.WorldToScreen(FRect));
-  FSelected := RectInRegion(r, ARect);
+  Result := PtInRegion(r, APoint.X, APoint.Y);
   DeleteObject(r);
 end;
 
-procedure TRectangle.Select(APoint: TPoint);
+function TRectangle.RectInShape(ARect: TRect): Boolean;
 var r: HRGN;
 begin
-  if FSelected then
-    Exit;
   r := CreateRectRgnIndirect(VP.WorldToScreen(FRect));
-  FSelected := PtInRegion(r, APoint.X, APoint.Y);
+  Result := RectInRegion(r, ARect);
   DeleteObject(r);
 end;
 
@@ -315,23 +308,19 @@ end;
 
 { TEllipse }
 
-procedure TEllipse.Select(ARect: TRect);
+function TEllipse.PointInShape(APoint: TPoint): Boolean;
 var r: HRGN;
 begin
-  if FSelected then
-    Exit;
   r := CreateEllipticRgnIndirect(VP.WorldToScreen(FRect));
-  FSelected := RectInRegion(r, ARect);
+  Result := PtInRegion(r, APoint.X, APoint.Y);
   DeleteObject(r);
 end;
 
-procedure TEllipse.Select(APoint: TPoint);
+function TEllipse.RectInShape(ARect: TRect): Boolean;
 var r: HRGN;
 begin
-  if FSelected then
-    Exit;
   r := CreateEllipticRgnIndirect(VP.WorldToScreen(FRect));
-  FSelected := PtInRegion(r, APoint.X, APoint.Y);
+  Result := RectInRegion(r, ARect);
   DeleteObject(r);
 end;
 
@@ -343,30 +332,26 @@ end;
 
 { TRoundRect }
 
-procedure TRoundRect.Select(ARect: TRect);
+function TRoundRect.PointInShape(APoint: TPoint): Boolean;
 var r: HRGN;
 begin
-  if FSelected then
-    Exit;
   r := CreateRoundRectRgn(
     VP.WorldToScreen(FPoints[0]).X, VP.WorldToScreen(FPoints[0]).Y,
     VP.WorldToScreen(FPoints[1]).X, VP.WorldToScreen(FPoints[1]).Y,
     Round(FRadiusX * VP.Scale), Round(FRadiusY * VP.Scale)
     );
-  FSelected := RectInRegion(r, ARect);
+  Result := PtInRegion(r, APoint.X, APoint.Y);
   DeleteObject(r);
 end;
 
-procedure TRoundRect.Select(APoint: TPoint);
+function TRoundRect.RectInShape(ARect: TRect): Boolean;
 var r: HRGN;
 begin
-  if FSelected then
-    Exit;
   r := CreateRoundRectRgn(
     VP.WorldToScreen(FPoints[0]).X, VP.WorldToScreen(FPoints[0]).Y,
     VP.WorldToScreen(FPoints[1]).X, VP.WorldToScreen(FPoints[1]).Y,
     Round(FRadiusX * VP.Scale), Round(FRadiusY * VP.Scale));
-  FSelected := PtInRegion(r, APoint.X, APoint.Y);
+  Result := RectInRegion(r, ARect);
   DeleteObject(r);
 end;
 

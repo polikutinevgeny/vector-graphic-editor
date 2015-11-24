@@ -172,7 +172,7 @@ procedure TMainWindow.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
 begin
   if FMousePressed then
     begin
-      ToolContainer.Tools[FCurrentToolIndex].MouseMove(Point(X, Y));
+      ToolContainer.Tools[FCurrentToolIndex].MouseMove(Point(X, Y), Shift);
       PaintBox.Invalidate;
     end;
 end;
