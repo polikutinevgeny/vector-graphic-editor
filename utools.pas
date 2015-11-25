@@ -33,11 +33,15 @@ type
   TShapeTool = Class(TTool)
     private
       FShape: TShape;
+      FIsTemp: Boolean;
     public
+      constructor Create; override;
       function GetShape: TShape; override;
       function CreateShape: TShape; override;
       procedure MouseUp; override;
       procedure MouseMove(APoint: TPoint; Shift: TShiftState); override;
+      procedure MouseClick(APoint: TPoint; Shift: TShiftState); override;
+      procedure Leave; override;
   end;
 
 { TPenTool }
@@ -46,7 +50,6 @@ type
     public
       constructor Create; override;
       function CreateShape: TShape; override;
-      procedure MouseClick(APoint: TPoint; Shift: TShiftState); override;
       procedure MouseMove(APoint: TPoint; Shift: TShiftState); override;
     end;
 
@@ -56,7 +59,6 @@ type
     public
       constructor Create; override;
       function CreateShape: TShape; override;
-      procedure MouseClick(APoint: TPoint; Shift: TShiftState); override;
   end;
 
   { TPolylineTool }
@@ -80,7 +82,6 @@ type
     public
       constructor Create; override;
       function CreateShape: TShape; override;
-      procedure MouseClick(APoint: TPoint; Shift: TShiftState); override;
   end;
 
   { TEllipseTool }
@@ -89,7 +90,6 @@ type
     public
       constructor Create; override;
       function CreateShape: TShape; override;
-      procedure MouseClick(APoint: TPoint; Shift: TShiftState); override;
   end;
 
   { TRoundRectTool }
@@ -98,7 +98,6 @@ type
     public
       constructor Create; override;
       function CreateShape: TShape; override;
-      procedure MouseClick(APoint: TPoint; Shift: TShiftState); override;
   end;
 
   { TZoomInTool }
@@ -109,7 +108,6 @@ type
       function GetShape: TShape; override;
       function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint; Shift: TShiftState); override;
-      procedure MouseMove(APoint: TPoint; Shift: TShiftState); override;
   end;
 
   { TZoomOutTool }
@@ -120,7 +118,6 @@ type
       function GetShape: TShape; override;
       function CreateShape: TShape; override;
       procedure MouseClick(APoint: TPoint; Shift: TShiftState); override;
-      procedure MouseMove(APoint: TPoint; Shift: TShiftState); override;
   end;
 
   { THandTool }
@@ -265,6 +262,12 @@ end;
 
 { TShapeTool }
 
+constructor TShapeTool.Create;
+begin
+  inherited Create;
+  FIsTemp := True;
+end;
+
 function TShapeTool.GetShape: TShape;
 begin
   Result := FShape;
@@ -272,6 +275,7 @@ end;
 
 function TShapeTool.CreateShape: TShape;
 begin
+  FIsTemp := True;
   Result := FShape;
 end;
 
@@ -283,6 +287,19 @@ end;
 procedure TShapeTool.MouseMove(APoint: TPoint; Shift: TShiftState);
 begin
   FShape.MovePoint(APoint);
+end;
+
+procedure TShapeTool.MouseClick(APoint: TPoint; Shift: TShiftState);
+begin
+  Figures.Add(FShape);
+  FIsTemp := False;
+  FShape.SetPoint(APoint);
+end;
+
+procedure TShapeTool.Leave;
+begin
+  if FIsTemp then
+    FShape.Free;
 end;
 
 { TRectangleZoomTool }
@@ -390,11 +407,6 @@ begin
   end;
 end;
 
-procedure TZoomOutTool.MouseMove(APoint: TPoint; Shift: TShiftState);
-begin
-  //Nothing to see here, move along
-end;
-
 { TZoomInTool }
 
 constructor TZoomInTool.Create;
@@ -423,11 +435,6 @@ begin
     VP.Scale := VP.Scale + 0.25;
     VP.ViewPosition := VP.ViewPosition + mem - VP.ScreenToWorld(APoint);
   end;
-end;
-
-procedure TZoomInTool.MouseMove(APoint: TPoint; Shift: TShiftState);
-begin
-  //Nothing to see here, move along
 end;
 
 { TTool }
@@ -472,12 +479,6 @@ begin
   Result := inherited CreateShape;
 end;
 
-procedure TRoundRectTool.MouseClick(APoint: TPoint; Shift: TShiftState);
-begin
-  Figures.Add(FShape);
-  FShape.SetPoint(APoint);
-end;
-
 { TEllipseTool }
 
 constructor TEllipseTool.Create;
@@ -492,12 +493,6 @@ begin
   Result := inherited CreateShape;
 end;
 
-procedure TEllipseTool.MouseClick(APoint: TPoint; Shift: TShiftState);
-begin
-  Figures.Add(FShape);
-  FShape.SetPoint(APoint);
-end;
-
 { TRectangleTool }
 
 constructor TRectangleTool.Create;
@@ -510,12 +505,6 @@ function TRectangleTool.CreateShape: TShape;
 begin
   FShape := TRectangle.Create;
   Result := inherited CreateShape;
-end;
-
-procedure TRectangleTool.MouseClick(APoint: TPoint; Shift: TShiftState);
-begin
-  Figures.Add(FShape);
-  FShape.SetPoint(APoint);
 end;
 
 { TPolylineTool }
@@ -536,8 +525,7 @@ procedure TPolylineTool.MouseClick(APoint: TPoint; Shift: TShiftState);
 begin
   if not FDrawingNow then
   begin
-    Figures.Add(FShape);
-    FShape.SetPoint(APoint);
+    inherited;
     FDrawingNow := true;
   end
   else
@@ -563,7 +551,7 @@ end;
 procedure TPolylineTool.Leave;
 begin
   FDrawingNow := false;
-  Inspector.LoadNew(CreateShape);
+  inherited;
 end;
 
 { TLineTool }
@@ -580,12 +568,6 @@ begin
   Result := inherited CreateShape;
 end;
 
-procedure TLineTool.MouseClick(APoint: TPoint; Shift: TShiftState);
-begin
-  Figures.Add(FShape);
-  FShape.SetPoint(APoint);
-end;
-
 { TPenTool }
 
 constructor TPenTool.Create;
@@ -598,12 +580,6 @@ function TPenTool.CreateShape: TShape;
 begin
   FShape := TPolyline.Create;
   Result := inherited CreateShape;
-end;
-
-procedure TPenTool.MouseClick(APoint: TPoint; Shift: TShiftState);
-begin
-  Figures.Add(FShape);
-  FShape.SetPoint(APoint);
 end;
 
 procedure TPenTool.MouseMove(APoint: TPoint; Shift: TShiftState);
