@@ -218,7 +218,7 @@ begin
   end
   else
     Figures.SwitchSelect(APoint);
-  Figures.SelectionRectangle := TRectangle.Create;
+  Figures.SelectionRectangle := TSelectionRect.Create;
   Figures.SelectionRectangle.SetPoint(APoint);
   Figures.SelectionRectangle.PenStyle := psDot;
   Figures.SelectionRectangle.BrushStyle := bsClear;
@@ -306,7 +306,7 @@ end;
 
 procedure TRectangleZoomTool.MouseClick(APoint: TPoint; Shift: TShiftState);
 begin
-  Figures.SelectionRectangle := TRectangle.Create;
+  Figures.SelectionRectangle := TSelectionRect.Create;
   Figures.SelectionRectangle.SetPoint(APoint);
   Figures.SelectionRectangle.PenStyle := psDot;
   Figures.SelectionRectangle.BrushStyle := bsClear;

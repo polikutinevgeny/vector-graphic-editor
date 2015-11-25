@@ -21,7 +21,7 @@ type
     FPenStyle: TPenStyle;
     FSelected: Boolean;
     FPrevSelected: Boolean;
-    function GetRect: TFloatRect;
+    function GetRect: TFloatRect; virtual;
   public
     constructor Create; virtual;
     procedure SetPoint(APoint: TPoint);
@@ -108,7 +108,21 @@ type
     property RadiusY: TRadius read FRadiusY write FRadiusY;
   end;
 
+  { TSelectionRect }
+
+  TSelectionRect = class(TRectangle)
+    private
+      function GetRect: TFloatRect; override;
+  end;
+
 implementation
+
+{ TSelectionRect }
+
+function TSelectionRect.GetRect: TFloatRect;
+begin
+  Result := FRect;
+end;
 
 { TFill }
 
@@ -285,8 +299,6 @@ end;
 function TRectangle.PointInShape(APoint: TPoint): Boolean;
 var r: HRGN;
 begin
-  if FSelected then
-    Exit;
   r := CreateRectRgnIndirect(VP.WorldToScreen(FRect));
   Result := PtInRegion(r, APoint.X, APoint.Y);
   DeleteObject(r);

@@ -15,10 +15,10 @@ type
     private
       FOnZOrderSwitch: TZOrderEvent;
       FShapes: array of TShape;
-      FSelectionRectangle: TRectangle;
+      FSelectionRectangle: TSelectionRect;
       function GetImageSize: TFloatRect;
     public
-      property SelectionRectangle: TRectangle read FSelectionRectangle
+      property SelectionRectangle: TSelectionRect read FSelectionRectangle
         write FSelectionRectangle;
       property ImageSize: TFloatRect read GetImageSize;
       property OnZOrderSwitch: TZOrderEvent read FOnZOrderSwitch
