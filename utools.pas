@@ -21,6 +21,7 @@ type
       procedure MouseMove(APoint: TPoint; Shift: TShiftState); virtual;
       procedure MouseUp; virtual;
       procedure DoubleClick; virtual;
+      procedure Leave; virtual;
       function GetShape: TShape; virtual; abstract;
       function CreateShape: TShape; virtual; abstract;
       property Icon: TBitmap read FIcon;
@@ -68,6 +69,7 @@ type
       procedure MouseMove(APoint: TPoint; Shift: TShiftState); override;
       procedure MouseUp; override;
       procedure DoubleClick; override;
+      procedure Leave; override;
     private
       FDrawingNow: boolean;
   end;
@@ -162,7 +164,7 @@ type
     procedure MouseClick(APoint: TPoint; Shift: TShiftState); override;
     procedure MouseMove(APoint: TPoint; Shift: TShiftState); override;
     procedure MouseUp; override;
-    procedure DoubleClick; override;
+    procedure Leave; override;
   end;
 
   ClassOfTool = class of TTool;
@@ -232,7 +234,7 @@ begin
   FMoveMode := False;
 end;
 
-procedure TSelectionTool.DoubleClick;
+procedure TSelectionTool.Leave;
 begin
   Figures.UnSelect;
   Inspector.OnParamsUpdate;
@@ -454,6 +456,11 @@ begin
   {Do nothing, because I need it to be called and not to throw exceptions}
 end;
 
+procedure TTool.Leave;
+begin
+  {This procedure is called on leaving the tool and does nothing by default}
+end;
+
 { TRoundRectTool }
 
 constructor TRoundRectTool.Create;
@@ -551,6 +558,12 @@ begin
 end;
 
 procedure TPolylineTool.DoubleClick;
+begin
+  FDrawingNow := false;
+  Inspector.LoadNew(CreateShape);
+end;
+
+procedure TPolylineTool.Leave;
 begin
   FDrawingNow := false;
   Inspector.LoadNew(CreateShape);

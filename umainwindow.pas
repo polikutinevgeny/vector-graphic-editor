@@ -191,7 +191,7 @@ end;
 
 procedure TMainWindow.ToolClick(Sender: TObject);
 begin
-  ToolContainer.Tools[FCurrentToolIndex].DoubleClick;
+  ToolContainer.Tools[FCurrentToolIndex].Leave;
   FCurrentToolIndex := TSpeedButton(Sender).Tag;
   StatusBar.Panels[0].Text := 'Current tool: '
     + ToolContainer.Tools[FCurrentToolIndex].Caption;
