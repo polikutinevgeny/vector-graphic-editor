@@ -120,8 +120,7 @@ procedure TShapesList.Delete;
 var i, c: Integer;
 begin
   c := 0;
-  i := 0;
-  while i <= High(FShapes) do
+  for i := 0 to High(FShapes) do
   begin
     if FShapes[i].Selected then
     begin
@@ -130,7 +129,6 @@ begin
     end
     else
       FShapes[i - c] := FShapes[i];
-    i += 1;
   end;
   SetLength(FShapes, Length(FShapes) - c);
   if Length(FShapes) = 0 then

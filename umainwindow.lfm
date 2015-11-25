@@ -234,12 +234,12 @@ object MainWindow: TMainWindow
         end
         object TopMI: TMenuItem
           Caption = 'Move to the top'
-          ShortCut = 8226
+          ShortCut = 8225
           OnClick = TopMIClick
         end
         object BottomMI: TMenuItem
           Caption = 'Move to the bottom'
-          ShortCut = 8225
+          ShortCut = 8226
           OnClick = BottomMIClick
         end
       end
