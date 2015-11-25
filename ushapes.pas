@@ -148,8 +148,8 @@ var
   r: TRect;
 begin
   dp := Point(
-    Round(PenWidth * VP.Scale + 5 / VP.Scale),
-    Round(PenWidth * VP.Scale + 5 / VP.Scale));
+    Round(PenWidth * VP.Scale / 2 + 5 * VP.Scale),
+    Round(PenWidth * VP.Scale / 2 + 5 * VP.Scale));
   r := VP.WorldToScreen(FRect);
   p1 := r.TopLeft - dp;
   p2 := r.BottomRight + dp;
