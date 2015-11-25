@@ -195,14 +195,11 @@ begin
     FStartPoint := APoint;
     exit;
   end;
-  if Figures.SelectionRectangle <> nil then
-  begin
-    Figures.SelectionRectangle.MovePoint(APoint);
-    if ssCtrl in Shift then
-      Figures.SwitchSelect
-    else
-      Figures.Select;
-  end;
+  Figures.SelectionRectangle.MovePoint(APoint);
+  if ssCtrl in Shift then
+    Figures.SwitchSelect
+  else
+    Figures.Select;
 end;
 
 procedure TSelectionTool.MouseClick(APoint: TPoint; Shift: TShiftState);
