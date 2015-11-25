@@ -212,39 +212,45 @@ end;
 procedure TShapesList.ZTop;
 var
   i, j: Integer;
-  s: TShape;
+  temp: array of TShape;
 begin
-  for i := High(FShapes) downto 0 do
-  begin
+  SetLength(temp, Length(FShapes));
+  j := 0;
+  for i := 0 to High(FShapes) do
+    if not FShapes[i].Selected then
+    begin
+      temp[j] := FShapes[i];
+      j += 1;
+    end;
+  for i := 0 to High(FShapes) do
     if FShapes[i].Selected then
-      for j := i to High(FShapes) - 1 do
-      begin
-        if FShapes[j + 1].Selected then
-          break;
-        s := FShapes[j];
-        FShapes[j] := FShapes[j + 1];
-        FShapes[j + 1] := s;
-      end;
-  end;
+    begin
+      temp[j] := FShapes[i];
+      j += 1;
+    end;
+  FShapes := temp;
 end;
 
 procedure TShapesList.ZBottom;
 var
   i, j: Integer;
-  s: TShape;
+  temp: array of TShape;
 begin
+  SetLength(temp, Length(FShapes));
+  j := 0;
   for i := 0 to High(FShapes) do
-  begin
     if FShapes[i].Selected then
-      for j := i downto 1 do
-      begin
-        if FShapes[j - 1].Selected then
-          break;
-        s := FShapes[j];
-        FShapes[j] := FShapes[j - 1];
-        FShapes[j - 1] := s;
-      end;
-  end;
+    begin
+      temp[j] := FShapes[i];
+      j += 1;
+    end;
+  for i := 0 to High(FShapes) do
+    if not FShapes[i].Selected then
+    begin
+      temp[j] := FShapes[i];
+      j += 1;
+    end;
+  FShapes := temp;
 end;
 
 function TShapesList.PointOnFigure(APoint: TPoint): Boolean;
