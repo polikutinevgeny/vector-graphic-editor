@@ -234,7 +234,7 @@ begin
   begin
     Result := CircleSegmentIntersection(
       VP.WorldToScreen(FPoints[i]), VP.WorldToScreen(FPoints[i+1]), APoint,
-      Round(FPenWidth * VP.Scale + 3));
+      Round(FPenWidth * VP.Scale / 2 + 3));
     if Result then
       Exit;
   end;
@@ -278,7 +278,7 @@ begin
   //I don't know how to do this with regions, so I wrote it myself
   Result := CircleSegmentIntersection(
     VP.WorldToScreen(FPoints[0]), VP.WorldToScreen(FPoints[1]), APoint,
-    Round(FPenWidth * VP.Scale + 3));
+    Round(FPenWidth * VP.Scale / 2 + 3));
 end;
 
 function TLine.RectInShape(ARect: TRect): Boolean;
