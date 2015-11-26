@@ -95,8 +95,12 @@ end;
 procedure TShapesList.Select(APoint: TPoint);
 var i: Integer;
 begin
-  for i := 0 to High(FShapes) do
+  for i := High(FShapes) downto 0 do
+  begin
     FShapes[i].Selected := FShapes[i].PointInShape(APoint);
+    if FShapes[i].Selected then
+      Exit;
+  end;
 end;
 
 procedure TShapesList.SwitchSelect;
@@ -111,9 +115,13 @@ end;
 procedure TShapesList.SwitchSelect(APoint: TPoint);
 var i: Integer;
 begin
-  for i := 0 to High(FShapes) do
+  for i := High(FShapes) downto 0 do
+  begin
     FShapes[i].Selected := FShapes[i].PointInShape(APoint) xor
       FShapes[i].PrevSelected;
+    if FShapes[i].PointInShape(APoint) then
+      break;
+  end;
 end;
 
 procedure TShapesList.Delete;
