@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
   UTools, UShapesList, Buttons, StdCtrls, ComCtrls, Grids,
-  UViewPort, UGeometry, types, math, UInspector;
+  UViewPort, UGeometry, types, math, UInspector, UPaletteEditor;
 
 type
 
@@ -114,6 +114,8 @@ begin
   FCurrentToolIndex := 0;
   FCleared := False;
   FMousePressed := False;
+  PenColor := MainColor;
+  BrushColor := SecondaryColor;
   Inspector := TInspector.Create(EditorsPanel);
   Inspector.OnParamsUpdate := @PaintBox.Invalidate;
   Figures.OnZOrderSwitch := @ZOrderSwitch;
@@ -278,7 +280,8 @@ begin
   MainColor.Brush.Color := FPaletteColors[t];
   PaletteDG.InvalidateCell(PaletteDG.Col, PaletteDG.Row);
   PaintBox.Invalidate;
-  Inspector.SetPenColor(MainColor.Brush.Color);
+  if OnMainColorUpdate <> nil then
+    OnMainColorUpdate(nil);
 end;
 
 procedure TMainWindow.PaletteDGDrawCell(Sender: TObject; aCol, aRow: Integer;
@@ -297,12 +300,14 @@ begin
   if Button = mbLeft then
   begin
     MainColor.Brush.Color:= FPaletteColors[t];
-    Inspector.SetPenColor(MainColor.Brush.Color);
+    if OnMainColorUpdate <> nil then
+      OnMainColorUpdate(nil);
   end;
   if Button = mbRight then
   begin
     SecondaryColor.Brush.Color:= FPaletteColors[t];
-    Inspector.SetBrushColor(SecondaryColor.Brush.Color);
+    if OnBrushColorUpdate <> nil then
+      OnBrushColorUpdate(nil);
   end;
   PaintBox.Invalidate;
 end;

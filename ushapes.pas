@@ -66,7 +66,7 @@ type
       constructor Create; override;
       procedure Draw(ACanvas: TCanvas); override;
     published
-      property BrushColor: TColor read FBrushColor write FBrushColor;
+      property BrushColor: TBrushColor read FBrushColor write FBrushColor;
       property BrushStyle: TBrushStyle read FBrushStyle write FBrushStyle;
   end;
 

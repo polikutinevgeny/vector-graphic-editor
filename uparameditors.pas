@@ -366,13 +366,11 @@ begin
 end;
 
 procedure TIntegerEditor.Refresh;
-var
-  j: Int64;
-  i: Integer;
+var i: Integer;
 begin
-  j := GetInt64Prop(FShapes[0], FPropInfo);
+  FSpinEdit.Value := GetInt64Prop(FShapes[0], FPropInfo);
   for i := 1 to High(FShapes) do
-    if GetInt64Prop(FShapes[i], FPropInfo) <> j then
+    if GetInt64Prop(FShapes[i], FPropInfo) <> FSpinEdit.Value then
     begin
       FSpinEdit.Text := '';
       Exit;
@@ -380,12 +378,10 @@ begin
 end;
 
 initialization
-  EditorContainer := TEditorContainer.Create;
   EditorContainer.RegisterEditor(TIntegerEditor, 'TPenWidth');
   EditorContainer.RegisterEditor(TIntegerEditor, 'TRadius');
   EditorContainer.RegisterEditor(TPenStyleEditor, 'TFPPenStyle');
   EditorContainer.RegisterEditor(TBrushStyleEditor, 'TFPBrushStyle');
-  ShiftEditorContainer := TEditorContainer.Create;
   ShiftEditorContainer.RegisterEditor(TLeftEditor, 'TLeft');
   ShiftEditorContainer.RegisterEditor(TRightEditor, 'TRight');
   ShiftEditorContainer.RegisterEditor(TTopEditor, 'TTop');

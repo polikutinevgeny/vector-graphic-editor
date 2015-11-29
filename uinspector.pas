@@ -43,8 +43,6 @@ type
       constructor Create(APanel: TPanel);
       procedure LoadNew(AShape: TShape);
       procedure Load(AShapes: array of TShape);
-      procedure SetPenColor(AColor: TColor);
-      procedure SetBrushColor(AColor: TColor);
       procedure Clean;
   end;
 
@@ -179,44 +177,7 @@ begin
           Break;
         end;
     end;
-  if FDefaultParams then
-  begin
-    SetPenColor(FPenColor);
-    SetBrushColor(FBrushColor);
-  end;
   FDefaultParams := False;
-end;
-
-procedure TInspector.SetPenColor(AColor: TColor);
-var
-  list: PPropList;
-  i, j, k: integer;
-begin
-  FPenColor := AColor;
-  if FShapes = nil then exit;
-  for k := 0 to High(FShapes) do
-  begin
-    j := GetPropList(FShapes[k], list);
-    for i := 0 to j - 1 do
-      if list^[i]^.Name = 'PenColor' then
-        SetInt64Prop(FShapes[k], list^[i], AColor);
-  end;
-end;
-
-procedure TInspector.SetBrushColor(AColor: TColor);
-var
-  list: PPropList;
-  i, j, k: integer;
-begin
-  FBrushColor := AColor;
-  if FShapes = nil then exit;
-  for k := 0 to High(FShapes) do
-  begin
-    j := GetPropList(FShapes[k], list);
-    for i := 0 to j - 1 do
-      if list^[i]^.Name = 'BrushColor' then
-        SetInt64Prop(FShapes[k], list^[i], AColor);
-  end;
 end;
 
 procedure TInspector.Clean;
@@ -259,6 +220,8 @@ begin
 end;
 
 initialization
+  EditorContainer := TEditorContainer.Create;
+  ShiftEditorContainer := TEditorContainer.Create;
   PropNames := TStringList.Create;
   PropNames.Values['BrushStyle'] :='Fill style:';
   PropNames.Values['PenWidth'] :='Pen width:';
