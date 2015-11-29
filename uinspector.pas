@@ -70,6 +70,7 @@ type
 var
   Inspector: TInspector;
   EditorContainer: TEditorContainer;
+  ShiftEditorContainer: TEditorContainer;
 
 implementation
 
@@ -142,7 +143,7 @@ end;
 procedure TInspector.Load(AShapes: array of TShape);
 var
   list: PPropList;
-  i, j: integer;
+  i, j, k: integer;
 begin
   Clean;
   if Length(AShapes) = 0 then
@@ -156,16 +157,28 @@ begin
   begin
     if CheckPropertyInAllObjects(FShapes, list^[i]) then
     begin
-      for j := 0 to High(EditorContainer.Editors) do
-        if list^[i]^.PropType^.Name = EditorContainer.Editors[j].Kind then
+      for k := 0 to High(EditorContainer.Editors) do
+        if list^[i]^.PropType^.Name = EditorContainer.Editors[k].Kind then
         begin
           SetLength(FEditors, Length(FEditors) + 1);
-          FEditors[High(FEditors)] := EditorContainer.Editors[j].Item.Create(
+          FEditors[High(FEditors)] := EditorContainer.Editors[k].Item.Create(
             FShapes, list^[i], FPanel, FDefaultParams);
           Break;
         end;
     end;
   end;
+  if Length(FShapes) > 1 then
+    for i := 0 to j - 1 do
+    begin
+      for k := 0 to High(ShiftEditorContainer.Editors) do
+        if list^[i]^.PropType^.Name = ShiftEditorContainer.Editors[k].Kind then
+        begin
+          SetLength(FEditors, Length(FEditors) + 1);
+          FEditors[High(FEditors)] := ShiftEditorContainer.Editors[k].Item.Create(
+            FShapes, list^[i], FPanel, FDefaultParams);
+          Break;
+        end;
+    end;
   if FDefaultParams then
   begin
     SetPenColor(FPenColor);
@@ -236,7 +249,7 @@ begin
   FLabel.Left := 10;
   FLabel.Width := trunc(APanel.Width / 2) - 20;
   FLabel.Top := APanel.Tag;
-  if FLabel.Caption = '' Then FLabel.Caption := APropInfo^.Name;
+  if FLabel.Caption = '' then FLabel.Caption := APropInfo^.Name;
   APanel.Tag := APanel.Tag + 35;
 end;
 

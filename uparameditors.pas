@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Spin, ExtCtrls, StdCtrls, Controls, FPCanvas, typinfo,
-  UInspector, LCLType, Graphics, math, UShapes;
+  UInspector, LCLType, Graphics, math, UShapes, Buttons;
 
 type
 
@@ -99,6 +99,92 @@ implementation
 
 var
   PropValues : TStringList;
+
+{ TBottomEditor }
+
+procedure TBottomEditor.Change(Sender: TObject);
+var
+  i: Integer;
+  bottom: Double;
+begin
+  bottom := FShapes[0].TrueRect.Bottom;
+  for i := 1 to High(FShapes) do
+    bottom := Max(bottom, FShapes[i].TrueRect.Bottom);
+  for i := 0 to High(FShapes) do
+    SetFloatProp(FShapes[i], FPropInfo, bottom);
+  inherited Change(Sender);
+end;
+
+{ TTopEditor }
+
+procedure TTopEditor.Change(Sender: TObject);
+var
+  i: Integer;
+  top: Double;
+begin
+  top := FShapes[0].TrueRect.Top;
+  for i := 1 to High(FShapes) do
+    top := Min(top, FShapes[i].TrueRect.Top);
+  for i := 0 to High(FShapes) do
+    SetFloatProp(FShapes[i], FPropInfo, top);
+  inherited Change(Sender);
+end;
+
+{ TRightEditor }
+
+procedure TRightEditor.Change(Sender: TObject);
+var
+  i: Integer;
+  right: Double;
+begin
+  right := FShapes[0].TrueRect.Right;
+  for i := 1 to High(FShapes) do
+    right := Max(right, FShapes[i].TrueRect.Right);
+  for i := 0 to High(FShapes) do
+    SetFloatProp(FShapes[i], FPropInfo, right);
+  inherited Change(Sender);
+end;
+
+{ TLeftEditor }
+
+procedure TLeftEditor.Change(Sender: TObject);
+var
+  i: Integer;
+  left: Double;
+begin
+  left := FShapes[0].TrueRect.Left;
+  for i := 1 to High(FShapes) do
+    left := Min(left, FShapes[i].TrueRect.Left);
+  for i := 0 to High(FShapes) do
+    SetFloatProp(FShapes[i], FPropInfo, left);
+  inherited Change(Sender);
+end;
+
+{ TPositionEditor }
+
+constructor TPositionEditor.Create(AShapes: array of TShape;
+  APropInfo: PPropInfo; APanel: TPanel; ADefaultParams: Boolean);
+var i: Integer;
+begin
+  SetLength(FShapes, Length(AShapes));
+  for i := 0 to High(AShapes) do
+    FShapes[i] := AShapes[i];
+  FPropInfo := APropInfo;
+  FButton := TSpeedButton.Create(nil);
+  FButton.Caption := 'Align ' + FPropInfo^.Name;
+  FButton.Top := APanel.Tag;
+  FButton.Left := 10;
+  FButton.Width := APanel.Width - 20;
+  FButton.Height := 30;
+  FButton.OnClick := @Change;
+  FButton.Parent := APanel;
+  APanel.Tag := APanel.Tag + 35;
+end;
+
+destructor TPositionEditor.Destroy;
+begin
+  FButton.Free;
+end;
 
 { TBrushStyleEditor }
 
@@ -301,19 +387,21 @@ begin
 end;
 
 initialization
-
   EditorContainer := TEditorContainer.Create;
   EditorContainer.RegisterEditor(TIntegerEditor, 'TPenWidth');
   EditorContainer.RegisterEditor(TIntegerEditor, 'TRadius');
-  EditorContainer.RegisterEditor(TIntegerEditor, 'TRadius');
   EditorContainer.RegisterEditor(TPenStyleEditor, 'TFPPenStyle');
   EditorContainer.RegisterEditor(TBrushStyleEditor, 'TFPBrushStyle');
+  ShiftEditorContainer := TEditorContainer.Create;
+  ShiftEditorContainer.RegisterEditor(TLeftEditor, 'TLeft');
+  ShiftEditorContainer.RegisterEditor(TRightEditor, 'TRight');
+  ShiftEditorContainer.RegisterEditor(TTopEditor, 'TTop');
+  ShiftEditorContainer.RegisterEditor(TBottomEditor, 'TBottom');
   PropValues := TStringList.Create;
   PropValues.Values['PenWidth'] := '3';
   PropValues.Values['PenStyle'] := '0';
   PropValues.Values['BrushStyle'] := '1';
   PropValues.Values['RadiusX'] := '10';
   PropValues.Values['RadiusY'] := '10';
-
 end.
 

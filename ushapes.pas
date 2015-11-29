@@ -12,16 +12,25 @@ type
   { TShape }
 
   TPenWidth = type Integer;
+  TPenColor = type TColor;
+  TLeft = type Double;
+  TRight = type Double;
+  TTop = type Double;
+  TBottom = type Double;
   TShape = class abstract
   private
     FPoints: TFloatPoints;
     FRect: TFloatRect;
-    FPenColor: TColor;
+    FPenColor: TPenColor;
     FPenWidth: TPenWidth;
     FPenStyle: TPenStyle;
     FSelected: Boolean;
     FPrevSelected: Boolean;
     function GetRect: TFloatRect; virtual;
+    procedure SetLeft(d: TLeft);
+    procedure SetRight(d: TRight);
+    procedure SetTop(d: TTop);
+    procedure SetBottom(d: TBottom);
   public
     constructor Create; virtual;
     procedure SetPoint(APoint: TPoint);
@@ -37,16 +46,21 @@ type
     property IsSelected: Boolean read FSelected write FSelected;
     property PrevSelected: Boolean read FPrevSelected write FPrevSelected;
   published
-    property PenColor: TColor read FPenColor write FPenColor;
+    property PenColor: TPenColor read FPenColor write FPenColor;
     property PenWidth: TPenWidth read FPenWidth write FPenWidth;
     property PenStyle: TPenStyle read FPenStyle write FPenStyle;
+    property Left: TLeft write SetLeft;
+    property Right: TRight write SetRight;
+    property Top: TTop write SetTop;
+    property Bottom: TBottom write SetBottom;
   end;
 
   { TFill }
 
+  TBrushColor = type TColor;
   TFill = class abstract(TShape)
     private
-      FBrushColor: TColor;
+      FBrushColor: TBrushColor;
       FBrushStyle: TBrushStyle;
     public
       constructor Create; override;
@@ -141,6 +155,54 @@ begin
   p1 := r.TopLeft - dp;
   p2 := r.BottomRight + dp;
   Result := VP.ScreenToWorld(UGeometry.Rect(p1, p2));
+end;
+
+procedure TShape.SetLeft(d: TLeft);
+var
+  i: Integer;
+  dx: Double;
+begin
+  dx := d - FRect.Left;
+  for i := 0 to High(FPoints) do
+    FPoints[i] += FloatPoint(dx, 0);
+  FRect.Left += dx;
+  FRect.Right += dx;
+end;
+
+procedure TShape.SetRight(d: TRight);
+var
+  i: Integer;
+  dx: Double;
+begin
+  dx := d - FRect.Right;
+  for i := 0 to High(FPoints) do
+    FPoints[i] += FloatPoint(dx, 0);
+  FRect.Left += dx;
+  FRect.Right += dx;
+end;
+
+procedure TShape.SetTop(d: TTop);
+var
+  i: Integer;
+  dy: Double;
+begin
+  dy := d - FRect.Top;
+  for i := 0 to High(FPoints) do
+    FPoints[i] += FloatPoint(0, dy);
+  FRect.Top += dy;
+  FRect.Bottom += dy;
+end;
+
+procedure TShape.SetBottom(d: TBottom);
+var
+  i: Integer;
+  dy: Double;
+begin
+  dy := d - FRect.Bottom;
+  for i := 0 to High(FPoints) do
+    FPoints[i] += FloatPoint(0, dy);
+  FRect.Top += dy;
+  FRect.Bottom += dy;
 end;
 
 constructor TShape.Create;
