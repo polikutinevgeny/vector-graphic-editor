@@ -33,7 +33,8 @@ type
     function RectInShape(ARect: TRect): Boolean; virtual; abstract;
     procedure Shift(AShift: TPoint);
     property Rect: TFloatRect read GetRect;
-    property Selected: Boolean read FSelected write FSelected;
+    property TrueRect: TFloatRect read FRect;
+    property IsSelected: Boolean read FSelected write FSelected;
     property PrevSelected: Boolean read FPrevSelected write FPrevSelected;
   published
     property PenColor: TColor read FPenColor write FPenColor;
@@ -108,21 +109,7 @@ type
     property RadiusY: TRadius read FRadiusY write FRadiusY;
   end;
 
-  { TSelectionRect }
-
-  TSelectionRect = class(TRectangle)
-    private
-      function GetRect: TFloatRect; override;
-  end;
-
 implementation
-
-{ TSelectionRect }
-
-function TSelectionRect.GetRect: TFloatRect;
-begin
-  Result := FRect;
-end;
 
 { TFill }
 
@@ -220,7 +207,7 @@ begin
   FRect.Left += AShift.X / VP.Scale;
   FRect.Right += AShift.X / VP.Scale;
   FRect.Top += AShift.Y / VP.Scale;
-  FRect.Bottom += AShift.Y / VP.Scale;;
+  FRect.Bottom += AShift.Y / VP.Scale;
 end;
 
 { TPolyline }
@@ -234,7 +221,7 @@ begin
   begin
     Result := CircleSegmentIntersection(
       VP.WorldToScreen(FPoints[i]), VP.WorldToScreen(FPoints[i+1]), APoint,
-      Round(FPenWidth * VP.Scale / 2 + 3));
+      Round(FPenWidth * VP.Scale / 2 + 5));
     if Result then
       Exit;
   end;
@@ -278,7 +265,7 @@ begin
   //I don't know how to do this with regions, so I wrote it myself
   Result := CircleSegmentIntersection(
     VP.WorldToScreen(FPoints[0]), VP.WorldToScreen(FPoints[1]), APoint,
-    Round(FPenWidth * VP.Scale / 2 + 3));
+    Round(FPenWidth * VP.Scale / 2 + 5));
 end;
 
 function TLine.RectInShape(ARect: TRect): Boolean;

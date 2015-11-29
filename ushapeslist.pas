@@ -15,10 +15,10 @@ type
     private
       FOnZOrderSwitch: TZOrderEvent;
       FShapes: array of TShape;
-      FSelectionRectangle: TSelectionRect;
+      FSelectionRectangle: TRectangle;
       function GetImageSize: TFloatRect;
     public
-      property SelectionRectangle: TSelectionRect read FSelectionRectangle
+      property SelectionRectangle: TRectangle read FSelectionRectangle
         write FSelectionRectangle;
       property ImageSize: TFloatRect read GetImageSize;
       property OnZOrderSwitch: TZOrderEvent read FOnZOrderSwitch
@@ -72,7 +72,7 @@ begin
   for i := 0 to High(FShapes) do
     FShapes[i].Draw(ACanvas);
   for i := 0 to High(FShapes) do
-    if FShapes[i].Selected then
+    if FShapes[i].IsSelected then
       FShapes[i].DrawSelection(ACanvas);
   if FSelectionRectangle <> nil then
     FSelectionRectangle.Draw(ACanvas);
@@ -88,8 +88,8 @@ procedure TShapesList.Select;
 var i: Integer;
 begin
   for i := 0 to High(FShapes) do
-    FShapes[i].Selected :=
-      FShapes[i].RectInShape(VP.WorldToScreen(FSelectionRectangle.Rect));
+    FShapes[i].IsSelected :=
+      FShapes[i].RectInShape(VP.WorldToScreen(FSelectionRectangle.TrueRect));
 end;
 
 procedure TShapesList.Select(APoint: TPoint);
@@ -97,8 +97,8 @@ var i: Integer;
 begin
   for i := High(FShapes) downto 0 do
   begin
-    FShapes[i].Selected := FShapes[i].PointInShape(APoint);
-    if FShapes[i].Selected then
+    FShapes[i].IsSelected := FShapes[i].PointInShape(APoint);
+    if FShapes[i].IsSelected then
       Exit;
   end;
 end;
@@ -107,8 +107,8 @@ procedure TShapesList.SwitchSelect;
 var i: Integer;
 begin
   for i := 0 to High(FShapes) do
-    FShapes[i].Selected :=
-      FShapes[i].RectInShape(VP.WorldToScreen(FSelectionRectangle.Rect)) xor
+    FShapes[i].IsSelected :=
+      FShapes[i].RectInShape(VP.WorldToScreen(FSelectionRectangle.TrueRect)) xor
       FShapes[i].PrevSelected;
 end;
 
@@ -117,7 +117,7 @@ var i: Integer;
 begin
   for i := High(FShapes) downto 0 do
   begin
-    FShapes[i].Selected := FShapes[i].PointInShape(APoint) xor
+    FShapes[i].IsSelected := FShapes[i].PointInShape(APoint) xor
       FShapes[i].PrevSelected;
     if FShapes[i].PointInShape(APoint) then
       break;
@@ -130,7 +130,7 @@ begin
   c := 0;
   for i := 0 to High(FShapes) do
   begin
-    if FShapes[i].Selected then
+    if FShapes[i].IsSelected then
     begin
       c += 1;
       FShapes[i].Free;
@@ -157,7 +157,7 @@ begin
   f := True;
   SetLength(a, 0);
   for i := 0 to High(FShapes) do
-    if FShapes[i].Selected then
+    if FShapes[i].IsSelected then
     begin
       SetLength(a, Length(a) + 1);
       a[High(a)] := FShapes[i];
@@ -176,7 +176,7 @@ var
 begin
   for i := 0 to High(FShapes) do
   begin
-    FShapes[i].Selected := False;
+    FShapes[i].IsSelected := False;
     FShapes[i].PrevSelected := False;
   end;
   FOnZOrderSwitch(False);
@@ -189,8 +189,8 @@ var
 begin
   for i := High(FShapes) downto 0 do
   begin
-    if FShapes[i].Selected and (i < High(FShapes)) and
-      not FShapes[i + 1].Selected then
+    if FShapes[i].IsSelected and (i < High(FShapes)) and
+      not FShapes[i + 1].IsSelected then
     begin
       s := FShapes[i];
       FShapes[i] := FShapes[i + 1];
@@ -206,7 +206,7 @@ var
 begin
   for i := 0 to High(FShapes) do
   begin
-    if FShapes[i].Selected and (i > 0) and not FShapes[i - 1].Selected then
+    if FShapes[i].IsSelected and (i > 0) and not FShapes[i - 1].IsSelected then
     begin
       s := FShapes[i];
       FShapes[i] := FShapes[i - 1];
@@ -223,13 +223,13 @@ begin
   SetLength(temp, Length(FShapes));
   j := 0;
   for i := 0 to High(FShapes) do
-    if not FShapes[i].Selected then
+    if not FShapes[i].IsSelected then
     begin
       temp[j] := FShapes[i];
       j += 1;
     end;
   for i := 0 to High(FShapes) do
-    if FShapes[i].Selected then
+    if FShapes[i].IsSelected then
     begin
       temp[j] := FShapes[i];
       j += 1;
@@ -245,13 +245,13 @@ begin
   SetLength(temp, Length(FShapes));
   j := 0;
   for i := 0 to High(FShapes) do
-    if FShapes[i].Selected then
+    if FShapes[i].IsSelected then
     begin
       temp[j] := FShapes[i];
       j += 1;
     end;
   for i := 0 to High(FShapes) do
-    if not FShapes[i].Selected then
+    if not FShapes[i].IsSelected then
     begin
       temp[j] := FShapes[i];
       j += 1;
@@ -265,7 +265,7 @@ begin
   Result := False;
   for i := 0 to High(FShapes) do
   begin
-    Result := FShapes[i].Selected and FShapes[i].PointOnSelectionRect(APoint);
+    Result := FShapes[i].IsSelected and FShapes[i].PointOnSelectionRect(APoint);
     if Result then
       exit;
   end;
@@ -276,7 +276,7 @@ var i: Integer;
 begin
   for i := 0 to High(FShapes) do
   begin
-    if FShapes[i].Selected then
+    if FShapes[i].IsSelected then
       FShapes[i].Shift(AShift);
   end;
 end;

@@ -23,7 +23,6 @@ type
       constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
         APanel: TPanel; ADefaultParams: Boolean); virtual;
       destructor Destroy; override;
-      procedure Refresh; virtual; abstract;
   end;
 
   { TInspector }
@@ -44,7 +43,6 @@ type
       constructor Create(APanel: TPanel);
       procedure LoadNew(AShape: TShape);
       procedure Load(AShapes: array of TShape);
-      procedure Refresh;
       procedure SetPenColor(AColor: TColor);
       procedure SetBrushColor(AColor: TColor);
       procedure Clean;
@@ -176,13 +174,6 @@ begin
   FDefaultParams := False;
 end;
 
-procedure TInspector.Refresh;
-var i: integer;
-begin
-  for i := 0 to High(FEditors) do
-    FEditors[i].Refresh;
-end;
-
 procedure TInspector.SetPenColor(AColor: TColor);
 var
   list: PPropList;
@@ -255,13 +246,11 @@ begin
 end;
 
 initialization
-
-PropNames := TStringList.Create;
-PropNames.Values['BrushStyle'] :='Fill style:';
-PropNames.Values['PenWidth'] :='Pen width:';
-PropNames.Values['PenStyle'] :='Pen style:';
-PropNames.Values['RadiusX'] :='Radius X:';
-PropNames.Values['RadiusY'] := 'Radius Y:';
-
+  PropNames := TStringList.Create;
+  PropNames.Values['BrushStyle'] :='Fill style:';
+  PropNames.Values['PenWidth'] :='Pen width:';
+  PropNames.Values['PenStyle'] :='Pen style:';
+  PropNames.Values['RadiusX'] :='Radius X:';
+  PropNames.Values['RadiusY'] := 'Radius Y:';
 end.
 

@@ -12,7 +12,6 @@ type
     X, Y: Double;
   end;
 
-type
   TFloatRect = record
     Left, Right, Top, Bottom: Double;
   end;

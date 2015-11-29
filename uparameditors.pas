@@ -16,11 +16,11 @@ type
   private
     FSpinEdit: TSpinEdit;
     procedure Change(Sender: TObject); override;
+    procedure Refresh;
   public
     constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
         APanel: TPanel; ADefaultParams: Boolean); override;
     destructor Destroy; override;
-    procedure Refresh; override;
   end;
 
   { TPenStyleEditor }
@@ -31,11 +31,11 @@ type
       procedure ComboBoxDrawItem(AControl: TWinControl; AIndex: Integer;
         ARect: TRect; AState: TOwnerDrawState);
       procedure Change(Sender: TObject); override;
+      procedure Refresh;
     public
       constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
         APanel: TPanel; ADefaultParams: Boolean); override;
       destructor Destroy; override;
-      procedure Refresh; override;
   end;
 
   { TBrushStyleEditor }
@@ -46,12 +46,51 @@ type
       procedure ComboBoxDrawItem(AControl: TWinControl; AIndex: Integer;
         ARect: TRect; AState: TOwnerDrawState);
       procedure Change(Sender: TObject); override;
+      procedure Refresh;
     public
       constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
         APanel: TPanel; ADefaultParams: Boolean); override;
       destructor Destroy; override;
-      procedure Refresh; override;
     end;
+
+  { TPositionEditor }
+
+  TPositionEditor = class abstract(TParamEditor)
+    private
+      FButton: TSpeedButton;
+    public
+      constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
+        APanel: TPanel; ADefaultParams: Boolean); override;
+      destructor Destroy; override;
+  end;
+
+  { TLeftEditor }
+
+  TLeftEditor = class(TPositionEditor)
+    private
+      procedure Change(Sender: TObject); override;
+  end;
+
+  { TRightEditor }
+
+  TRightEditor = class(TPositionEditor)
+    private
+      procedure Change(Sender: TObject); override;
+  end;
+
+  { TTopEditor }
+
+  TTopEditor = class(TPositionEditor)
+    private
+      procedure Change(Sender: TObject); override;
+  end;
+
+  { TBottomEditor }
+
+  TBottomEditor = class(TPositionEditor)
+    private
+      procedure Change(Sender: TObject); override;
+  end;
 
 var
   Inspector: TInspector;
