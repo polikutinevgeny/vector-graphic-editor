@@ -244,18 +244,15 @@ begin
 end;
 
 procedure TBrushStyleEditor.Refresh;
-var
-  j: int64;
-  i: integer;
+var i: integer;
 begin
-  j := GetInt64Prop(FShapes[0], FPropInfo);
+  FComboBox.ItemIndex := GetInt64Prop(FShapes[0], FPropInfo);
   for i := 1 to High(FShapes) do
-    if GetInt64Prop(FShapes[i], FPropInfo) <> j then
+    if GetInt64Prop(FShapes[i], FPropInfo) <> FComboBox.ItemIndex then
     begin
-      j := ord(bsClear);
-      break;
+      FComboBox.ItemIndex := -1;
+      Exit;
     end;
-  FComboBox.ItemIndex := j;
 end;
 
 { TPenStyleEditor }
@@ -319,19 +316,15 @@ begin
 end;
 
 procedure TPenStyleEditor.Refresh;
-var
-  j: int64;
-  i: integer;
+var i: integer;
 begin
-  j := GetInt64Prop(FShapes[0], FPropInfo);
-  for i := 1 to high(FShapes) do
-    if GetInt64Prop(FShapes[i], FPropInfo) <> j then
+  FComboBox.ItemIndex := GetInt64Prop(FShapes[0], FPropInfo);
+  for i := 1 to High(FShapes) do
+    if GetInt64Prop(FShapes[i], FPropInfo) <> FComboBox.ItemIndex then
     begin
-      j := ord(psSolid);
-      break;
+      FComboBox.ItemIndex := -1;
+      Exit;
     end;
-  FComboBox.ItemIndex := j;
-  exit;
 end;
 
 { TIntegerEditor }
@@ -378,12 +371,12 @@ var
   i: Integer;
 begin
   j := GetInt64Prop(FShapes[0], FPropInfo);
-  for i:= 0 to High(FShapes) do
+  for i := 1 to High(FShapes) do
     if GetInt64Prop(FShapes[i], FPropInfo) <> j then
     begin
-      j := Max(j, GetInt64Prop(FShapes[i], FPropInfo));
+      FSpinEdit.Text := '';
+      Exit;
     end;
-  FSpinEdit.Value := j;
 end;
 
 initialization
@@ -398,7 +391,7 @@ initialization
   ShiftEditorContainer.RegisterEditor(TTopEditor, 'TTop');
   ShiftEditorContainer.RegisterEditor(TBottomEditor, 'TBottom');
   PropValues := TStringList.Create;
-  PropValues.Values['PenWidth'] := '3';
+  PropValues.Values['PenWidth'] := '1';
   PropValues.Values['PenStyle'] := '0';
   PropValues.Values['BrushStyle'] := '1';
   PropValues.Values['RadiusX'] := '10';
