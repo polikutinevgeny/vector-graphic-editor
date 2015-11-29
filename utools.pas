@@ -203,7 +203,7 @@ procedure TSelectionTool.MouseClick(APoint: TPoint; Shift: TShiftState);
 begin
   if not (ssCtrl in Shift) then
   begin
-    if Figures.PointOnFigure(APoint) then
+    if (ssShift in Shift) and Figures.PointOnFigure(APoint) then
     begin
       FMoveMode := True;
       FStartPoint := APoint;
