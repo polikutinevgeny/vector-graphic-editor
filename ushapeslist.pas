@@ -134,6 +134,8 @@ begin
   AIndex := -1;
   for i := High(FShapes) downto 0 do
   begin
+    if not FShapes[i].IsSelected then
+      continue;
     j := FShapes[i].PointInEditPoint(APoint);
     Result := j <> -1;
     if Result then

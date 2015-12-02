@@ -153,7 +153,7 @@ end;
 procedure TMainWindow.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  if Button = mbLeft then
+  if (Button = mbLeft) or (Button = mbRight) then
     begin
       FMousePressed := True;
       FCleared := False;
