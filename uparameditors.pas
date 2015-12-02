@@ -390,7 +390,7 @@ initialization
   PropValues.Values['PenWidth'] := '1';
   PropValues.Values['PenStyle'] := '0';
   PropValues.Values['BrushStyle'] := '1';
-  PropValues.Values['RadiusX'] := '10';
-  PropValues.Values['RadiusY'] := '10';
+  PropValues.Values['RadiusX'] := '50';
+  PropValues.Values['RadiusY'] := '50';
 end.
 
