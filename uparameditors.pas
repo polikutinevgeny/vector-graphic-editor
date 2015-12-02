@@ -69,6 +69,9 @@ type
   TLeftEditor = class(TPositionEditor)
     private
       procedure Change(Sender: TObject); override;
+    public
+      constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
+        APanel: TPanel; ADefaultParams: Boolean); override;
   end;
 
   { TRightEditor }
@@ -76,6 +79,9 @@ type
   TRightEditor = class(TPositionEditor)
     private
       procedure Change(Sender: TObject); override;
+    public
+      constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
+        APanel: TPanel; ADefaultParams: Boolean); override;
   end;
 
   { TTopEditor }
@@ -83,6 +89,9 @@ type
   TTopEditor = class(TPositionEditor)
     private
       procedure Change(Sender: TObject); override;
+    public
+      constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
+        APanel: TPanel; ADefaultParams: Boolean); override;
   end;
 
   { TBottomEditor }
@@ -90,6 +99,9 @@ type
   TBottomEditor = class(TPositionEditor)
     private
       procedure Change(Sender: TObject); override;
+    public
+      constructor Create(AShapes: array of TShape; APropInfo: PPropInfo;
+        APanel: TPanel; ADefaultParams: Boolean); override;
   end;
 
 var
@@ -115,6 +127,13 @@ begin
   inherited Change(Sender);
 end;
 
+constructor TBottomEditor.Create(AShapes: array of TShape;
+  APropInfo: PPropInfo; APanel: TPanel; ADefaultParams: Boolean);
+begin
+  inherited Create(AShapes, APropInfo, APanel, ADefaultParams);
+  FButton.Caption := 'Align to the bottom';
+end;
+
 { TTopEditor }
 
 procedure TTopEditor.Change(Sender: TObject);
@@ -128,6 +147,13 @@ begin
   for i := 0 to High(FShapes) do
     SetFloatProp(FShapes[i], FPropInfo, top);
   inherited Change(Sender);
+end;
+
+constructor TTopEditor.Create(AShapes: array of TShape; APropInfo: PPropInfo;
+  APanel: TPanel; ADefaultParams: Boolean);
+begin
+  inherited Create(AShapes, APropInfo, APanel, ADefaultParams);
+  FButton.Caption := 'Align to the top';
 end;
 
 { TRightEditor }
@@ -145,6 +171,13 @@ begin
   inherited Change(Sender);
 end;
 
+constructor TRightEditor.Create(AShapes: array of TShape; APropInfo: PPropInfo;
+  APanel: TPanel; ADefaultParams: Boolean);
+begin
+  inherited Create(AShapes, APropInfo, APanel, ADefaultParams);
+  FButton.Caption := 'Align to the right';
+end;
+
 { TLeftEditor }
 
 procedure TLeftEditor.Change(Sender: TObject);
@@ -160,6 +193,13 @@ begin
   inherited Change(Sender);
 end;
 
+constructor TLeftEditor.Create(AShapes: array of TShape; APropInfo: PPropInfo;
+  APanel: TPanel; ADefaultParams: Boolean);
+begin
+  inherited Create(AShapes, APropInfo, APanel, ADefaultParams);
+  FButton.Caption := 'Align to the left';
+end;
+
 { TPositionEditor }
 
 constructor TPositionEditor.Create(AShapes: array of TShape;
@@ -171,7 +211,6 @@ begin
     FShapes[i] := AShapes[i];
   FPropInfo := APropInfo;
   FButton := TSpeedButton.Create(nil);
-  FButton.Caption := 'Align ' + FPropInfo^.Name;
   FButton.Top := APanel.Tag;
   FButton.Left := 10;
   FButton.Width := APanel.Width - 20;

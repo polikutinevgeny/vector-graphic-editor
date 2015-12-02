@@ -50,10 +50,10 @@ type
     property PenColor: TPenColor read FPenColor write FPenColor;
     property PenWidth: TPenWidth read FPenWidth write FPenWidth;
     property PenStyle: TPenStyle read FPenStyle write FPenStyle;
-    property Left: TLeft write SetLeft;
-    property Right: TRight write SetRight;
-    property Top: TTop write SetTop;
-    property Bottom: TBottom write SetBottom;
+    property AlignLeft: TLeft write SetLeft;
+    property AlignRight: TRight write SetRight;
+    property AlignTop: TTop write SetTop;
+    property AlignBottom: TBottom write SetBottom;
   end;
 
   { TFill }
