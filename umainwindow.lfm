@@ -36,7 +36,6 @@ object MainWindow: TMainWindow
     Anchors = [akTop, akLeft, akRight, akBottom]
     BorderSpacing.Right = 26
     BorderSpacing.Bottom = 26
-    OnDblClick = PaintBoxDblClick
     OnMouseDown = PaintBoxMouseDown
     OnMouseMove = PaintBoxMouseMove
     OnMouseUp = PaintBoxMouseUp

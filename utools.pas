@@ -20,7 +20,6 @@ type
       procedure MouseClick(APoint: TPoint; Shift: TShiftState); virtual; abstract;
       procedure MouseMove(APoint: TPoint; Shift: TShiftState); virtual;
       procedure MouseUp; virtual;
-      procedure DoubleClick; virtual;
       procedure Leave; virtual;
       function GetShape: TShape; virtual; abstract;
       function CreateShape: TShape; virtual; abstract;
@@ -70,7 +69,6 @@ type
       procedure MouseClick(APoint: TPoint; Shift: TShiftState); override;
       procedure MouseMove(APoint: TPoint; Shift: TShiftState); override;
       procedure MouseUp; override;
-      procedure DoubleClick; override;
       procedure Leave; override;
     private
       FDrawingNow: boolean;
@@ -455,11 +453,6 @@ begin
   {Do nothing, because I need it to be called and not to throw exceptions}
 end;
 
-procedure TTool.DoubleClick;
-begin
-  {Do nothing, because I need it to be called and not to throw exceptions}
-end;
-
 procedure TTool.Leave;
 begin
   {This procedure is called on leaving the tool and does nothing by default}
@@ -523,6 +516,12 @@ end;
 
 procedure TPolylineTool.MouseClick(APoint: TPoint; Shift: TShiftState);
 begin
+  if ssRight in Shift then
+  begin
+    FDrawingNow := false;
+    Inspector.LoadNew(CreateShape);
+    Exit;
+  end;
   if not FDrawingNow then
   begin
     inherited;
@@ -540,12 +539,6 @@ end;
 procedure TPolylineTool.MouseUp;
 begin
   {Do not create new shape}
-end;
-
-procedure TPolylineTool.DoubleClick;
-begin
-  FDrawingNow := false;
-  Inspector.LoadNew(CreateShape);
 end;
 
 procedure TPolylineTool.Leave;

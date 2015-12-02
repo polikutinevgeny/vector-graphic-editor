@@ -55,7 +55,6 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure ExitMIClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure PaintBoxDblClick(Sender: TObject);
     procedure PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -149,12 +148,6 @@ begin
         FPaletteColors[r * 4 + g * 16 + b] :=
           RGBToColor(r * 85, g * 85, b * 85);
   PaletteDG.FocusRectVisible := False;
-end;
-
-procedure TMainWindow.PaintBoxDblClick(Sender: TObject);
-begin
-  ToolContainer.Tools[FCurrentToolIndex].DoubleClick;
-  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.PaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
