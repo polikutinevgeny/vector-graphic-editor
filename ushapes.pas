@@ -33,14 +33,15 @@ type
     procedure SetBottom(d: TBottom);
   public
     constructor Create; virtual;
-    procedure SetPoint(APoint: TPoint);
+    procedure SetPoint(APoint: TPoint); virtual;
     procedure Draw(ACanvas: TCanvas); virtual;
     procedure MovePoint(APoint: TPoint);
     procedure DrawSelection(ACanvas: TCanvas);
-    function PointOnSelectionRect(APoint: TPoint): Boolean;
     function PointInShape(APoint: TPoint): Boolean; virtual; abstract;
     function RectInShape(ARect: TRect): Boolean; virtual; abstract;
     procedure Shift(AShift: TPoint);
+    function PointInEditPoint(APoint: TPoint): Integer;
+    procedure MoveEditPoint(AShift: TPoint; AIndex: Integer); virtual;
     property Rect: TFloatRect read GetRect;
     property TrueRect: TFloatRect read FRect;
     property IsSelected: Boolean read FSelected write FSelected;
@@ -65,6 +66,7 @@ type
     public
       constructor Create; override;
       procedure Draw(ACanvas: TCanvas); override;
+      procedure SetPoint(APoint: TPoint); override;
     published
       property BrushColor: TBrushColor read FBrushColor write FBrushColor;
       property BrushStyle: TBrushStyle read FBrushStyle write FBrushStyle;
@@ -87,6 +89,7 @@ type
     function PointInShape(APoint: TPoint): Boolean; override;
     function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
+    procedure SetPoint(APoint: TPoint); override;
   end;
 
   { TRectangle }
@@ -139,6 +142,13 @@ begin
   inherited Draw(ACanvas);
   ACanvas.Brush.Color := FBrushColor;
   ACanvas.Brush.Style := FBrushStyle;
+end;
+
+procedure TFill.SetPoint(APoint: TPoint);
+begin
+  inherited SetPoint(APoint);
+  SetLength(FPoints, 2);
+  FPoints[1] := VP.ScreenToWorld(APoint);
 end;
 
 { TShape }
@@ -216,9 +226,8 @@ end;
 
 procedure TShape.SetPoint(APoint: TPoint);
 begin
-  SetLength(FPoints, 2);
+  SetLength(FPoints, 1);
   FPoints[0] := VP.ScreenToWorld(APoint);
-  FPoints[1] := FPoints[0];
   FRect := FloatRect(FPoints[0], FPoints[0]);
 end;
 
@@ -233,6 +242,10 @@ procedure TShape.MovePoint(APoint: TPoint);
 var
   i: integer;
 begin
+  if Length(FPoints) = 1 then
+  begin
+    SetLength(FPoints, 2);
+  end;
   FPoints[High(FPoints)] := VP.ScreenToWorld(APoint);
   FRect := FloatRect(FPoints[0], FPoints[0]);
   for i := 1 to High(FPoints) do
@@ -245,20 +258,20 @@ begin
 end;
 
 procedure TShape.DrawSelection(ACanvas: TCanvas);
-begin
-  ACanvas.Pen.Width := 3;
-  ACanvas.Pen.Color := clGreen;
-  ACanvas.Pen.Style := psDash;
-  ACanvas.Brush.Style := bsClear;
-  ACanvas.Rectangle(VP.WorldToScreen(GetRect));
-end;
-
-function TShape.PointOnSelectionRect(APoint: TPoint): Boolean;
 var
-  r: TRect;
+  i: Integer;
+  p: TPoint;
 begin
-  r := VP.WorldToScreen(Rect);
-  Result := PtInRect(r, APoint);
+  ACanvas.Pen.Width := 1;
+  ACanvas.Pen.Color := clBlack;
+  ACanvas.Pen.Style := psSolid;
+  ACanvas.Brush.Style := bsSolid;
+  ACanvas.Brush.Color := clWhite;
+  for i := 0 to High(FPoints) do
+  begin
+    p := VP.WorldToScreen(FPoints[i]);
+    ACanvas.EllipseC(p.X, p.Y, 5, 5);
+  end;
 end;
 
 procedure TShape.Shift(AShift: TPoint);
@@ -270,6 +283,42 @@ begin
   FRect.Right += AShift.X / VP.Scale;
   FRect.Top += AShift.Y / VP.Scale;
   FRect.Bottom += AShift.Y / VP.Scale;
+end;
+
+function TShape.PointInEditPoint(APoint: TPoint): Integer;
+var
+  r: HRGN;
+  i: Integer;
+  p: TPoint;
+  b: Boolean;
+begin
+  Result := -1;
+  for i := High(FPoints) downto 0 do
+  begin
+    p := VP.WorldToScreen(FPoints[i]);
+    r := CreateEllipticRgn(p.X - 5, p.Y - 5, p.X + 5, p.Y + 5);
+    b := PtInRegion(r, APoint.X, APoint.Y);
+    DeleteObject(r);
+    if b then
+    begin
+      Result := i;
+      Exit;
+    end;
+  end;
+end;
+
+procedure TShape.MoveEditPoint(AShift: TPoint; AIndex: Integer);
+var i: Integer;
+begin
+  FPoints[AIndex] += FloatPoint(AShift) / VP.Scale;
+  FRect := FloatRect(FPoints[0], FPoints[0]);
+  for i := 1 to High(FPoints) do
+  begin
+    FRect.Left := Min(FRect.Left, FPoints[i].X);
+    FRect.Right := Max(FRect.Right, FPoints[i].X);
+    FRect.Top := Min(FRect.Top, FPoints[i].Y);
+    FRect.Bottom := Max(FRect.Bottom, FPoints[i].Y);
+  end;
 end;
 
 { TPolyline }
@@ -343,6 +392,13 @@ begin
   ACanvas.Line(VP.WorldToScreen(FPoints[0]), VP.WorldToScreen(FPoints[1]));
 end;
 
+procedure TLine.SetPoint(APoint: TPoint);
+begin
+  inherited SetPoint(APoint);
+  SetLength(FPoints, 2);
+  FPoints[1] := VP.ScreenToWorld(APoint);
+end;
+
 { TRectangle }
 
 function TRectangle.PointInShape(APoint: TPoint): Boolean;
@@ -399,8 +455,7 @@ begin
   r := CreateRoundRectRgn(
     VP.WorldToScreen(FPoints[0]).X, VP.WorldToScreen(FPoints[0]).Y,
     VP.WorldToScreen(FPoints[1]).X, VP.WorldToScreen(FPoints[1]).Y,
-    Round(FRadiusX * VP.Scale), Round(FRadiusY * VP.Scale)
-    );
+    Round(FRadiusX * VP.Scale), Round(FRadiusY * VP.Scale));
   Result := PtInRegion(r, APoint.X, APoint.Y);
   DeleteObject(r);
 end;

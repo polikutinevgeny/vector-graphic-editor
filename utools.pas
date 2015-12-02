@@ -148,10 +148,13 @@ type
 
   { TSelectionTool }
 
+  TSelectionToolMode = (stmSelect, stmMove, stmEdit);
   TSelectionTool = Class(TTool)
   private
-    FMoveMode: Boolean;
     FStartPoint: TPoint;
+    FShape: TShape;
+    FIndex: Integer;
+    FMode: TSelectionToolMode;
   public
     constructor Create; override;
     function GetShape: TShape; override;
@@ -184,11 +187,17 @@ implementation
 
 procedure TSelectionTool.MouseMove(APoint: TPoint; Shift: TShiftState);
 begin
-  if FMoveMode then
+  if FMode = stmMove then
   begin
     Figures.ShiftSelected(APoint - FStartPoint);
     FStartPoint := APoint;
-    exit;
+    Exit;
+  end;
+  if FMode = stmEdit then
+  begin
+    FShape.MoveEditPoint(APoint - FStartPoint, FIndex);
+    FStartPoint := APoint;
+    Exit;
   end;
   Figures.SelectionRectangle.MovePoint(APoint);
   if ssCtrl in Shift then
@@ -199,19 +208,26 @@ end;
 
 procedure TSelectionTool.MouseClick(APoint: TPoint; Shift: TShiftState);
 begin
+  if (ssShift in Shift) and Figures.PointOnFigure(APoint) then
+  begin
+    FMode := stmMove;
+    FStartPoint := APoint;
+    Exit;
+  end;
+  if (ssAlt in Shift) and Figures.PointOnEditPoint(APoint, FShape, FIndex) then
+  begin
+    FMode := stmEdit;
+    FStartPoint := APoint;
+    Exit;
+  end;
   if not (ssCtrl in Shift) then
   begin
-    if (ssShift in Shift) and Figures.PointOnFigure(APoint) then
-    begin
-      FMoveMode := True;
-      FStartPoint := APoint;
-      Exit;
-    end;
     Figures.UnSelect;
     Figures.Select(APoint);
   end
   else
     Figures.SwitchSelect(APoint);
+  FMode := stmSelect;
   Figures.SelectionRectangle := TRectangle.Create;
   Figures.SelectionRectangle.SetPoint(APoint);
   Figures.SelectionRectangle.PenStyle := psDot;
@@ -223,21 +239,21 @@ begin
   Figures.LoadSelected;
   Figures.SelectionRectangle.Free;
   Figures.SelectionRectangle := nil;
-  FMoveMode := False;
+  FMode := stmSelect;
 end;
 
 procedure TSelectionTool.Leave;
 begin
   Figures.UnSelect;
   Inspector.OnParamsUpdate;
-  FMoveMode := False;
+  FMode := stmSelect;
 end;
 
 constructor TSelectionTool.Create;
 begin
   inherited Create;
   FCaption := 'Selection';
-  FMoveMode := False;
+  FMode := stmSelect;
 end;
 
 function TSelectionTool.GetShape: TShape;

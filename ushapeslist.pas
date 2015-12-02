@@ -29,6 +29,8 @@ type
       procedure Select(APoint: TPoint);
       procedure SwitchSelect;
       procedure SwitchSelect(APoint: TPoint);
+      function PointOnEditPoint(APoint: TPoint; var AShape: TShape;
+        var AIndex: Integer): Boolean;
       procedure Delete;
       procedure LoadSelected;
       procedure UnSelect;
@@ -121,6 +123,25 @@ begin
       FShapes[i].PrevSelected;
     if FShapes[i].PointInShape(APoint) then
       break;
+  end;
+end;
+
+function TShapesList.PointOnEditPoint(APoint: TPoint; var AShape: TShape;
+  var AIndex: Integer): Boolean;
+var i, j: Integer;
+begin
+  AShape := nil;
+  AIndex := -1;
+  for i := High(FShapes) downto 0 do
+  begin
+    j := FShapes[i].PointInEditPoint(APoint);
+    Result := j <> -1;
+    if Result then
+    begin
+      AShape := FShapes[i];
+      AIndex := j;
+      Exit;
+    end;
   end;
 end;
 
@@ -265,7 +286,7 @@ begin
   Result := False;
   for i := 0 to High(FShapes) do
   begin
-    Result := FShapes[i].IsSelected and FShapes[i].PointOnSelectionRect(APoint);
+    Result := FShapes[i].IsSelected and FShapes[i].PointInShape(APoint);
     if Result then
       exit;
   end;
