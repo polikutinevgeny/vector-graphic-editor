@@ -199,7 +199,7 @@ begin
     FStartPoint := APoint;
     Exit;
   end;
-  if FMode = stmSelect then
+  if (FMode = stmSelect) and (Figures.SelectionRectangle <> nil) then
   begin
     Figures.SelectionRectangle.MovePoint(APoint);
     if ssCtrl in Shift then
@@ -216,13 +216,17 @@ begin
     FMode := stmMove;
     FStartPoint := APoint;
     Exit;
-  end;
+  end
+  else if (ssShift in Shift) then
+    Exit;
   if (ssAlt in Shift) and Figures.PointOnEditPoint(APoint, FShape, FIndex) then
   begin
     FMode := stmEdit;
     FStartPoint := APoint;
     Exit;
-  end;
+  end
+  else if (ssAlt in Shift) then
+    Exit;
   if not (ssCtrl in Shift) then
   begin
     Figures.UnSelect;
@@ -242,6 +246,7 @@ begin
   Figures.LoadSelected;
   Figures.SelectionRectangle.Free;
   Figures.SelectionRectangle := nil;
+  FShape := nil;
   FMode := stmSelect;
 end;
 
