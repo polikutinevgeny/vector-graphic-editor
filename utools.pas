@@ -193,17 +193,20 @@ begin
     FStartPoint := APoint;
     Exit;
   end;
-  if FMode = stmEdit then
+  if (FMode = stmEdit) and (FShape <> nil) then
   begin
     FShape.MoveEditPoint(APoint - FStartPoint, FIndex);
     FStartPoint := APoint;
     Exit;
   end;
-  Figures.SelectionRectangle.MovePoint(APoint);
-  if ssCtrl in Shift then
-    Figures.SwitchSelect
-  else
-    Figures.Select;
+  if FMode = stmSelect then
+  begin
+    Figures.SelectionRectangle.MovePoint(APoint);
+    if ssCtrl in Shift then
+      Figures.SwitchSelect
+    else
+      Figures.Select;
+  end;
 end;
 
 procedure TSelectionTool.MouseClick(APoint: TPoint; Shift: TShiftState);
