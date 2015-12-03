@@ -264,6 +264,9 @@ var
 begin
   ACanvas.Pen.Width := 1;
   ACanvas.Pen.Color := clBlack;
+  ACanvas.Pen.Style := psDash;
+  ACanvas.Brush.Style := bsClear;
+  ACanvas.Rectangle(VP.WorldToScreen(Rect));
   ACanvas.Pen.Style := psSolid;
   ACanvas.Brush.Style := bsSolid;
   ACanvas.Brush.Color := clWhite;
