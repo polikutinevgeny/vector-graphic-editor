@@ -15,6 +15,12 @@ type
 
   TMainWindow = class(TForm)
     ColorDialog: TColorDialog;
+    SaveAsMI: TMenuItem;
+    SaveMI: TMenuItem;
+    OpenMI: TMenuItem;
+    NewMI: TMenuItem;
+    OpenDialog: TOpenDialog;
+    SaveDialog: TSaveDialog;
     ZOrderMI: TMenuItem;
     MoveUpMI: TMenuItem;
     MoveDownMI: TMenuItem;
@@ -44,6 +50,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure MoveDownMIClick(Sender: TObject);
     procedure MoveUpMIClick(Sender: TObject);
+    procedure NewMIClick(Sender: TObject);
+    procedure OpenMIClick(Sender: TObject);
     procedure PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure PaintBoxMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -60,6 +68,8 @@ type
     procedure PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure PaintBoxPaint(Sender: TObject);
+    procedure SaveAsMIClick(Sender: TObject);
+    procedure SaveMIClick(Sender: TObject);
     procedure ShowAllMIClick(Sender: TObject);
     procedure ToolClick(Sender: TObject);
     procedure TopMIClick(Sender: TObject);
@@ -184,6 +194,18 @@ begin
   Figures.Draw(PaintBox.Canvas);
 end;
 
+procedure TMainWindow.SaveAsMIClick(Sender: TObject);
+begin
+
+end;
+
+procedure TMainWindow.SaveMIClick(Sender: TObject);
+begin
+  //if SaveDialog.Execute then
+    //Figures.Save(SaveDialog.FileName);
+    Figures.Save('output.txt');
+end;
+
 procedure TMainWindow.ToolClick(Sender: TObject);
 begin
   ToolContainer.Tools[FCurrentToolIndex].Leave;
@@ -243,6 +265,19 @@ end;
 procedure TMainWindow.MoveUpMIClick(Sender: TObject);
 begin
   Figures.ZUp;
+  PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.NewMIClick(Sender: TObject);
+begin
+
+end;
+
+procedure TMainWindow.OpenMIClick(Sender: TObject);
+begin
+  //if OpenDialog.Execute then
+    //Figures.Load(OpenDialog.FileName);
+    Figures.Load('output.txt');
   PaintBox.Invalidate;
 end;
 

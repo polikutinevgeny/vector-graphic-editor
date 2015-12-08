@@ -206,6 +206,25 @@ object MainWindow: TMainWindow
     top = 56
     object FileMI: TMenuItem
       Caption = 'File'
+      object NewMI: TMenuItem
+        Caption = 'New'
+        ShortCut = 16462
+        OnClick = NewMIClick
+      end
+      object OpenMI: TMenuItem
+        Caption = 'Open'
+        ShortCut = 16463
+        OnClick = OpenMIClick
+      end
+      object SaveMI: TMenuItem
+        Caption = 'Save'
+        ShortCut = 16467
+        OnClick = SaveMIClick
+      end
+      object SaveAsMI: TMenuItem
+        Caption = 'Save as'
+        OnClick = SaveAsMIClick
+      end
       object ExitMI: TMenuItem
         Caption = 'Exit'
         OnClick = ExitMIClick
@@ -279,7 +298,20 @@ object MainWindow: TMainWindow
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    left = 208
+    left = 200
     top = 56
+  end
+  object OpenDialog: TOpenDialog
+    Title = 'Открыть файл'
+    Filter = '*.mvg|*.mvg'
+    left = 160
+    top = 88
+  end
+  object SaveDialog: TSaveDialog
+    Title = 'Сохранить файл'
+    Filter = '*.mvg|*.mvg'
+    InitialDir = 'C:\Users\polik_000\Documents\'
+    left = 200
+    top = 88
   end
 end

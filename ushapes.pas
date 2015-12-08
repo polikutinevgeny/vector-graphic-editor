@@ -5,7 +5,7 @@ unit UShapes;
 interface
 
 uses
-  Classes, Graphics, UViewPort, UGeometry, math, LCLIntf, LCLType;
+  Classes, Graphics, UViewPort, UGeometry, math, LCLIntf, LCLType, sysutils;
 
 type
 
@@ -17,7 +17,7 @@ type
   TRight = type Double;
   TTop = type Double;
   TBottom = type Double;
-  TShape = class abstract
+  TShape = class abstract(TPersistent)
   private
     FPoints: TFloatPoints;
     FRect: TFloatRect;
@@ -26,6 +26,7 @@ type
     FPenStyle: TPenStyle;
     FSelected: Boolean;
     FPrevSelected: Boolean;
+    function GetPoints: TStrings;
     function GetRect: TFloatRect; virtual;
     procedure SetLeft(d: TLeft);
     procedure SetRight(d: TRight);
@@ -42,6 +43,7 @@ type
     procedure Shift(AShift: TPoint);
     function PointInEditPoint(APoint: TPoint): Integer;
     procedure MoveEditPoint(AShift: TPoint; AIndex: Integer); virtual;
+    procedure SetPoints(AValue: String);
     property Rect: TFloatRect read GetRect;
     property TrueRect: TFloatRect read FRect;
     property IsSelected: Boolean read FSelected write FSelected;
@@ -54,6 +56,7 @@ type
     property AlignRight: TRight write SetRight;
     property AlignTop: TTop write SetTop;
     property AlignBottom: TBottom write SetBottom;
+    property Points: TStrings read GetPoints;
   end;
 
   { TFill }
@@ -167,6 +170,17 @@ begin
   Result := VP.ScreenToWorld(UGeometry.Rect(p1, p2));
 end;
 
+function TShape.GetPoints: TStrings;
+var i: Integer;
+begin
+  Result := TStringList.Create;
+  for i := 0 to High(FPoints) do
+  begin
+    Result.Add(FloatToStr(FPoints[i].X));
+    Result.Add(FloatToStr(FPoints[i].Y));
+  end;
+end;
+
 procedure TShape.SetLeft(d: TLeft);
 var
   i: Integer;
@@ -177,6 +191,36 @@ begin
     FPoints[i] += FloatPoint(dx, 0);
   FRect.Left += dx;
   FRect.Right += dx;
+end;
+
+procedure TShape.SetPoints(AValue: String);
+var
+  i: Integer;
+  sl: TStringList;
+begin
+  sl := TStringList.Create;
+  Delete(AValue, 1, 1);
+  Delete(AValue, Length(AValue), 1);
+  sl.Delimiter := '"';
+  sl.DelimitedText := AValue;
+  for i := sl.Count - 1 downto 0 do
+    if (sl[i] = ',') or (sl[i] = '') then
+      sl.Delete(i);
+  SetLength(FPoints, sl.Count div 2);
+  for i := 0 to sl.Count - 1 do
+    if i mod 2 = 0 then
+      FPoints[i div 2].X := StrToFloat(sl[i])
+    else
+      FPoints[i div 2].Y := StrToFloat(sl[i]);
+  sl.Free;
+  FRect := FloatRect(FPoints[0], FPoints[0]);
+  for i := 0 to High(FPoints) do
+  begin
+    FRect.Left := Min(FRect.Left, FPoints[i].X);
+    FRect.Right := Max(FRect.Right, FPoints[i].X);
+    FRect.Top := Min(FRect.Top, FPoints[i].Y);
+    FRect.Bottom := Max(FRect.Bottom, FPoints[i].Y);
+  end;
 end;
 
 procedure TShape.SetRight(d: TRight);
@@ -482,4 +526,10 @@ begin
     Round(FRadiusY * VP.Scale));
 end;
 
+initialization
+  RegisterClass(TPolyline);
+  RegisterClass(TLine);
+  RegisterClass(TRectangle);
+  RegisterClass(TRoundRect);
+  RegisterClass(TEllipse);
 end.

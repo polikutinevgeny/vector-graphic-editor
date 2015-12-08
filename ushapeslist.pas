@@ -5,7 +5,8 @@ unit UShapesList;
 interface
 
 uses
-  Graphics, UShapes, math, UGeometry, UViewPort, UInspector, Classes;
+  Graphics, UShapes, math, UGeometry, UViewPort, UInspector, Classes, fpjson,
+  fpjsonrtti;
 
 type
 
@@ -41,6 +42,8 @@ type
       function PointOnFigure(APoint: TPoint): Boolean;
       procedure ShiftSelected(AShift: TPoint);
       function IsEmpty: Boolean;
+      procedure Save(AFile: String);
+      procedure Load(AFile: String);
   end;
 
 var
@@ -307,6 +310,63 @@ end;
 function TShapesList.IsEmpty: Boolean;
 begin
   Result := Length(FShapes) < 1;
+end;
+
+procedure TShapesList.Save(AFile: String);
+var
+  Streamer: TJSONStreamer;
+  Data, t, root: TJSONObject;
+  i: integer;
+  f: Text;
+begin
+  Assign(f, AFile);
+  Rewrite(f);
+  Streamer := TJSONStreamer.Create(nil);
+  Streamer.Options := Streamer.Options + [jsoTStringsAsArray];
+  root := TJSONObject.Create;
+  Data := TJSONObject.Create;
+  for i := 0 to High(FShapes) do
+  begin
+    t := Streamer.ObjectToJSON(FShapes[i]);
+    t.Delete('AlignLeft');
+    t.Delete('AlignRight');
+    t.Delete('AlignTop');
+    t.Delete('AlignBottom');
+    Data.Add(FShapes[i].ClassName, t);
+  end;
+  root.Add('Vector graphics format by Polikutin Evgeny', Data);
+  WriteLn(f, root.AsJSON);
+  root.Free;
+  Streamer.Free;
+  Close(f);
+end;
+
+procedure TShapesList.Load(AFile: String);
+var
+  DeStreamer: TJSONDeStreamer;
+  t, d: TJSONData;
+  i: integer;
+  f: TFileStream;
+  shape: TShape;
+begin
+  f := TFileStream.Create(AFile, fmOpenRead);
+  DeStreamer := TJSONDeStreamer.Create(nil);
+  d := GetJSON(f);
+  for i := 0 to High(FShapes) do
+    FShapes[i].Free;
+  SetLength(FShapes, 0);
+  t := d.FindPath('Vector graphics format by Polikutin Evgeny');
+  if t.JSONType = jtObject then
+    for i := 0 to t.Count - 1 do
+      if t.Items[i].JSONType = jtObject then
+      begin
+        shape := (GetClass((t as TJSONObject).Names[i]).Create as TShape);
+        DeStreamer.JSONToObject((t.Items[i] as TJSONObject), shape);
+        shape.SetPoints(t.Items[i].FindPath('Points').AsJSON);
+        Add(shape);
+      end;
+  d.Free;
+  f.Free;
 end;
 
 initialization
