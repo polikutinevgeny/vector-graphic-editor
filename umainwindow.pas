@@ -253,16 +253,19 @@ end;
 procedure TMainWindow.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 var t: TModalResult;
 begin
-  t := MessageDlg('File is not saved! Save the file?', mtWarning,
-      [mbYes, mbNo, mbCancel], 0);
-    case t of
-      mrYes:
-        if FNameSet then
-          Figures.Save(FName)
-        else if SaveDialog.Execute then
-          Figures.Save(SaveDialog.FileName);
-      mrCancel: CanClose := False;
-    end;
+  if not Figures.Saved then
+  begin
+    t := MessageDlg('File is not saved! Save the file?', mtWarning,
+        [mbYes, mbNo, mbCancel], 0);
+      case t of
+        mrYes:
+          if FNameSet then
+            Figures.Save(FName)
+          else if SaveDialog.Execute then
+            Figures.Save(SaveDialog.FileName);
+        mrCancel: CanClose := False;
+      end;
+  end;
 end;
 
 procedure TMainWindow.ShowAllMIClick(Sender: TObject);
@@ -348,12 +351,20 @@ begin
   if OpenDialog.Execute then
     if FileExists(OpenDialog.FileName) then
     begin
-      Figures.Load(OpenDialog.FileName);
       VP.Scale := 1;
       VP.ViewPosition := FloatPoint(VP.PortSize) / 2;
-      Caption := 'Vector Graphic Editor - ' + OpenDialog.FileName;
-      FName := OpenDialog.FileName;
-      FNameSet := True;
+      if Figures.Load(OpenDialog.FileName) then
+      begin
+        FName := OpenDialog.FileName;
+        FNameSet := True;
+        Caption := 'Vector Graphic Editor - ' + OpenDialog.FileName;
+      end
+      else
+      begin
+        FName := '';
+        FNameSet := False;
+        Caption := 'Vector Graphic Editor - unnamed*';
+      end;
     end
     else
       ShowMessage('File not found');
