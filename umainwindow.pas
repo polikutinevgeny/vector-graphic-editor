@@ -180,7 +180,6 @@ begin
       FCleared := False;
       ToolContainer.Tools[FCurrentToolIndex].MouseClick(Point(X, Y), Shift);
       PaintBox.Invalidate;
-      Figures.Saved := False;
     end;
 end;
 
@@ -210,10 +209,14 @@ procedure TMainWindow.SaveAsMIClick(Sender: TObject);
 begin
   if SaveDialog.Execute then
   begin
+    if (FileExists(SaveDialog.FileName)) and
+      (MessageDlg('File already exists. Overwrite?', mtWarning, mbOKCancel, 0) =
+      mrCancel) then
+      Exit;
     Figures.Save(SaveDialog.FileName);
-    Caption := 'Vector Graphic Editor - ' + SaveDialog.FileName;
     FName := SaveDialog.FileName;
     FNameSet := True;
+    Caption := 'Vector Graphic Editor - ' + FName;
   end;
 end;
 
@@ -223,10 +226,16 @@ begin
     Figures.Save(FName)
   else if SaveDialog.Execute then
   begin
+    if (FileExists(SaveDialog.FileName)) and
+      (MessageDlg('File already exists. Overwrite?', mtWarning, mbOKCancel, 0) =
+      mrCancel) then
+      Exit;
     Figures.Save(SaveDialog.FileName);
     FName := SaveDialog.FileName;
     FNameSet := True;
-  end;
+  end
+  else
+    Exit;
   Caption := 'Vector Graphic Editor - ' + FName;
 end;
 
@@ -252,21 +261,26 @@ begin
 end;
 
 procedure TMainWindow.FormCloseQuery(Sender: TObject; var CanClose: boolean);
-var t: TModalResult;
 begin
   if not Figures.Saved then
-  begin
-    t := MessageDlg('File is not saved! Save the file?', mtWarning,
-        [mbYes, mbNo, mbCancel], 0);
-      case t of
-        mrYes:
-          if FNameSet then
-            Figures.Save(FName)
-          else if SaveDialog.Execute then
+    case MessageDlg('File is not saved! Save the file?', mtWarning,
+      [mbYes, mbNo, mbCancel], 0) of
+      mrYes:
+        if FNameSet then
+          Figures.Save(FName)
+        else if SaveDialog.Execute then
+        begin
+          if (FileExists(SaveDialog.FileName)) and
+            (MessageDlg('File already exists. Overwrite?', mtWarning, mbOKCancel, 0) =
+            mrCancel) then
+            CanClose := False
+          else
             Figures.Save(SaveDialog.FileName);
-        mrCancel: CanClose := False;
-      end;
-  end;
+        end
+        else
+          CanClose := False;
+      mrCancel: CanClose := False;
+    end;
 end;
 
 procedure TMainWindow.ShowAllMIClick(Sender: TObject);
@@ -311,21 +325,23 @@ begin
 end;
 
 procedure TMainWindow.NewMIClick(Sender: TObject);
-var t: TModalResult;
 begin
-  if (not Figures.Saved) and (not Figures.IsEmpty) then
-  begin
-    t := MessageDlg('File is not saved! Save the file?', mtWarning,
-      [mbYes, mbNo, mbCancel], 0);
-    case t of
+  if not Figures.Saved then
+    case MessageDlg('File is not saved! Save the file?', mtWarning,
+      [mbYes, mbNo, mbCancel], 0) of
       mrYes:
         if FNameSet then
           Figures.Save(FName)
         else if SaveDialog.Execute then
+        begin
+          if (FileExists(SaveDialog.FileName)) and
+            (MessageDlg('File already exists. Overwrite?', mtWarning, mbOKCancel, 0) =
+            mrCancel) then
+            Exit;
           Figures.Save(SaveDialog.FileName);
+        end;
       mrCancel: Exit;
     end;
-  end;
   Figures.New;
   FNameSet := False;
   FName := 'unnamed';
@@ -334,21 +350,22 @@ begin
 end;
 
 procedure TMainWindow.OpenMIClick(Sender: TObject);
-var t: TModalResult;
 begin
   if not Figures.Saved then
-  begin
-    t := MessageDlg('File is not saved! Save the file?', mtWarning,
-      [mbYes, mbNo, mbCancel], 0);
-    case t of
+    case MessageDlg('File is not saved! Save the file?', mtWarning,
+      [mbYes, mbNo, mbCancel], 0) of
       mrYes:
         if FNameSet then
           Figures.Save(FName)
         else if SaveDialog.Execute then
+        begin
+          if (FileExists(SaveDialog.FileName)) and
+            (MessageDlg('File already exists. Overwrite?', mtWarning, mbOKCancel, 0) =
+            mrCancel) then
           Figures.Save(SaveDialog.FileName);
+        end;
       mrCancel: Exit;
     end;
-  end;
   if OpenDialog.Execute then
     if FileExists(OpenDialog.FileName) then
     begin
