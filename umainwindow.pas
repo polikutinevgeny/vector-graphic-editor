@@ -135,7 +135,7 @@ begin
   Caption := 'Vector Graphic Editor - unnamed*';
   FNameSet := False;
   FName := '';
-  Figures.Saved := false;
+  Figures.Saved := True;
   for i := 0 to High(ToolContainer.Tools) do
     begin
       bt := TSpeedButton.Create(Self);
@@ -367,7 +367,7 @@ begin
       end;
     end
     else
-      ShowMessage('File not found');
+     MessageDlg('File not found', mtWarning, [mbOk], 0);
   PaintBox.Invalidate;
 end;
 
