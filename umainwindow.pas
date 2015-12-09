@@ -335,7 +335,7 @@ end;
 procedure TMainWindow.OpenMIClick(Sender: TObject);
 var t: TModalResult;
 begin
-  if (not Figures.Saved) and (not Figures.IsEmpty) then
+  if not Figures.Saved then
   begin
     t := MessageDlg('File is not saved! Save the file?', mtWarning,
       [mbYes, mbNo, mbCancel], 0);
