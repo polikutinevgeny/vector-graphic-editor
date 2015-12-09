@@ -44,6 +44,7 @@ type
     procedure AboutMIClick(Sender: TObject);
     procedure BottomMIClick(Sender: TObject);
     procedure DeleteMIClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure HorizontalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: Integer);
     procedure ColorMouseDown(Sender: TObject; Button: TMouseButton;
@@ -85,6 +86,8 @@ type
     FCleared: boolean;
     FMousePressed: boolean;
     FPaletteColors: array of TColor;
+    FNameSet: Boolean;
+    FName: String;
   public
     { public declarations }
   end;
@@ -127,7 +130,12 @@ begin
   BrushColor := SecondaryColor;
   Inspector := TInspector.Create(EditorsPanel);
   Inspector.OnParamsUpdate := @PaintBox.Invalidate;
+  Figures := TShapesList.Create;
   Figures.OnZOrderSwitch := @ZOrderSwitch;
+  Caption := 'Vector Graphic Editor - unnamed*';
+  FNameSet := False;
+  FName := '';
+  Figures.Saved := false;
   for i := 0 to High(ToolContainer.Tools) do
     begin
       bt := TSpeedButton.Create(Self);
@@ -169,6 +177,9 @@ begin
       FCleared := False;
       ToolContainer.Tools[FCurrentToolIndex].MouseClick(Point(X, Y), Shift);
       PaintBox.Invalidate;
+      Figures.Saved := False;
+      if Caption[Length(Caption)] <> '*' then
+        Caption := Caption + '*';
     end;
 end;
 
@@ -196,14 +207,26 @@ end;
 
 procedure TMainWindow.SaveAsMIClick(Sender: TObject);
 begin
-
+  if SaveDialog.Execute then
+  begin
+    Figures.Save(SaveDialog.FileName);
+    Caption := 'Vector Graphic Editor - ' + SaveDialog.FileName;
+    FName := SaveDialog.FileName;
+    FNameSet := True;
+  end;
 end;
 
 procedure TMainWindow.SaveMIClick(Sender: TObject);
 begin
-  //if SaveDialog.Execute then
-    //Figures.Save(SaveDialog.FileName);
-    Figures.Save('output.txt');
+  if FNameSet then
+    Figures.Save(FName)
+  else if SaveDialog.Execute then
+  begin
+    Figures.Save(SaveDialog.FileName);
+    Caption := 'Vector Graphic Editor - ' + SaveDialog.FileName;
+    FName := SaveDialog.FileName;
+    FNameSet := True;
+  end;
 end;
 
 procedure TMainWindow.ToolClick(Sender: TObject);
@@ -225,6 +248,21 @@ procedure TMainWindow.DeleteMIClick(Sender: TObject);
 begin
   Figures.Delete;
   PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+var t: TModalResult;
+begin
+  t := MessageDlg('File is not saved! Save the file?', mtWarning,
+      [mbYes, mbNo, mbCancel], 0);
+    case t of
+      mrYes:
+        if FNameSet then
+          Figures.Save(FName)
+        else if SaveDialog.Execute then
+          Figures.Save(SaveDialog.FileName);
+      mrCancel: CanClose := False;
+    end;
 end;
 
 procedure TMainWindow.ShowAllMIClick(Sender: TObject);
@@ -269,15 +307,56 @@ begin
 end;
 
 procedure TMainWindow.NewMIClick(Sender: TObject);
+var t: TModalResult;
 begin
-
+  if (not Figures.Saved) and (not Figures.IsEmpty) then
+  begin
+    t := MessageDlg('File is not saved! Save the file?', mtWarning,
+      [mbYes, mbNo, mbCancel], 0);
+    case t of
+      mrYes:
+        if FNameSet then
+          Figures.Save(FName)
+        else if SaveDialog.Execute then
+          Figures.Save(SaveDialog.FileName);
+      mrCancel: Exit;
+    end;
+  end;
+  Figures.New;
+  FNameSet := False;
+  FName := '';
+  Caption := 'Vector Graphic Editor - ' + 'unnamed*';
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.OpenMIClick(Sender: TObject);
+var t: TModalResult;
 begin
-  //if OpenDialog.Execute then
-    //Figures.Load(OpenDialog.FileName);
-    Figures.Load('output.txt');
+  if (not Figures.Saved) and (not Figures.IsEmpty) then
+  begin
+    t := MessageDlg('File is not saved! Save the file?', mtWarning,
+      [mbYes, mbNo, mbCancel], 0);
+    case t of
+      mrYes:
+        if FNameSet then
+          Figures.Save(FName)
+        else if SaveDialog.Execute then
+          Figures.Save(SaveDialog.FileName);
+      mrCancel: Exit;
+    end;
+  end;
+  if OpenDialog.Execute then
+    if FileExists(OpenDialog.FileName) then
+    begin
+      Figures.Load(OpenDialog.FileName);
+      VP.Scale := 1;
+      VP.ViewPosition := FloatPoint(VP.PortSize) / 2;
+      Caption := 'Vector Graphic Editor - ' + OpenDialog.FileName;
+      FName := OpenDialog.FileName;
+      FNameSet := True;
+    end
+    else
+      ShowMessage('File not found');
   PaintBox.Invalidate;
 end;
 

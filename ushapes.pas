@@ -43,7 +43,7 @@ type
     procedure Shift(AShift: TPoint);
     function PointInEditPoint(APoint: TPoint): Integer;
     procedure MoveEditPoint(AShift: TPoint; AIndex: Integer); virtual;
-    procedure SetPoints(AValue: String);
+    procedure SetPoints(AValue: String); virtual;
     property Rect: TFloatRect read GetRect;
     property TrueRect: TFloatRect read FRect;
     property IsSelected: Boolean read FSelected write FSelected;
@@ -70,6 +70,7 @@ type
       constructor Create; override;
       procedure Draw(ACanvas: TCanvas); override;
       procedure SetPoint(APoint: TPoint); override;
+      procedure SetPoints(AValue: String); override;
     published
       property BrushColor: TBrushColor read FBrushColor write FBrushColor;
       property BrushStyle: TBrushStyle read FBrushStyle write FBrushStyle;
@@ -93,6 +94,7 @@ type
     function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
     procedure SetPoint(APoint: TPoint); override;
+    procedure SetPoints(AValue: String); override;
   end;
 
   { TRectangle }
@@ -154,6 +156,13 @@ begin
   FPoints[1] := VP.ScreenToWorld(APoint);
 end;
 
+procedure TFill.SetPoints(AValue: String);
+begin
+  inherited SetPoints(AValue);
+  if not InRange(Length(FPoints), 2, 2) then
+    raise Exception.Create('File is damaged');
+end;
+
 { TShape }
 
 function TShape.GetRect: TFloatRect;
@@ -206,6 +215,8 @@ begin
   for i := sl.Count - 1 downto 0 do
     if (sl[i] = ',') or (sl[i] = '') then
       sl.Delete(i);
+  if sl.Count mod 2 = 1 then
+    raise Exception.Create('File is damaged');
   SetLength(FPoints, sl.Count div 2);
   for i := 0 to sl.Count - 1 do
     if i mod 2 = 0 then
@@ -444,6 +455,13 @@ begin
   inherited SetPoint(APoint);
   SetLength(FPoints, 2);
   FPoints[1] := VP.ScreenToWorld(APoint);
+end;
+
+procedure TLine.SetPoints(AValue: String);
+begin
+  inherited SetPoints(AValue);
+  if not InRange(Length(FPoints), 2, 2) then
+    raise Exception.Create('File is damaged');
 end;
 
 { TRectangle }

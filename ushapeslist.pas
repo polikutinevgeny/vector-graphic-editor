@@ -6,7 +6,7 @@ interface
 
 uses
   Graphics, UShapes, math, UGeometry, UViewPort, UInspector, Classes, fpjson,
-  fpjsonrtti;
+  fpjsonrtti, sysutils, Dialogs;
 
 type
 
@@ -17,6 +17,7 @@ type
       FOnZOrderSwitch: TZOrderEvent;
       FShapes: array of TShape;
       FSelectionRectangle: TRectangle;
+      FSaved: Boolean;
       function GetImageSize: TFloatRect;
     public
       property SelectionRectangle: TRectangle read FSelectionRectangle
@@ -24,6 +25,7 @@ type
       property ImageSize: TFloatRect read GetImageSize;
       property OnZOrderSwitch: TZOrderEvent read FOnZOrderSwitch
         write FOnZOrderSwitch;
+      property Saved: Boolean read FSaved write FSaved;
       procedure Draw(ACanvas: TCanvas);
       procedure Add(AShape: TShape);
       procedure Select;
@@ -44,6 +46,7 @@ type
       function IsEmpty: Boolean;
       procedure Save(AFile: String);
       procedure Load(AFile: String);
+      procedure New;
   end;
 
 var
@@ -339,37 +342,102 @@ begin
   root.Free;
   Streamer.Free;
   Close(f);
+  FSaved := True;
 end;
 
-procedure TShapesList.Load(AFile: String);
+procedure TShapesList.Load(AFile: String);//быстро решительно переписать
 var
   DeStreamer: TJSONDeStreamer;
   t, d: TJSONData;
-  i: integer;
+  i, j: integer;
   f: TFileStream;
   shape: TShape;
 begin
   f := TFileStream.Create(AFile, fmOpenRead);
   DeStreamer := TJSONDeStreamer.Create(nil);
-  d := GetJSON(f);
   for i := 0 to High(FShapes) do
     FShapes[i].Free;
   SetLength(FShapes, 0);
+  try
+    d := GetJSON(f);
+  except
+    MessageDlg('File is damaged', mtError, [mbOK], 0);
+    d.Free;
+    f.Free;
+    Exit;
+  end;
+  if d = nil then
+  begin
+    MessageDlg('File is damaged', mtError, [mbOK], 0);
+    d.Free;
+    f.Free;
+    Exit;
+  end;
   t := d.FindPath('Vector graphics format by Polikutin Evgeny');
+  if t = nil then
+  begin
+    MessageDlg('File is damaged', mtError, [mbOK], 0);
+    DeStreamer.Free;
+    d.Free;
+    f.Free;
+    Exit;
+  end;
   if t.JSONType = jtObject then
     for i := 0 to t.Count - 1 do
       if t.Items[i].JSONType = jtObject then
       begin
         shape := (GetClass((t as TJSONObject).Names[i]).Create as TShape);
         DeStreamer.JSONToObject((t.Items[i] as TJSONObject), shape);
-        shape.SetPoints(t.Items[i].FindPath('Points').AsJSON);
+        if t.Items[i].FindPath('Points').JSONType = jtArray then
+          try
+            shape.SetPoints(t.Items[i].FindPath('Points').AsJSON);
+          except
+            shape.Free;
+            for j := 0 to High(FShapes) do
+              FShapes[j].Free;
+            SetLength(FShapes, 0);
+            MessageDlg('File is damaged', mtError, [mbOK], 0);
+            break;
+          end
+        else
+        begin
+          for j := 0 to High(FShapes) do
+            FShapes[j].Free;
+          SetLength(FShapes, 0);
+          MessageDlg('File is damaged', mtError, [mbOK], 0);
+          break;
+        end;
         Add(shape);
-      end;
+      end
+      else
+      begin
+        for j := 0 to High(FShapes) do
+          FShapes[j].Free;
+        SetLength(FShapes, 0);
+        MessageDlg('File is damaged', mtError, [mbOK], 0);
+        break;
+      end
+  else
+  begin
+    for j := 0 to High(FShapes) do
+      FShapes[j].Free;
+    SetLength(FShapes, 0);
+    MessageDlg('File is damaged', mtError, [mbOK], 0);
+  end;
+  FSaved := not (Length(FShapes) = 0);
+  DeStreamer.Free;
   d.Free;
   f.Free;
 end;
 
-initialization
-  Figures := TShapesList.Create;
+procedure TShapesList.New;
+var i: Integer;
+begin
+  for i := 0 to High(FShapes) do
+    FShapes[i].Free;
+  SetLength(FShapes, 0);
+  FSaved := False;
+end;
+
 end.
 
