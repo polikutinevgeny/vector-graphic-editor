@@ -81,6 +81,7 @@ type
       AKind: TScrollBarType);
     procedure RecalculateScrollbars;
     procedure ZOrderSwitch(AEnabled: Boolean);
+    procedure EditStatusUpdate;
   private
     FCurrentToolIndex: Integer;
     FCleared: boolean;
@@ -132,10 +133,12 @@ begin
   Inspector.OnParamsUpdate := @PaintBox.Invalidate;
   Figures := TShapesList.Create;
   Figures.OnZOrderSwitch := @ZOrderSwitch;
-  Caption := 'Vector Graphic Editor - unnamed*';
   FNameSet := False;
-  FName := '';
+  FName := 'unnamed';
+  Caption := 'Vector Graphic Editor - ' + FName + '*';
   Figures.Saved := True;
+  FormatSettings.DecimalSeparator := '.';
+  OnEdit := @EditStatusUpdate;
   for i := 0 to High(ToolContainer.Tools) do
     begin
       bt := TSpeedButton.Create(Self);
@@ -178,8 +181,6 @@ begin
       ToolContainer.Tools[FCurrentToolIndex].MouseClick(Point(X, Y), Shift);
       PaintBox.Invalidate;
       Figures.Saved := False;
-      if Caption[Length(Caption)] <> '*' then
-        Caption := Caption + '*';
     end;
 end;
 
@@ -223,10 +224,10 @@ begin
   else if SaveDialog.Execute then
   begin
     Figures.Save(SaveDialog.FileName);
-    Caption := 'Vector Graphic Editor - ' + SaveDialog.FileName;
     FName := SaveDialog.FileName;
     FNameSet := True;
   end;
+  Caption := 'Vector Graphic Editor - ' + FName;
 end;
 
 procedure TMainWindow.ToolClick(Sender: TObject);
@@ -327,8 +328,8 @@ begin
   end;
   Figures.New;
   FNameSet := False;
-  FName := '';
-  Caption := 'Vector Graphic Editor - ' + 'unnamed*';
+  FName := 'unnamed';
+  EditStatusUpdate;
   PaintBox.Invalidate;
 end;
 
@@ -361,9 +362,9 @@ begin
       end
       else
       begin
-        FName := '';
+        FName := 'unnamed';
         FNameSet := False;
-        Caption := 'Vector Graphic Editor - unnamed*';
+        Caption := 'Vector Graphic Editor - ' + FName + '*';
       end;
     end
     else
@@ -485,6 +486,12 @@ end;
 procedure TMainWindow.ZOrderSwitch(AEnabled: Boolean);
 begin
   ZOrderMI.Enabled := AEnabled;
+end;
+
+procedure TMainWindow.EditStatusUpdate;
+begin
+  Caption := 'Vector Graphic Editor - ' + FName + '*';
+  Figures.Saved := False;
 end;
 
 end.

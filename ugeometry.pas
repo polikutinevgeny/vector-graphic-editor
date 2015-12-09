@@ -45,6 +45,10 @@ type
 
 type
   TPoints = array of TPoint;
+  TEditEvent = procedure of object;
+
+var
+  OnEdit: TEditEvent;
 
 implementation
 

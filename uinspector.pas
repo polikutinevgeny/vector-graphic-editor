@@ -5,7 +5,7 @@ unit UInspector;
 interface
 
 uses
-  Classes, SysUtils, typinfo, Graphics, ExtCtrls, StdCtrls, UShapes;
+  Classes, SysUtils, typinfo, Graphics, ExtCtrls, StdCtrls, UShapes, UGeometry;
 
 type
 
@@ -194,6 +194,7 @@ end;
 procedure TParamEditor.Change(Sender: TObject);
 begin
   Inspector.OnParamsUpdate;
+  OnEdit;
 end;
 
 constructor TParamEditor.Create(AShapes: array of TShape;

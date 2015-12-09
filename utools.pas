@@ -191,12 +191,14 @@ begin
   begin
     Figures.ShiftSelected(APoint - FStartPoint);
     FStartPoint := APoint;
+    OnEdit;
     Exit;
   end;
   if (FMode = stmEdit) and (FShape <> nil) then
   begin
     FShape.MoveEditPoint(APoint - FStartPoint, FIndex);
     FStartPoint := APoint;
+    OnEdit;
     Exit;
   end;
   if (FMode = stmSelect) and (Figures.SelectionRectangle <> nil) then
@@ -309,6 +311,7 @@ end;
 procedure TShapeTool.MouseMove(APoint: TPoint; Shift: TShiftState);
 begin
   FShape.MovePoint(APoint);
+  OnEdit;
 end;
 
 procedure TShapeTool.MouseClick(APoint: TPoint; Shift: TShiftState);
@@ -316,6 +319,7 @@ begin
   Figures.Add(FShape);
   FIsTemp := False;
   FShape.SetPoint(APoint);
+  OnEdit;
 end;
 
 procedure TShapeTool.Leave;
@@ -540,6 +544,7 @@ end;
 
 procedure TPolylineTool.MouseClick(APoint: TPoint; Shift: TShiftState);
 begin
+  OnEdit;
   if ssRight in Shift then
   begin
     FDrawingNow := false;
@@ -557,6 +562,7 @@ end;
 
 procedure TPolylineTool.MouseMove(APoint: TPoint; Shift: TShiftState);
 begin
+  OnEdit;
   if FDrawingNow then FShape.MovePoint(APoint);
 end;
 
@@ -601,6 +607,7 @@ end;
 
 procedure TPenTool.MouseMove(APoint: TPoint; Shift: TShiftState);
 begin
+  OnEdit;
   TPolyline(FShape).AddPoint(APoint);
 end;
 

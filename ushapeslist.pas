@@ -356,9 +356,7 @@ begin
   Result := True;
   f := TFileStream.Create(AFile, fmOpenRead);
   DeStreamer := TJSONDeStreamer.Create(nil);
-  for i := 0 to High(FShapes) do
-    FShapes[i].Free;
-  SetLength(FShapes, 0);
+  New;
   try
     d := GetJSON(f);
     t := d.FindPath('Vector graphics format by Polikutin Evgeny');
@@ -375,13 +373,11 @@ begin
       Add(shape);
     end
   except
-    for i := 0 to High(FShapes) do
-      FShapes[i].Free;
-    SetLength(FShapes, 0);
+    New;
     MessageDlg('File is corrupted', mtError, [mbOK], 0);
     Result := False;
   end;
-  FSaved := not (Length(FShapes) = 0);
+  FSaved := Result;
   DeStreamer.Free;
   d.Free;
   f.Free;
@@ -393,7 +389,6 @@ begin
   for i := 0 to High(FShapes) do
     FShapes[i].Free;
   SetLength(FShapes, 0);
-  FSaved := False;
 end;
 
 end.
