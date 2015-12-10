@@ -209,10 +209,6 @@ procedure TMainWindow.SaveAsMIClick(Sender: TObject);
 begin
   if SaveDialog.Execute then
   begin
-    if (FileExists(SaveDialog.FileName)) and
-      (MessageDlg('File already exists. Overwrite?', mtWarning, mbOKCancel, 0) =
-      mrCancel) then
-      Exit;
     Figures.Save(SaveDialog.FileName);
     FName := SaveDialog.FileName;
     FNameSet := True;
@@ -226,10 +222,6 @@ begin
     Figures.Save(FName)
   else if SaveDialog.Execute then
   begin
-    if (FileExists(SaveDialog.FileName)) and
-      (MessageDlg('File already exists. Overwrite?', mtWarning, mbOKCancel, 0) =
-      mrCancel) then
-      Exit;
     Figures.Save(SaveDialog.FileName);
     FName := SaveDialog.FileName;
     FNameSet := True;
@@ -269,14 +261,7 @@ begin
         if FNameSet then
           Figures.Save(FName)
         else if SaveDialog.Execute then
-        begin
-          if (FileExists(SaveDialog.FileName)) and
-            (MessageDlg('File already exists. Overwrite?', mtWarning, mbOKCancel, 0) =
-            mrCancel) then
-            CanClose := False
-          else
-            Figures.Save(SaveDialog.FileName);
-        end
+          Figures.Save(SaveDialog.FileName)
         else
           CanClose := False;
       mrCancel: CanClose := False;
@@ -333,19 +318,16 @@ begin
         if FNameSet then
           Figures.Save(FName)
         else if SaveDialog.Execute then
-        begin
-          if (FileExists(SaveDialog.FileName)) and
-            (MessageDlg('File already exists. Overwrite?', mtWarning, mbOKCancel, 0) =
-            mrCancel) then
-            Exit;
-          Figures.Save(SaveDialog.FileName);
-        end;
+          Figures.Save(SaveDialog.FileName)
+        else
+          Exit;
       mrCancel: Exit;
     end;
   Figures.New;
   FNameSet := False;
   FName := 'unnamed';
   EditStatusUpdate;
+  Figures.Saved := True;
   PaintBox.Invalidate;
 end;
 
@@ -358,12 +340,9 @@ begin
         if FNameSet then
           Figures.Save(FName)
         else if SaveDialog.Execute then
-        begin
-          if (FileExists(SaveDialog.FileName)) and
-            (MessageDlg('File already exists. Overwrite?', mtWarning, mbOKCancel, 0) =
-            mrCancel) then
-          Figures.Save(SaveDialog.FileName);
-        end;
+          Figures.Save(SaveDialog.FileName)
+        else
+          Exit;
       mrCancel: Exit;
     end;
   if OpenDialog.Execute then
@@ -375,7 +354,7 @@ begin
       begin
         FName := OpenDialog.FileName;
         FNameSet := True;
-        Caption := 'Vector Graphic Editor - ' + OpenDialog.FileName;
+        Caption := 'Vector Graphic Editor - ' + FName;
       end
       else
       begin
@@ -503,6 +482,7 @@ end;
 procedure TMainWindow.ZOrderSwitch(AEnabled: Boolean);
 begin
   ZOrderMI.Enabled := AEnabled;
+  DeleteMI.Enabled := AEnabled;
 end;
 
 procedure TMainWindow.EditStatusUpdate;

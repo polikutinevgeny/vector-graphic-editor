@@ -235,6 +235,7 @@ object MainWindow: TMainWindow
       Caption = 'Edit'
       object DeleteMI: TMenuItem
         Caption = 'Delete'
+        Enabled = False
         ShortCut = 46
         OnClick = DeleteMIClick
       end
@@ -312,6 +313,7 @@ object MainWindow: TMainWindow
     Title = 'Сохранить файл'
     Filter = '*.mvg|*.mvg'
     InitialDir = 'C:\Users\polik_000\Documents\'
+    Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
     left = 200
     top = 88
   end

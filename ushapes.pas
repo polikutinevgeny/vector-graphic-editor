@@ -32,6 +32,7 @@ type
     procedure SetRight(d: TRight);
     procedure SetTop(d: TTop);
     procedure SetBottom(d: TBottom);
+    procedure UpdateRect;
   public
     constructor Create; virtual;
     procedure SetPoint(APoint: TPoint); virtual;
@@ -210,11 +211,7 @@ begin
   sl := TStringList.Create;
   Delete(AValue, 1, 1);
   Delete(AValue, Length(AValue), 1);
-  sl.Delimiter := '"';
   sl.DelimitedText := AValue;
-  for i := sl.Count - 1 downto 0 do
-    if (sl[i] = ',') or (sl[i] = '') then
-      sl.Delete(i);
   if sl.Count mod 2 = 1 then
     raise Exception.Create('File is damaged');
   SetLength(FPoints, sl.Count div 2);
@@ -224,14 +221,7 @@ begin
     else
       FPoints[i div 2].Y := StrToFloat(sl[i]);
   sl.Free;
-  FRect := FloatRect(FPoints[0], FPoints[0]);
-  for i := 0 to High(FPoints) do
-  begin
-    FRect.Left := Min(FRect.Left, FPoints[i].X);
-    FRect.Right := Max(FRect.Right, FPoints[i].X);
-    FRect.Top := Min(FRect.Top, FPoints[i].Y);
-    FRect.Bottom := Max(FRect.Bottom, FPoints[i].Y);
-  end;
+  UpdateRect;
 end;
 
 procedure TShape.SetRight(d: TRight);
@@ -270,6 +260,19 @@ begin
   FRect.Bottom += dy;
 end;
 
+procedure TShape.UpdateRect;
+var i: Integer;
+begin
+  FRect := FloatRect(FPoints[0], FPoints[0]);
+  for i := 1 to High(FPoints) do
+  begin
+    FRect.Left := Min(FRect.Left, FPoints[i].X);
+    FRect.Right := Max(FRect.Right, FPoints[i].X);
+    FRect.Top := Min(FRect.Top, FPoints[i].Y);
+    FRect.Bottom := Max(FRect.Bottom, FPoints[i].Y);
+  end;
+end;
+
 constructor TShape.Create;
 begin
   FPenWidth := 1;
@@ -302,14 +305,7 @@ begin
     SetLength(FPoints, 2);
   end;
   FPoints[High(FPoints)] := VP.ScreenToWorld(APoint);
-  FRect := FloatRect(FPoints[0], FPoints[0]);
-  for i := 1 to High(FPoints) do
-  begin
-    FRect.Left := Min(FRect.Left, FPoints[i].X);
-    FRect.Right := Max(FRect.Right, FPoints[i].X);
-    FRect.Top := Min(FRect.Top, FPoints[i].Y);
-    FRect.Bottom := Max(FRect.Bottom, FPoints[i].Y);
-  end;
+  UpdateRect;
 end;
 
 procedure TShape.DrawSelection(ACanvas: TCanvas);
@@ -369,14 +365,7 @@ procedure TShape.MoveEditPoint(AShift: TPoint; AIndex: Integer);
 var i: Integer;
 begin
   FPoints[AIndex] += FloatPoint(AShift) / VP.Scale;
-  FRect := FloatRect(FPoints[0], FPoints[0]);
-  for i := 1 to High(FPoints) do
-  begin
-    FRect.Left := Min(FRect.Left, FPoints[i].X);
-    FRect.Right := Max(FRect.Right, FPoints[i].X);
-    FRect.Top := Min(FRect.Top, FPoints[i].Y);
-    FRect.Bottom := Max(FRect.Bottom, FPoints[i].Y);
-  end;
+  UpdateRect;
 end;
 
 { TPolyline }

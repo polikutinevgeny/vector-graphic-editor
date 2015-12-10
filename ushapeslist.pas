@@ -365,6 +365,8 @@ begin
     for i := 0 to t.Count - 1 do
     begin
       shape := (GetClass((t as TJSONObject).Names[i]).Create as TShape);
+      if shape = nil then
+        raise Exception.Create('Oops');
       DeStreamer.JSONToObject((t.Items[i] as TJSONObject), shape);
       if t.Items[i].FindPath('Points').JSONType = jtArray then
         shape.SetPoints(t.Items[i].FindPath('Points').AsJSON)
