@@ -6,7 +6,7 @@ interface
 
 uses
   Graphics, UShapes, math, UGeometry, UViewPort, UInspector, Classes, fpjson,
-  fpjsonrtti, sysutils, Dialogs;
+  fpjsonrtti, sysutils, Dialogs, UShapeJSONConverter;
 
 type
 
@@ -48,6 +48,7 @@ type
       function Load(AFile: String): Boolean;
       procedure New;
       procedure ExportToBMP(AFile: String);
+      procedure ShowAll;
   end;
 
 var
@@ -318,30 +319,23 @@ end;
 
 procedure TShapesList.Save(AFile: String);
 var
-  Streamer: TJSONStreamer;
-  Data, t, root: TJSONObject;
+  streamer: TJSONStreamer;
+  data, root: TJSONObject;
   i: integer;
   f: Text;
 begin
   Assign(f, AFile);
   Rewrite(f);
-  Streamer := TJSONStreamer.Create(nil);
-  Streamer.Options := Streamer.Options + [jsoTStringsAsArray];
+  streamer := TJSONStreamer.Create(nil);
+  streamer.Options := streamer.Options + [jsoTStringsAsArray];
   root := TJSONObject.Create;
-  Data := TJSONObject.Create;
+  data := TJSONObject.Create;
   for i := 0 to High(FShapes) do
-  begin
-    t := Streamer.ObjectToJSON(FShapes[i]);
-    t.Delete('AlignLeft');
-    t.Delete('AlignRight');
-    t.Delete('AlignTop');
-    t.Delete('AlignBottom');
-    Data.Add(FShapes[i].ClassName, t);
-  end;
-  root.Add('Vector graphics format by Polikutin Evgeny', Data);
+    data.Add(FShapes[i].ClassName, ShapePropsToJSON(FShapes[i]));
+  root.Add('Vector graphics format by Polikutin Evgeny', data);
   WriteLn(f, root.FormatJSON);
   root.Free;
-  Streamer.Free;
+  streamer.Free;
   Close(f);
   OnUpdateFileStatus(False);
 end;
@@ -352,8 +346,6 @@ var
   t: TJSONData;
   i: integer;
   f: TFileStream;
-  shape: TShape;
-  str: TStrings;
 begin
   Result := True;
   f := TFileStream.Create(AFile, fmOpenRead);
@@ -364,17 +356,7 @@ begin
     if t = nil then
       raise Exception.Create('Invalid file signature');
     for i := 0 to t.Count - 1 do
-    begin
-      shape := (GetClass((t as TJSONObject).Names[i]).Create as TShape);
-      if shape = nil then
-        raise Exception.Create('File is corrupted');
-      DeStreamer.JSONToObject((t.Items[i] as TJSONObject), shape);
-      str := TStringList.Create;
-      DeStreamer.JSONToStrings(t.Items[i].FindPath('Points'), str);
-      shape.Points := str;
-      str.Free;
-      Add(shape);
-    end
+      Add(JSONToShape((t as TJSONObject).Names[i], (t.Items[i] as TJSONObject)));
   except
     on E: Exception do
     begin
@@ -384,12 +366,7 @@ begin
     end;
   end;
   if Result and (not IsEmpty) then
-  begin
-    VP.ViewPosition := FloatPoint(
-      (ImageSize.Left + ImageSize.Right) / 2,
-      (ImageSize.Top + ImageSize.Bottom) / 2);
-    VP.ScaleTo(Figures.ImageSize);
-  end;
+    ShowAll;
   OnUpdateFileStatus(False);
   DeStreamer.Free;
   f.Free;
@@ -422,6 +399,14 @@ begin
       UGeometry.FloatPoint(t.Left, t.Top)));
   bmp.SaveToFile(AFile);
   bmp.Free;
+end;
+
+procedure TShapesList.ShowAll;
+var t: TFloatRect;
+begin
+  t := ImageSize;
+  VP.ViewPosition := FloatPoint((t.Left + t.Right) / 2, (t.Top + t.Bottom) / 2);
+  VP.ScaleTo(t);
 end;
 
 end.

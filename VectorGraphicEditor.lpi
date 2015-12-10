@@ -36,7 +36,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="10">
+    <Units Count="11">
       <Unit0>
         <Filename Value="VectorGraphicEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -89,6 +89,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UPaletteEditor"/>
       </Unit9>
+      <Unit10>
+        <Filename Value="ushapejsonconverter.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UShapeJSONConverter"/>
+      </Unit10>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -269,12 +269,7 @@ end;
 procedure TMainWindow.ShowAllMIClick(Sender: TObject);
 begin
   if not Figures.IsEmpty then
-  begin
-    VP.ViewPosition := FloatPoint(
-      (Figures.ImageSize.Left + Figures.ImageSize.Right) / 2,
-      (Figures.ImageSize.Top + Figures.ImageSize.Bottom) / 2);
-    VP.ScaleTo(Figures.ImageSize);
-  end;
+    Figures.ShowAll;
   PaintBox.Invalidate;
 end;
 
