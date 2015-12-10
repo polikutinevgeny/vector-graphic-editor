@@ -362,17 +362,17 @@ begin
     d := GetJSON(f);
     t := d.FindPath('Vector graphics format by Polikutin Evgeny');
     if t = nil then
-      raise Exception.Create('Oops');
+      raise Exception.Create('File is corrupted');
     for i := 0 to t.Count - 1 do
     begin
       shape := (GetClass((t as TJSONObject).Names[i]).Create as TShape);
       if shape = nil then
-        raise Exception.Create('Oops');
+        raise Exception.Create('File is corrupted');
       DeStreamer.JSONToObject((t.Items[i] as TJSONObject), shape);
       if t.Items[i].FindPath('Points').JSONType = jtArray then
         shape.SetPoints(t.Items[i].FindPath('Points').AsJSON)
       else
-        raise Exception.Create('Oops');
+        raise Exception.Create('File is corrupted');
       Add(shape);
     end
   except
@@ -405,7 +405,7 @@ begin
   bmp.Height := round(t.Bottom - t.Top);
   bmp.Width := round(t.Right - t.Left);
   bmp.Canvas.Brush.Color := clWhite;
-  bmp.Canvas.FillRect(Rect(0, 0, bmp.Width, bmp.Height));
+  bmp.Canvas.FillRect(0, 0, bmp.Width, bmp.Height);
   for i := 0 to High(FShapes) do
   begin
     FShapes[i].DrawBitmap(bmp.Canvas, UGeometry.Point(
