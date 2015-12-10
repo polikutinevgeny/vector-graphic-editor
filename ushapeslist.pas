@@ -17,7 +17,7 @@ type
       FOnZOrderSwitch: TZOrderEvent;
       FShapes: array of TShape;
       FSelectionRectangle: TRectangle;
-      FSaved: Boolean;
+      FChanged: Boolean;
       function GetImageSize: TFloatRect;
     public
       property SelectionRectangle: TRectangle read FSelectionRectangle
@@ -25,7 +25,7 @@ type
       property ImageSize: TFloatRect read GetImageSize;
       property OnZOrderSwitch: TZOrderEvent read FOnZOrderSwitch
         write FOnZOrderSwitch;
-      property Saved: Boolean read FSaved write FSaved;
+      property Changed: Boolean read FChanged write FChanged;
       procedure Draw(ACanvas: TCanvas);
       procedure Add(AShape: TShape);
       procedure Select;
@@ -343,46 +343,55 @@ begin
   root.Free;
   Streamer.Free;
   Close(f);
-  FSaved := True;
+  OnUpdateFileStatus(False);
 end;
 
 function TShapesList.Load(AFile: String): Boolean;
 var
   DeStreamer: TJSONDeStreamer;
-  t, d: TJSONData;
+  t: TJSONData;
   i: integer;
   f: TFileStream;
   shape: TShape;
+  str: TStrings;
 begin
   Result := True;
   f := TFileStream.Create(AFile, fmOpenRead);
   DeStreamer := TJSONDeStreamer.Create(nil);
   New;
   try
-    d := GetJSON(f);
-    t := d.FindPath('Vector graphics format by Polikutin Evgeny');
+    t := GetJSON(f).FindPath('Vector graphics format by Polikutin Evgeny');
     if t = nil then
-      raise Exception.Create('File is corrupted');
+      raise Exception.Create('Invalid file signature');
     for i := 0 to t.Count - 1 do
     begin
       shape := (GetClass((t as TJSONObject).Names[i]).Create as TShape);
       if shape = nil then
         raise Exception.Create('File is corrupted');
       DeStreamer.JSONToObject((t.Items[i] as TJSONObject), shape);
-      if t.Items[i].FindPath('Points').JSONType = jtArray then
-        shape.SetPoints(t.Items[i].FindPath('Points').AsJSON)
-      else
-        raise Exception.Create('File is corrupted');
+      str := TStringList.Create;
+      DeStreamer.JSONToStrings(t.Items[i].FindPath('Points'), str);
+      shape.Points := str;
+      str.Free;
       Add(shape);
     end
   except
-    New;
-    MessageDlg('File is corrupted', mtError, [mbOK], 0);
-    Result := False;
+    on E: Exception do
+    begin
+      New;
+      MessageDlg(E.Message, mtError, [mbOK], 0);
+      Result := False;
+    end;
   end;
-  FSaved := Result;
+  if Result and (not IsEmpty) then
+  begin
+    VP.ViewPosition := FloatPoint(
+      (ImageSize.Left + ImageSize.Right) / 2,
+      (ImageSize.Top + ImageSize.Bottom) / 2);
+    VP.ScaleTo(Figures.ImageSize);
+  end;
+  OnUpdateFileStatus(False);
   DeStreamer.Free;
-  d.Free;
   f.Free;
 end;
 
@@ -392,6 +401,8 @@ begin
   for i := 0 to High(FShapes) do
     FShapes[i].Free;
   SetLength(FShapes, 0);
+  VP.Scale := 1;
+  VP.ViewPosition := VP.PortSize / 2;
 end;
 
 procedure TShapesList.ExportToBMP(AFile: String);
@@ -407,10 +418,8 @@ begin
   bmp.Canvas.Brush.Color := clWhite;
   bmp.Canvas.FillRect(0, 0, bmp.Width, bmp.Height);
   for i := 0 to High(FShapes) do
-  begin
     FShapes[i].DrawBitmap(bmp.Canvas, UGeometry.Point(
       UGeometry.FloatPoint(t.Left, t.Top)));
-  end;
   bmp.SaveToFile(AFile);
   bmp.Free;
 end;

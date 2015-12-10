@@ -194,7 +194,7 @@ end;
 procedure TParamEditor.Change(Sender: TObject);
 begin
   Inspector.OnParamsUpdate;
-  OnEdit;
+  OnUpdateFileStatus(True);
 end;
 
 constructor TParamEditor.Create(AShapes: array of TShape;

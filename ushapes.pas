@@ -29,6 +29,7 @@ type
     function GetPoints: TStrings;
     function GetRect: TFloatRect; virtual;
     procedure SetLeft(d: TLeft);
+    procedure SetPoints(AValue: TStrings); virtual;
     procedure SetRight(d: TRight);
     procedure SetTop(d: TTop);
     procedure SetBottom(d: TBottom);
@@ -45,7 +46,6 @@ type
     procedure Shift(AShift: TPoint);
     function PointInEditPoint(APoint: TPoint): Integer;
     procedure MoveEditPoint(AShift: TPoint; AIndex: Integer); virtual;
-    procedure SetPoints(AValue: String); virtual;
     property Rect: TFloatRect read GetRect;
     property TrueRect: TFloatRect read FRect;
     property IsSelected: Boolean read FSelected write FSelected;
@@ -58,7 +58,7 @@ type
     property AlignRight: TRight write SetRight;
     property AlignTop: TTop write SetTop;
     property AlignBottom: TBottom write SetBottom;
-    property Points: TStrings read GetPoints;
+    property Points: TStrings read GetPoints write SetPoints;
   end;
 
   { TFill }
@@ -68,12 +68,12 @@ type
     private
       FBrushColor: TBrushColor;
       FBrushStyle: TBrushStyle;
+      procedure SetPoints(AValue: TStrings); override;
     public
       constructor Create; override;
       procedure Draw(ACanvas: TCanvas); override;
       procedure DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint); override;
       procedure SetPoint(APoint: TPoint); override;
-      procedure SetPoints(AValue: String); override;
     published
       property BrushColor: TBrushColor read FBrushColor write FBrushColor;
       property BrushStyle: TBrushStyle read FBrushStyle write FBrushStyle;
@@ -93,13 +93,14 @@ type
   { TLine }
 
   TLine = class(TShape)
+  private
+    procedure SetPoints(AValue: TStrings); override;
   public
     function PointInShape(APoint: TPoint): Boolean; override;
     function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
     procedure DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint); override;
     procedure SetPoint(APoint: TPoint); override;
-    procedure SetPoints(AValue: String); override;
   end;
 
   { TRectangle }
@@ -171,11 +172,11 @@ begin
   FPoints[1] := VP.ScreenToWorld(APoint);
 end;
 
-procedure TFill.SetPoints(AValue: String);
+procedure TFill.SetPoints(AValue: TStrings);
 begin
   inherited SetPoints(AValue);
   if not InRange(Length(FPoints), 2, 2) then
-    raise Exception.Create('File is damaged');
+    raise Exception.Create('Invalid number of points');
 end;
 
 { TShape }
@@ -217,24 +218,17 @@ begin
   FRect.Right += dx;
 end;
 
-procedure TShape.SetPoints(AValue: String);
-var
-  i: Integer;
-  sl: TStringList;
+procedure TShape.SetPoints(AValue: TStrings);
+var i: Integer;
 begin
-  sl := TStringList.Create;
-  Delete(AValue, 1, 1);
-  Delete(AValue, Length(AValue), 1);
-  sl.DelimitedText := AValue;
-  if sl.Count mod 2 = 1 then
+  if AValue.Count mod 2 = 1 then
     raise Exception.Create('File is damaged');
-  SetLength(FPoints, sl.Count div 2);
-  for i := 0 to sl.Count - 1 do
-    if i mod 2 = 0 then
-      FPoints[i div 2].X := StrToFloat(sl[i])
-    else
-      FPoints[i div 2].Y := StrToFloat(sl[i]);
-  sl.Free;
+  SetLength(FPoints, AValue.Count div 2);
+  for i := 0 to AValue.Count div 2 - 1 do
+  begin
+    FPoints[i].X := StrToFloat(AValue[2 * i]);
+    FPoints[i].Y := StrToFloat(AValue[2 * i + 1]);
+  end;
   UpdateRect;
 end;
 
@@ -318,8 +312,6 @@ begin
 end;
 
 procedure TShape.MovePoint(APoint: TPoint);
-var
-  i: integer;
 begin
   if Length(FPoints) = 1 then
   begin
@@ -383,7 +375,6 @@ begin
 end;
 
 procedure TShape.MoveEditPoint(AShift: TPoint; AIndex: Integer);
-var i: Integer;
 begin
   FPoints[AIndex] += FloatPoint(AShift) / VP.Scale;
   UpdateRect;
@@ -491,11 +482,11 @@ begin
   FPoints[1] := VP.ScreenToWorld(APoint);
 end;
 
-procedure TLine.SetPoints(AValue: String);
+procedure TLine.SetPoints(AValue: TStrings);
 begin
   inherited SetPoints(AValue);
   if not InRange(Length(FPoints), 2, 2) then
-    raise Exception.Create('File is damaged');
+    raise Exception.Create('Invalid number of points');
 end;
 
 { TRectangle }

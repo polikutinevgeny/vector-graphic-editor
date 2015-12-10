@@ -84,7 +84,7 @@ type
       AKind: TScrollBarType);
     procedure RecalculateScrollbars;
     procedure ZOrderSwitch(AEnabled: Boolean);
-    procedure EditStatusUpdate;
+    procedure EditStatusUpdate(AStatus: Boolean);
   private
     FCurrentToolIndex: Integer;
     FCleared: boolean;
@@ -92,6 +92,7 @@ type
     FPaletteColors: array of TColor;
     FNameSet: Boolean;
     FName: String;
+    function ReadyToCloseFile: Boolean;
   public
     { public declarations }
   end;
@@ -138,10 +139,9 @@ begin
   Figures.OnZOrderSwitch := @ZOrderSwitch;
   FNameSet := False;
   FName := 'unnamed';
-  Caption := 'Vector Graphic Editor - ' + FName + '*';
-  Figures.Saved := True;
   FormatSettings.DecimalSeparator := '.';
-  OnEdit := @EditStatusUpdate;
+  OnUpdateFileStatus := @EditStatusUpdate;
+  OnUpdateFileStatus(False);
   for i := 0 to High(ToolContainer.Tools) do
     begin
       bt := TSpeedButton.Create(Self);
@@ -215,7 +215,7 @@ begin
     Figures.Save(SaveDialog.FileName);
     FName := SaveDialog.FileName;
     FNameSet := True;
-    Caption := 'Vector Graphic Editor - ' + FName;
+    OnUpdateFileStatus(False);
   end;
 end;
 
@@ -226,12 +226,12 @@ begin
   else if SaveDialog.Execute then
   begin
     Figures.Save(SaveDialog.FileName);
-    FName := SaveDialog.FileName;
     FNameSet := True;
+    FName := SaveDialog.FileName;
   end
   else
     Exit;
-  Caption := 'Vector Graphic Editor - ' + FName;
+  OnUpdateFileStatus(False);
 end;
 
 procedure TMainWindow.ToolClick(Sender: TObject);
@@ -263,18 +263,7 @@ end;
 
 procedure TMainWindow.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
-  if not Figures.Saved then
-    case MessageDlg('File is not saved! Save the file?', mtWarning,
-      [mbYes, mbNo, mbCancel], 0) of
-      mrYes:
-        if FNameSet then
-          Figures.Save(FName)
-        else if SaveDialog.Execute then
-          Figures.Save(SaveDialog.FileName)
-        else
-          CanClose := False;
-      mrCancel: CanClose := False;
-    end;
+  CanClose := ReadyToCloseFile;
 end;
 
 procedure TMainWindow.ShowAllMIClick(Sender: TObject);
@@ -320,57 +309,28 @@ end;
 
 procedure TMainWindow.NewMIClick(Sender: TObject);
 begin
-  if not Figures.Saved then
-    case MessageDlg('File is not saved! Save the file?', mtWarning,
-      [mbYes, mbNo, mbCancel], 0) of
-      mrYes:
-        if FNameSet then
-          Figures.Save(FName)
-        else if SaveDialog.Execute then
-          Figures.Save(SaveDialog.FileName)
-        else
-          Exit;
-      mrCancel: Exit;
-    end;
+  if not ReadyToCloseFile then
+    Exit;
   Figures.New;
   FNameSet := False;
   FName := 'unnamed';
-  EditStatusUpdate;
-  Figures.Saved := True;
+  OnUpdateFileStatus(False);
   PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.OpenMIClick(Sender: TObject);
 begin
-  if not Figures.Saved then
-    case MessageDlg('File is not saved! Save the file?', mtWarning,
-      [mbYes, mbNo, mbCancel], 0) of
-      mrYes:
-        if FNameSet then
-          Figures.Save(FName)
-        else if SaveDialog.Execute then
-          Figures.Save(SaveDialog.FileName)
-        else
-          Exit;
-      mrCancel: Exit;
-    end;
+  if not ReadyToCloseFile then
+    Exit;
   if OpenDialog.Execute then
     if FileExists(OpenDialog.FileName) then
     begin
-      VP.Scale := 1;
-      VP.ViewPosition := FloatPoint(VP.PortSize) / 2;
-      if Figures.Load(OpenDialog.FileName) then
-      begin
-        FName := OpenDialog.FileName;
-        FNameSet := True;
-        Caption := 'Vector Graphic Editor - ' + FName;
-      end
+      FNameSet := Figures.Load(OpenDialog.FileName);
+      if FNameSet then
+        FName := OpenDialog.FileName
       else
-      begin
         FName := 'unnamed';
-        FNameSet := False;
-        Caption := 'Vector Graphic Editor - ' + FName + '*';
-      end;
+      OnUpdateFileStatus(False);
     end
     else
      MessageDlg('File not found', mtWarning, [mbOk], 0);
@@ -494,10 +454,31 @@ begin
   DeleteMI.Enabled := AEnabled;
 end;
 
-procedure TMainWindow.EditStatusUpdate;
+procedure TMainWindow.EditStatusUpdate(AStatus: Boolean);
 begin
-  Caption := 'Vector Graphic Editor - ' + FName + '*';
-  Figures.Saved := False;
+  Figures.Changed := AStatus;
+  if Figures.Changed then
+    Caption := 'Vector Graphic Editor - ' + FName + '*'
+  else
+    Caption := 'Vector Graphic Editor - ' + FName;
+end;
+
+function TMainWindow.ReadyToCloseFile: Boolean;
+begin
+  Result := True;
+  if Figures.Changed then
+    case MessageDlg('File is not saved! Save the file?', mtWarning,
+      [mbYes, mbNo, mbCancel], 0) of
+      mrYes:
+        if FNameSet then
+          Figures.Save(FName)
+        else if SaveDialog.Execute then
+          Figures.Save(SaveDialog.FileName)
+        else
+          Result := False;
+      mrCancel:
+        Result := False;
+    end;
 end;
 
 end.
