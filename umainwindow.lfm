@@ -237,9 +237,30 @@ object MainWindow: TMainWindow
     end
     object EditMI: TMenuItem
       Caption = 'Edit'
+      object UndoMI: TMenuItem
+        Caption = 'Undo'
+        Enabled = False
+        ShortCut = 16474
+        OnClick = UndoMIClick
+      end
+      object RedoMI: TMenuItem
+        Caption = 'Redo'
+        Enabled = False
+        ShortCut = 24666
+        OnClick = RedoMIClick
+      end
+      object UndoAllMI: TMenuItem
+        Caption = 'Undo All'
+        Enabled = False
+        OnClick = UndoAllMIClick
+      end
+      object RedoAllMI: TMenuItem
+        Caption = 'Redo All'
+        Enabled = False
+        OnClick = RedoAllMIClick
+      end
       object DeleteMI: TMenuItem
         Caption = 'Delete'
-        Enabled = False
         ShortCut = 46
         OnClick = DeleteMIClick
       end

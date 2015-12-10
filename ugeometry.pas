@@ -45,10 +45,6 @@ type
 
 type
   TPoints = array of TPoint;
-  TEditEvent = procedure(AStatus: Boolean) of object;
-
-var
-  OnUpdateFileStatus: TEditEvent;
 
 implementation
 

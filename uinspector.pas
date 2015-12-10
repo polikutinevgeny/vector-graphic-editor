@@ -65,10 +65,14 @@ type
     property Editors: TArrayOfEditor read FEditors;
   end;
 
+  TEditEvent = procedure of object;
+
 var
   Inspector: TInspector;
   EditorContainer: TEditorContainer;
   ShiftEditorContainer: TEditorContainer;
+  OnUpdateFileStatus: TEditEvent;
+  OnUpdateEditor: TEditEvent;
 
 implementation
 
@@ -194,7 +198,8 @@ end;
 procedure TParamEditor.Change(Sender: TObject);
 begin
   Inspector.OnParamsUpdate;
-  OnUpdateFileStatus(True);
+  OnUpdateFileStatus;
+  OnUpdateEditor;
 end;
 
 constructor TParamEditor.Create(AShapes: array of TShape;

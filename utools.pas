@@ -192,14 +192,12 @@ begin
   begin
     Figures.ShiftSelected(APoint - FStartPoint);
     FStartPoint := APoint;
-    OnUpdateFileStatus(True);
     Exit;
   end;
   if (FMode = stmEdit) and (FShape <> nil) then
   begin
     FShape.MoveEditPoint(APoint - FStartPoint, FIndex);
     FStartPoint := APoint;
-    OnUpdateFileStatus(True);
     Exit;
   end;
   if (FMode = stmSelect) and (Figures.SelectionRectangle <> nil) then
@@ -246,6 +244,11 @@ end;
 
 procedure TSelectionTool.MouseUp;
 begin
+  if (FMode = stmEdit) or (FMode = stmMove) then
+  begin
+    Figures.UpdateHistory;
+    OnUpdateFileStatus;
+  end;
   Figures.LoadSelected;
   Figures.SelectionRectangle.Free;
   Figures.SelectionRectangle := nil;
@@ -306,13 +309,14 @@ end;
 
 procedure TShapeTool.MouseUp;
 begin
+  Figures.UpdateHistory;
+  OnUpdateFileStatus;
   Inspector.LoadNew(CreateShape);
 end;
 
 procedure TShapeTool.MouseMove(APoint: TPoint; Shift: TShiftState);
 begin
   FShape.MovePoint(APoint);
-  OnUpdateFileStatus(True);
 end;
 
 procedure TShapeTool.MouseClick(APoint: TPoint; Shift: TShiftState);
@@ -320,7 +324,6 @@ begin
   Figures.Add(FShape);
   FIsTemp := False;
   FShape.SetPoint(APoint);
-  OnUpdateFileStatus(True);
 end;
 
 procedure TShapeTool.Leave;
@@ -545,7 +548,6 @@ end;
 
 procedure TPolylineTool.MouseClick(APoint: TPoint; Shift: TShiftState);
 begin
-  OnUpdateFileStatus(True);
   if ssRight in Shift then
   begin
     FDrawingNow := false;
@@ -563,12 +565,13 @@ end;
 
 procedure TPolylineTool.MouseMove(APoint: TPoint; Shift: TShiftState);
 begin
-  OnUpdateFileStatus(True);
   if FDrawingNow then FShape.MovePoint(APoint);
 end;
 
 procedure TPolylineTool.MouseUp;
 begin
+  Figures.UpdateHistory;
+  OnUpdateFileStatus;
   {Do not create new shape}
 end;
 
@@ -608,7 +611,6 @@ end;
 
 procedure TPenTool.MouseMove(APoint: TPoint; Shift: TShiftState);
 begin
-  OnUpdateFileStatus(True);
   TPolyline(FShape).AddPoint(APoint);
 end;
 

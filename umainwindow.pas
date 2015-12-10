@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
   UTools, UShapesList, Buttons, StdCtrls, ComCtrls, Grids,
-  UViewPort, UGeometry, types, math, UInspector, UPaletteEditor;
+  UViewPort, UGeometry, types, math, UInspector, UPaletteEditor, UHistory;
 
 type
 
@@ -16,6 +16,10 @@ type
   TMainWindow = class(TForm)
     ColorDialog: TColorDialog;
     ExportMI: TMenuItem;
+    RedoAllMI: TMenuItem;
+    UndoAllMI: TMenuItem;
+    RedoMI: TMenuItem;
+    UndoMI: TMenuItem;
     SaveAsMI: TMenuItem;
     ExportDialog: TSaveDialog;
     SaveMI: TMenuItem;
@@ -72,11 +76,15 @@ type
     procedure PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure PaintBoxPaint(Sender: TObject);
+    procedure RedoAllMIClick(Sender: TObject);
+    procedure RedoMIClick(Sender: TObject);
     procedure SaveAsMIClick(Sender: TObject);
     procedure SaveMIClick(Sender: TObject);
     procedure ShowAllMIClick(Sender: TObject);
     procedure ToolClick(Sender: TObject);
     procedure TopMIClick(Sender: TObject);
+    procedure UndoAllMIClick(Sender: TObject);
+    procedure UndoMIClick(Sender: TObject);
     procedure VerticalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: Integer);
     procedure ZoomCBChange(Sender: TObject);
@@ -84,7 +92,9 @@ type
       AKind: TScrollBarType);
     procedure RecalculateScrollbars;
     procedure ZOrderSwitch(AEnabled: Boolean);
-    procedure EditStatusUpdate(AStatus: Boolean);
+    procedure EditStatusUpdate;
+    procedure UndoSwitch(AEnabled: Boolean);
+    procedure RedoSwitch(AEnabled: Boolean);
   private
     FCurrentToolIndex: Integer;
     FCleared: boolean;
@@ -141,7 +151,9 @@ begin
   FName := 'unnamed';
   FormatSettings.DecimalSeparator := '.';
   OnUpdateFileStatus := @EditStatusUpdate;
-  OnUpdateFileStatus(False);
+  THistory.OnUndoSwitch := @UndoSwitch;
+  THistory.OnRedoSwitch := @RedoSwitch;
+  OnUpdateFileStatus;
   for i := 0 to High(ToolContainer.Tools) do
     begin
       bt := TSpeedButton.Create(Self);
@@ -184,6 +196,8 @@ begin
       ToolContainer.Tools[FCurrentToolIndex].MouseClick(Point(X, Y), Shift);
       PaintBox.Invalidate;
     end;
+  if Button = mbRight then
+    FMousePressed := False;
 end;
 
 procedure TMainWindow.PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -208,6 +222,20 @@ begin
   Figures.Draw(PaintBox.Canvas);
 end;
 
+procedure TMainWindow.RedoAllMIClick(Sender: TObject);
+begin
+  Figures.RedoAll;
+  OnUpdateFileStatus;
+  PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.RedoMIClick(Sender: TObject);
+begin
+  Figures.Redo;
+  OnUpdateFileStatus;
+  PaintBox.Invalidate;
+end;
+
 procedure TMainWindow.SaveAsMIClick(Sender: TObject);
 begin
   if SaveDialog.Execute then
@@ -215,7 +243,7 @@ begin
     Figures.Save(SaveDialog.FileName);
     FName := SaveDialog.FileName;
     FNameSet := True;
-    OnUpdateFileStatus(False);
+    OnUpdateFileStatus;
   end;
 end;
 
@@ -231,7 +259,7 @@ begin
   end
   else
     Exit;
-  OnUpdateFileStatus(False);
+  OnUpdateFileStatus;
 end;
 
 procedure TMainWindow.ToolClick(Sender: TObject);
@@ -246,6 +274,20 @@ end;
 procedure TMainWindow.TopMIClick(Sender: TObject);
 begin
   Figures.ZTop;
+  PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.UndoAllMIClick(Sender: TObject);
+begin
+  Figures.UndoAll;
+  OnUpdateFileStatus;
+  PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.UndoMIClick(Sender: TObject);
+begin
+  Figures.Undo;
+  OnUpdateFileStatus;
   PaintBox.Invalidate;
 end;
 
@@ -309,7 +351,7 @@ begin
   Figures.New;
   FNameSet := False;
   FName := 'unnamed';
-  OnUpdateFileStatus(False);
+  OnUpdateFileStatus;
   PaintBox.Invalidate;
 end;
 
@@ -325,7 +367,7 @@ begin
         FName := OpenDialog.FileName
       else
         FName := 'unnamed';
-      OnUpdateFileStatus(False);
+      OnUpdateFileStatus;
     end
     else
      MessageDlg('File not found', mtWarning, [mbOk], 0);
@@ -335,9 +377,12 @@ end;
 procedure TMainWindow.PaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  FMousePressed := False;
-  ToolContainer.Tools[FCurrentToolIndex].MouseUp;
-  PaintBox.Invalidate;
+  if Button = mbLeft then
+  begin
+    FMousePressed := False;
+    ToolContainer.Tools[FCurrentToolIndex].MouseUp;
+    PaintBox.Invalidate;
+  end;
 end;
 
 procedure TMainWindow.PaintBoxMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -446,22 +491,32 @@ end;
 procedure TMainWindow.ZOrderSwitch(AEnabled: Boolean);
 begin
   ZOrderMI.Enabled := AEnabled;
-  DeleteMI.Enabled := AEnabled;
 end;
 
-procedure TMainWindow.EditStatusUpdate(AStatus: Boolean);
+procedure TMainWindow.EditStatusUpdate;
 begin
-  Figures.Changed := AStatus;
-  if Figures.Changed then
+  if History.IsChanged then
     Caption := 'Vector Graphic Editor - ' + FName + '*'
   else
     Caption := 'Vector Graphic Editor - ' + FName;
 end;
 
+procedure TMainWindow.UndoSwitch(AEnabled: Boolean);
+begin
+  UndoMI.Enabled := AEnabled;
+  UndoAllMI.Enabled := AEnabled;
+end;
+
+procedure TMainWindow.RedoSwitch(AEnabled: Boolean);
+begin
+  RedoMI.Enabled := AEnabled;
+  RedoAllMI.Enabled := AEnabled;
+end;
+
 function TMainWindow.ReadyToCloseFile: Boolean;
 begin
   Result := True;
-  if Figures.Changed then
+  if History.IsChanged then
     case MessageDlg('File is not saved! Save the file?', mtWarning,
       [mbYes, mbNo, mbCancel], 0) of
       mrYes:

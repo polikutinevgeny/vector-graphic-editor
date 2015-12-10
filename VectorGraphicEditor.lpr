@@ -8,7 +8,8 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, UMainWindow, UTools, UShapes, UShapesList, UViewPort, UGeometry,
-  UParamEditors, UInspector, UPaletteEditor, UShapeJSONConverter, UBaseShape
+  UParamEditors, UInspector, UPaletteEditor, UShapeJSONConverter, UBaseShape,
+  UHistory
   { you can add units after this };
 
 {$R *.res}

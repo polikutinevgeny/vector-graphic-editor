@@ -6,7 +6,7 @@ interface
 
 uses
   Graphics, UBaseShape, UShapes, math, UGeometry, UViewPort, UInspector, Classes,
-  sysutils, Dialogs, UShapeJSONConverter;
+  sysutils, Dialogs, UShapeJSONConverter, UHistory;
 
 type
 
@@ -32,6 +32,7 @@ type
       procedure Select(APoint: TPoint);
       procedure SwitchSelect;
       procedure SwitchSelect(APoint: TPoint);
+      constructor Create;
       function PointOnEditPoint(APoint: TPoint; var AShape: TShape;
         var AIndex: Integer): Boolean;
       procedure Delete;
@@ -53,6 +54,7 @@ type
       procedure Redo;
       procedure UndoAll;
       procedure RedoAll;
+      procedure UpdateHistory;
   end;
 
 var
@@ -138,6 +140,12 @@ begin
   end;
 end;
 
+constructor TShapesList.Create;
+begin
+  History := THistory.Create(SaveJSON(FShapes));
+  OnUpdateEditor := @UpdateHistory;
+end;
+
 function TShapesList.PointOnEditPoint(APoint: TPoint; var AShape: TShape;
   var AIndex: Integer): Boolean;
 var i, j: Integer;
@@ -181,28 +189,27 @@ begin
   end;
   Inspector.LoadNew(nil);
   FOnZOrderSwitch(False);
+  History.AddNew(SaveJSON(FShapes));
+  OnUpdateFileStatus;
 end;
 
 procedure TShapesList.LoadSelected;
 var
   a: array of TShape;
   i: Integer;
-  f: Boolean;
 begin
-  f := True;
   SetLength(a, 0);
   for i := 0 to High(FShapes) do
     if FShapes[i].IsSelected then
     begin
       SetLength(a, Length(a) + 1);
       a[High(a)] := FShapes[i];
-      if f then
-        FOnZOrderSwitch(True);
       FShapes[i].PrevSelected := True;
     end
     else
       FShapes[i].PrevSelected := False;
   Inspector.Load(a);
+  FOnZOrderSwitch(Length(a) >= 2);
 end;
 
 procedure TShapesList.UnSelect;
@@ -329,7 +336,8 @@ begin
   Rewrite(f);
   WriteLn(f, SaveJSON(FShapes));
   Close(f);
-  OnUpdateFileStatus(False);
+  History.InformOfSave;
+  OnUpdateFileStatus;
 end;
 
 function TShapesList.Load(AFile: String): Boolean;
@@ -344,6 +352,7 @@ begin
     FShapes := LoadJSON(f.Text);
     if not IsEmpty then
       ShowAll;
+    History.Clear(SaveJSON(FShapes));
   except
     on E: Exception do
     begin
@@ -352,8 +361,9 @@ begin
       Result := False;
     end;
   end;
-  OnUpdateFileStatus(False);
+  OnUpdateFileStatus;
   f.Free;
+  FOnZOrderSwitch(False);
 end;
 
 procedure TShapesList.New;
@@ -364,6 +374,8 @@ begin
   SetLength(FShapes, 0);
   VP.Scale := 1;
   VP.ViewPosition := VP.PortSize / 2;
+  History.Clear(SaveJSON(FShapes));
+  FOnZOrderSwitch(False);
 end;
 
 procedure TShapesList.ExportToBMP(AFile: String);
@@ -395,22 +407,35 @@ end;
 
 procedure TShapesList.Undo;
 begin
-
+  FShapes := LoadJSON(History.Undo);
+  Inspector.LoadNew(nil);
+  FOnZOrderSwitch(False);
 end;
 
 procedure TShapesList.Redo;
 begin
-
+  FShapes := LoadJSON(History.Redo);
+  Inspector.LoadNew(nil);
+  FOnZOrderSwitch(False);
 end;
 
 procedure TShapesList.UndoAll;
 begin
-
+  FShapes := LoadJSON(History.UndoAll);
+  Inspector.LoadNew(nil);
+  FOnZOrderSwitch(False);
 end;
 
 procedure TShapesList.RedoAll;
 begin
+  FShapes := LoadJSON(History.RedoAll);
+  Inspector.LoadNew(nil);
+  FOnZOrderSwitch(False);
+end;
 
+procedure TShapesList.UpdateHistory;
+begin
+  History.AddNew(SaveJSON(FShapes));
 end;
 
 end.
