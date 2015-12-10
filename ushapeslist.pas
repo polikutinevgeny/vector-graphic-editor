@@ -486,7 +486,7 @@ begin
       OnUpdateFileStatus;
     end
   except
-    MessageDlg('You tried to paste an invalid string', mtError, [mbOK], 0);
+    //well, it is ok to paste some unrelated text
   end;
 end;
 
