@@ -37,6 +37,7 @@ type
     constructor Create; virtual;
     procedure SetPoint(APoint: TPoint); virtual;
     procedure Draw(ACanvas: TCanvas); virtual;
+    procedure DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint); virtual;
     procedure MovePoint(APoint: TPoint);
     procedure DrawSelection(ACanvas: TCanvas);
     function PointInShape(APoint: TPoint): Boolean; virtual; abstract;
@@ -70,6 +71,7 @@ type
     public
       constructor Create; override;
       procedure Draw(ACanvas: TCanvas); override;
+      procedure DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint); override;
       procedure SetPoint(APoint: TPoint); override;
       procedure SetPoints(AValue: String); override;
     published
@@ -84,6 +86,7 @@ type
     function PointInShape(APoint: TPoint): Boolean; override;
     function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
+    procedure DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint); override;
     procedure AddPoint(APoint: TPoint);
   end;
 
@@ -94,6 +97,7 @@ type
     function PointInShape(APoint: TPoint): Boolean; override;
     function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
+    procedure DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint); override;
     procedure SetPoint(APoint: TPoint); override;
     procedure SetPoints(AValue: String); override;
   end;
@@ -105,6 +109,7 @@ type
     function PointInShape(APoint: TPoint): Boolean; override;
     function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
+    procedure DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint); override;
   end;
 
   { TEllipse }
@@ -114,6 +119,7 @@ type
     function PointInShape(APoint: TPoint): Boolean; override;
     function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
+    procedure DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint); override;
   end;
 
   { TRoundRect }
@@ -127,6 +133,7 @@ type
     function PointInShape(APoint: TPoint): Boolean; override;
     function RectInShape(ARect: TRect): Boolean; override;
     procedure Draw(ACanvas: TCanvas); override;
+    procedure DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint); override;
   published
     property RadiusX: TRadius read FRadiusX write FRadiusX;
     property RadiusY: TRadius read FRadiusY write FRadiusY;
@@ -146,6 +153,13 @@ end;
 procedure TFill.Draw(ACanvas: TCanvas);
 begin
   inherited Draw(ACanvas);
+  ACanvas.Brush.Color := FBrushColor;
+  ACanvas.Brush.Style := FBrushStyle;
+end;
+
+procedure TFill.DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint);
+begin
+  inherited DrawBitmap(ACanvas, TopLeft);
   ACanvas.Brush.Color := FBrushColor;
   ACanvas.Brush.Style := FBrushStyle;
 end;
@@ -296,6 +310,13 @@ begin
   ACanvas.Pen.Style := FPenStyle;
 end;
 
+procedure TShape.DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint);
+begin
+  ACanvas.Pen.Width := round(FPenWidth * VP.Scale);
+  ACanvas.Pen.Color := FPenColor;
+  ACanvas.Pen.Style := FPenStyle;
+end;
+
 procedure TShape.MovePoint(APoint: TPoint);
 var
   i: integer;
@@ -406,6 +427,18 @@ begin
   ACanvas.Polyline(VP.WorldToScreen(FPoints));
 end;
 
+procedure TPolyline.DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint);
+var
+  p: TPoints;
+  i: Integer;
+begin
+  inherited DrawBitmap(ACanvas, TopLeft);
+  SetLength(p, Length(FPoints));
+  for i := 0 to High(FPoints) do
+    p[i] := Point(FPoints[i]) - TopLeft;
+  ACanvas.Polyline(p);
+end;
+
 procedure TPolyline.AddPoint(APoint: TPoint);
 begin
   SetLength(FPoints, Length(FPoints) + 1);
@@ -437,6 +470,18 @@ procedure TLine.Draw(ACanvas: TCanvas);
 begin
   inherited;
   ACanvas.Line(VP.WorldToScreen(FPoints[0]), VP.WorldToScreen(FPoints[1]));
+end;
+
+procedure TLine.DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint);
+var
+  p: TPoints;
+  i: Integer;
+begin
+  inherited DrawBitmap(ACanvas, TopLeft);
+  SetLength(p, Length(FPoints));
+  for i := 0 to High(FPoints) do
+    p[i] := Point(FPoints[i]) - TopLeft;
+  ACanvas.Line(p[0], p[1]);
 end;
 
 procedure TLine.SetPoint(APoint: TPoint);
@@ -477,6 +522,18 @@ begin
   ACanvas.Rectangle(VP.WorldToScreen(UGeometry.FloatRect(FPoints[0], FPoints[1])));
 end;
 
+procedure TRectangle.DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint);
+var
+  p: TPoints;
+  i: Integer;
+begin
+  inherited DrawBitmap(ACanvas, TopLeft);
+  SetLength(p, Length(FPoints));
+  for i := 0 to High(FPoints) do
+    p[i] := Point(FPoints[i]) - TopLeft;
+  ACanvas.Rectangle(UGeometry.Rect(p[0], p[1]));
+end;
+
 { TEllipse }
 
 function TEllipse.PointInShape(APoint: TPoint): Boolean;
@@ -499,6 +556,18 @@ procedure TEllipse.Draw(ACanvas: TCanvas);
 begin
   inherited;
   ACanvas.Ellipse(VP.WorldToScreen(UGeometry.FloatRect(FPoints[0], FPoints[1])));
+end;
+
+procedure TEllipse.DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint);
+var
+  p: TPoints;
+  i: Integer;
+begin
+  inherited DrawBitmap(ACanvas, TopLeft);
+  SetLength(p, Length(FPoints));
+  for i := 0 to High(FPoints) do
+    p[i] := Point(FPoints[i]) - TopLeft;
+  ACanvas.Ellipse(UGeometry.Rect(p[0], p[1]));
 end;
 
 { TRoundRect }
@@ -531,6 +600,18 @@ begin
   ACanvas.RoundRect(VP.WorldToScreen(UGeometry.FloatRect(FPoints[0], FPoints[1])),
     Round(FRadiusX * VP.Scale),
     Round(FRadiusY * VP.Scale));
+end;
+
+procedure TRoundRect.DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint);
+var
+  p: TPoints;
+  i: Integer;
+begin
+  inherited DrawBitmap(ACanvas, TopLeft);
+  SetLength(p, Length(FPoints));
+  for i := 0 to High(FPoints) do
+    p[i] := Point(FPoints[i]) - TopLeft;
+  ACanvas.RoundRect(UGeometry.Rect(p[0], p[1]), FRadiusX, FRadiusY);
 end;
 
 initialization

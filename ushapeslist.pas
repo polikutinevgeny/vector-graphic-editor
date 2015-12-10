@@ -47,6 +47,7 @@ type
       procedure Save(AFile: String);
       function Load(AFile: String): Boolean;
       procedure New;
+      procedure ExportToBMP(AFile: String);
   end;
 
 var
@@ -349,7 +350,7 @@ function TShapesList.Load(AFile: String): Boolean;
 var
   DeStreamer: TJSONDeStreamer;
   t, d: TJSONData;
-  i, j: integer;
+  i: integer;
   f: TFileStream;
   shape: TShape;
 begin
@@ -391,6 +392,27 @@ begin
   for i := 0 to High(FShapes) do
     FShapes[i].Free;
   SetLength(FShapes, 0);
+end;
+
+procedure TShapesList.ExportToBMP(AFile: String);
+var
+  bmp: TBitmap;
+  i: Integer;
+  t: TFloatRect;
+begin
+  bmp := TBitmap.Create;
+  t := GetImageSize;
+  bmp.Height := round(t.Bottom - t.Top);
+  bmp.Width := round(t.Right - t.Left);
+  bmp.Canvas.Brush.Color := clWhite;
+  bmp.Canvas.FillRect(Rect(0, 0, bmp.Width, bmp.Height));
+  for i := 0 to High(FShapes) do
+  begin
+    FShapes[i].DrawBitmap(bmp.Canvas, UGeometry.Point(
+      UGeometry.FloatPoint(t.Left, t.Top)));
+  end;
+  bmp.SaveToFile(AFile);
+  bmp.Free;
 end;
 
 end.

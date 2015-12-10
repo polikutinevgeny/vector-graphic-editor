@@ -15,7 +15,9 @@ type
 
   TMainWindow = class(TForm)
     ColorDialog: TColorDialog;
+    ExportMI: TMenuItem;
     SaveAsMI: TMenuItem;
+    ExportDialog: TSaveDialog;
     SaveMI: TMenuItem;
     OpenMI: TMenuItem;
     NewMI: TMenuItem;
@@ -44,6 +46,7 @@ type
     procedure AboutMIClick(Sender: TObject);
     procedure BottomMIClick(Sender: TObject);
     procedure DeleteMIClick(Sender: TObject);
+    procedure ExportMIClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure HorizontalSBScroll(Sender: TObject; ScrollCode: TScrollCode;
       var ScrollPos: Integer);
@@ -250,6 +253,12 @@ procedure TMainWindow.DeleteMIClick(Sender: TObject);
 begin
   Figures.Delete;
   PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.ExportMIClick(Sender: TObject);
+begin
+  if (not Figures.IsEmpty) and (ExportDialog.Execute) then
+    Figures.ExportToBMP(ExportDialog.FileName);
 end;
 
 procedure TMainWindow.FormCloseQuery(Sender: TObject; var CanClose: boolean);
