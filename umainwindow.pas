@@ -16,6 +16,8 @@ type
   TMainWindow = class(TForm)
     ColorDialog: TColorDialog;
     ExportMI: TMenuItem;
+    PasteMI: TMenuItem;
+    CopyMI: TMenuItem;
     RedoAllMI: TMenuItem;
     UndoAllMI: TMenuItem;
     RedoMI: TMenuItem;
@@ -49,6 +51,7 @@ type
     StatusBar: TStatusBar;
     procedure AboutMIClick(Sender: TObject);
     procedure BottomMIClick(Sender: TObject);
+    procedure CopyMIClick(Sender: TObject);
     procedure DeleteMIClick(Sender: TObject);
     procedure ExportMIClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -76,6 +79,7 @@ type
     procedure PaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure PaintBoxPaint(Sender: TObject);
+    procedure PasteMIClick(Sender: TObject);
     procedure RedoAllMIClick(Sender: TObject);
     procedure RedoMIClick(Sender: TObject);
     procedure SaveAsMIClick(Sender: TObject);
@@ -220,6 +224,18 @@ begin
   PaintBox.Canvas.FillRect(0, 0, PaintBox.Width, PaintBox.Height);
   {Draw all figures}
   Figures.Draw(PaintBox.Canvas);
+end;
+
+procedure TMainWindow.CopyMIClick(Sender: TObject);
+begin
+  Figures.Copy;
+  PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.PasteMIClick(Sender: TObject);
+begin
+  Figures.Paste;
+  PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.RedoAllMIClick(Sender: TObject);

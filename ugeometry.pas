@@ -39,6 +39,7 @@ operator -(a: TPoint; b: TFloatPoint): TFloatPoint;
 operator /(a: TFloatPoint; b: Double): TFloatPoint;
 operator *(a: TFloatPoint; b: Double): TFloatPoint;
 operator /(a: TPoint; b: Double): TFloatPoint;
+operator div(a: TPoint; b: Integer): TPoint;
 
 type
   TFloatPoints = array of TFloatPoint;
@@ -249,6 +250,12 @@ operator / (a: TPoint; b: Double): TFloatPoint;
 begin
   Result.X := a.X / b;
   Result.Y := a.Y / b;
+end;
+
+operator div(a: TPoint; b: Integer): TPoint;
+begin
+  Result.X := a.X div b;
+  Result.Y := a.Y div b;
 end;
 
 end.

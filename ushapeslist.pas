@@ -6,7 +6,7 @@ interface
 
 uses
   Graphics, UBaseShape, UShapes, math, UGeometry, UViewPort, UInspector, Classes,
-  sysutils, Dialogs, UShapeJSONConverter, UHistory;
+  sysutils, Dialogs, UShapeJSONConverter, UHistory, Clipbrd;
 
 type
 
@@ -55,6 +55,8 @@ type
       procedure UndoAll;
       procedure RedoAll;
       procedure UpdateHistory;
+      procedure Copy;
+      procedure Paste;
   end;
 
 var
@@ -436,6 +438,56 @@ end;
 procedure TShapesList.UpdateHistory;
 begin
   History.AddNew(SaveJSON(FShapes));
+end;
+
+procedure TShapesList.Copy;
+var
+  i: Integer;
+  t: TShapes;
+begin
+  SetLength(t, 0);
+  for i := 0 to High(FShapes) do
+    if FShapes[i].IsSelected then
+    begin
+      SetLength(t, Length(t) + 1);
+      t[High(t)] := FShapes[i];
+    end;
+  if Length(t) > 0 then
+    Clipboard.AsText := SaveJSON(t);
+end;
+
+procedure TShapesList.Paste;
+var
+  a: TFloatPoint;
+  r, p: TFloatRect;
+  i: Integer;
+  t: TShapes;
+begin
+  try
+    t := LoadJSON(Clipboard.AsText);
+    SetLength(FShapes, Length(FShapes) + Length(t));
+    for i := Length(FShapes) - Length(t) to High(FShapes) do
+      FShapes[i] := t[i - Length(FShapes) + Length(t)];
+    if Length(t) > 0 then
+    begin
+      r := t[0].Rect;
+      for i := 1 to High(t) do
+      begin
+        p := t[i].Rect;
+        r.Left := Min(r.Left, p.Left);
+        r.Right := Max(r.Right, p.Right);
+        r.Top := Min(r.Top, p.Top);
+        r.Bottom := Max(r.Bottom, p.Bottom);
+      end;
+      a := FloatPoint(r.Right + r.Left, r.Bottom + r.Top) / 2;
+      for i:= 0 to High(t) do
+        t[i].Shift(UGeometry.Point((VP.ScreenToWorld(VP.PortSize div 2) - a) * VP.Scale));
+      History.AddNew(SaveJSON(FShapes));
+      OnUpdateFileStatus;
+    end
+  except
+    MessageDlg('You tried to paste an invalid string', mtError, [mbOK], 0);
+  end;
 end;
 
 end.
