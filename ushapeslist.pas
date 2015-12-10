@@ -17,7 +17,6 @@ type
       FOnZOrderSwitch: TZOrderEvent;
       FShapes: array of TShape;
       FSelectionRectangle: TRectangle;
-      FChanged: Boolean;
       function GetImageSize: TFloatRect;
     public
       property SelectionRectangle: TRectangle read FSelectionRectangle
@@ -25,7 +24,6 @@ type
       property ImageSize: TFloatRect read GetImageSize;
       property OnZOrderSwitch: TZOrderEvent read FOnZOrderSwitch
         write FOnZOrderSwitch;
-      property Changed: Boolean read FChanged write FChanged;
       procedure Draw(ACanvas: TCanvas);
       procedure Add(AShape: TShape);
       procedure Select;
