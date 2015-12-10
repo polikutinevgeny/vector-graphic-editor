@@ -245,10 +245,7 @@ end;
 procedure TSelectionTool.MouseUp;
 begin
   if (FMode = stmEdit) or (FMode = stmMove) then
-  begin
     Figures.UpdateHistory;
-    OnUpdateFileStatus;
-  end;
   Figures.LoadSelected;
   Figures.SelectionRectangle.Free;
   Figures.SelectionRectangle := nil;
@@ -310,7 +307,6 @@ end;
 procedure TShapeTool.MouseUp;
 begin
   Figures.UpdateHistory;
-  OnUpdateFileStatus;
   Inspector.LoadNew(CreateShape);
 end;
 
@@ -571,7 +567,6 @@ end;
 procedure TPolylineTool.MouseUp;
 begin
   Figures.UpdateHistory;
-  OnUpdateFileStatus;
   {Do not create new shape}
 end;
 

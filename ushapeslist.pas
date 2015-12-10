@@ -239,6 +239,7 @@ begin
       FShapes[i + 1] := s;
     end;
   end;
+  UpdateHistory;
 end;
 
 procedure TShapesList.ZDown;
@@ -255,6 +256,7 @@ begin
       FShapes[i - 1] := s;
     end;
   end;
+  UpdateHistory;
 end;
 
 procedure TShapesList.ZTop;
@@ -277,6 +279,7 @@ begin
       j += 1;
     end;
   FShapes := temp;
+  UpdateHistory;
 end;
 
 procedure TShapesList.ZBottom;
@@ -299,6 +302,7 @@ begin
       j += 1;
     end;
   FShapes := temp;
+  UpdateHistory;
 end;
 
 function TShapesList.PointOnFigure(APoint: TPoint): Boolean;
@@ -436,6 +440,7 @@ end;
 procedure TShapesList.UpdateHistory;
 begin
   History.AddNew(SaveJSON(FShapes));
+  OnUpdateFileStatus;
 end;
 
 procedure TShapesList.Copy;
@@ -480,8 +485,7 @@ begin
       a := FloatPoint(r.Right + r.Left, r.Bottom + r.Top) / 2;
       for i:= 0 to High(t) do
         t[i].Shift(UGeometry.Point((VP.ScreenToWorld(VP.PortSize div 2) - a) * VP.Scale));
-      History.AddNew(SaveJSON(FShapes));
-      OnUpdateFileStatus;
+      UpdateHistory;
     end
   except
     //well, it is ok to paste some unrelated text
