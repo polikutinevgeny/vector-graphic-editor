@@ -5,8 +5,8 @@ unit UShapesList;
 interface
 
 uses
-  Graphics, UShapes, math, UGeometry, UViewPort, UInspector, Classes, fpjson,
-  fpjsonrtti, sysutils, Dialogs, UShapeJSONConverter;
+  Graphics, UBaseShape, UShapes, math, UGeometry, UViewPort, UInspector, Classes,
+  fpjson, fpjsonrtti, sysutils, Dialogs, UShapeJSONConverter;
 
 type
 

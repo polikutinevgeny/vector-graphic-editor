@@ -5,7 +5,7 @@ unit UShapeJSONConverter;
 interface
 
 uses
-  Classes, SysUtils, UShapes, jsonparser, fpjson, fpjsonrtti, fpjsonrpc;
+  Classes, SysUtils, UBaseShape, fpjson, fpjsonrtti;
 
 function ShapePropsToJSON(AShape: TShape): TJSONObject;
 function JSONToShape(Name: String; AJSON: TJSONObject): TShape;

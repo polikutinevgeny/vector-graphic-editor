@@ -5,7 +5,7 @@ unit UPaletteEditor;
 interface
 
 uses
-  Classes, SysUtils, ExtCtrls, UShapes, UInspector, typinfo, Graphics;
+  Classes, ExtCtrls, UBaseShape, UInspector, typinfo, Graphics;
 
 type
 

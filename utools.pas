@@ -5,7 +5,8 @@ unit UTools;
 interface
 
 uses
-  Classes, Graphics, UShapes, UShapesList, UViewPort, UGeometry, UInspector;
+  Classes, Graphics, UShapes, UBaseShape, UShapesList, UViewPort, UGeometry,
+  UInspector;
 
 type
 

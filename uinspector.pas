@@ -5,7 +5,7 @@ unit UInspector;
 interface
 
 uses
-  Classes, SysUtils, typinfo, Graphics, ExtCtrls, StdCtrls, UShapes, UGeometry;
+  Classes, typinfo, Graphics, ExtCtrls, StdCtrls, UBaseShape, UGeometry;
 
 type
 

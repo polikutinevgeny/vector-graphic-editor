@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Spin, ExtCtrls, StdCtrls, Controls, FPCanvas, typinfo,
-  UInspector, LCLType, Graphics, math, UShapes, Buttons;
+  UInspector, LCLType, Graphics, math, UBaseShape, Buttons;
 
 type
 
