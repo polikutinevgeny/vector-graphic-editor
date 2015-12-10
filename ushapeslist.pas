@@ -339,7 +339,7 @@ begin
     Data.Add(FShapes[i].ClassName, t);
   end;
   root.Add('Vector graphics format by Polikutin Evgeny', Data);
-  WriteLn(f, root.AsJSON);
+  WriteLn(f, root.FormatJSON);
   root.Free;
   Streamer.Free;
   Close(f);
