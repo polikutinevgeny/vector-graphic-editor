@@ -6,7 +6,7 @@ interface
 
 uses
   Graphics, UBaseShape, UShapes, math, UGeometry, UViewPort, UInspector, Classes,
-  fpjson, fpjsonrtti, sysutils, Dialogs, UShapeJSONConverter;
+  sysutils, Dialogs, UShapeJSONConverter;
 
 type
 
@@ -49,6 +49,10 @@ type
       procedure New;
       procedure ExportToBMP(AFile: String);
       procedure ShowAll;
+      procedure Undo;
+      procedure Redo;
+      procedure UndoAll;
+      procedure RedoAll;
   end;
 
 var
@@ -319,44 +323,27 @@ end;
 
 procedure TShapesList.Save(AFile: String);
 var
-  streamer: TJSONStreamer;
-  data, root: TJSONObject;
-  i: integer;
   f: Text;
 begin
   Assign(f, AFile);
   Rewrite(f);
-  streamer := TJSONStreamer.Create(nil);
-  streamer.Options := streamer.Options + [jsoTStringsAsArray];
-  root := TJSONObject.Create;
-  data := TJSONObject.Create;
-  for i := 0 to High(FShapes) do
-    data.Add(FShapes[i].ClassName, ShapePropsToJSON(FShapes[i]));
-  root.Add('Vector graphics format by Polikutin Evgeny', data);
-  WriteLn(f, root.FormatJSON);
-  root.Free;
-  streamer.Free;
+  WriteLn(f, SaveJSON(FShapes));
   Close(f);
   OnUpdateFileStatus(False);
 end;
 
 function TShapesList.Load(AFile: String): Boolean;
 var
-  DeStreamer: TJSONDeStreamer;
-  t: TJSONData;
-  i: integer;
-  f: TFileStream;
+  f: TStringList;
 begin
   Result := True;
-  f := TFileStream.Create(AFile, fmOpenRead);
-  DeStreamer := TJSONDeStreamer.Create(nil);
+  f := TStringList.Create;
+  f.LoadFromFile(AFile);
   New;
   try
-    t := GetJSON(f).FindPath('Vector graphics format by Polikutin Evgeny');
-    if t = nil then
-      raise Exception.Create('Invalid file signature');
-    for i := 0 to t.Count - 1 do
-      Add(JSONToShape((t as TJSONObject).Names[i], (t.Items[i] as TJSONObject)));
+    FShapes := LoadJSON(f.Text);
+    if not IsEmpty then
+      ShowAll;
   except
     on E: Exception do
     begin
@@ -365,10 +352,7 @@ begin
       Result := False;
     end;
   end;
-  if Result and (not IsEmpty) then
-    ShowAll;
   OnUpdateFileStatus(False);
-  DeStreamer.Free;
   f.Free;
 end;
 
@@ -407,6 +391,26 @@ begin
   t := ImageSize;
   VP.ViewPosition := FloatPoint((t.Left + t.Right) / 2, (t.Top + t.Bottom) / 2);
   VP.ScaleTo(t);
+end;
+
+procedure TShapesList.Undo;
+begin
+
+end;
+
+procedure TShapesList.Redo;
+begin
+
+end;
+
+procedure TShapesList.UndoAll;
+begin
+
+end;
+
+procedure TShapesList.RedoAll;
+begin
+
 end;
 
 end.

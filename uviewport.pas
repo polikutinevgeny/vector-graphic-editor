@@ -5,7 +5,7 @@ unit UViewPort;
 interface
 
 uses
-  Classes, ExtCtrls, Math, UGeometry;
+  Classes, Math, UGeometry;
 
 type
   TScrollBarType = (sbHorizontal, sbVertical);

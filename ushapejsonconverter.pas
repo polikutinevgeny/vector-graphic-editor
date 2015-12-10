@@ -7,8 +7,8 @@ interface
 uses
   Classes, SysUtils, UBaseShape, fpjson, fpjsonrtti;
 
-function ShapePropsToJSON(AShape: TShape): TJSONObject;
-function JSONToShape(Name: String; AJSON: TJSONObject): TShape;
+function LoadJSON(AJSON: String): TShapes;
+function SaveJSON(AShapes: TShapes): String;
 
 implementation
 
@@ -40,6 +40,42 @@ begin
   Result.Points := str;
   str.Free;
   DeStreamer.Free;
+end;
+
+function LoadJSON(AJSON: String): TShapes;
+var
+  DeStreamer: TJSONDeStreamer;
+  t: TJSONData;
+  i: integer;
+begin
+  DeStreamer := TJSONDeStreamer.Create(nil);
+  t := GetJSON(AJSON).FindPath('Vector graphics format by Polikutin Evgeny');
+  if t = nil then
+    raise Exception.Create('Invalid file signature');
+  SetLength(Result, t.Count);
+  for i := 0 to t.Count - 1 do
+    Result[i] := JSONToShape(
+      (t as TJSONObject).Names[i], (t.Items[i] as TJSONObject));
+  DeStreamer.Free;
+  t.Free;
+end;
+
+function SaveJSON(AShapes: TShapes): String;
+var
+  streamer: TJSONStreamer;
+  data, root: TJSONObject;
+  i: integer;
+begin
+  streamer := TJSONStreamer.Create(nil);
+  streamer.Options := streamer.Options + [jsoTStringsAsArray];
+  root := TJSONObject.Create;
+  data := TJSONObject.Create;
+  for i := 0 to High(AShapes) do
+    data.Add(AShapes[i].ClassName, ShapePropsToJSON(AShapes[i]));
+  root.Add('Vector graphics format by Polikutin Evgeny', data);
+  Result := root.FormatJSON;
+  root.Free;
+  streamer.Free;
 end;
 
 end.

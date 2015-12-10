@@ -61,6 +61,8 @@ type
     property Points: TStrings read GetPoints write SetPoints;
   end;
 
+  TShapes = array of TShape;
+
 implementation
 
 { TShape }
