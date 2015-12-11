@@ -45,19 +45,22 @@ end;
 function LoadJSON(AJSON: String): TShapes;
 var
   DeStreamer: TJSONDeStreamer;
-  t: TJSONData;
+  t, d: TJSONData;
   i: integer;
 begin
   DeStreamer := TJSONDeStreamer.Create(nil);
-  t := GetJSON(AJSON).FindPath('Vector graphics format by Polikutin Evgeny');
+  d := GetJSON(AJSON);
+  if d = nil then
+    raise Exception.Create('No valid JSON found');
+  t := d.FindPath('Vector graphics format by Polikutin Evgeny');
   if t = nil then
-    raise Exception.Create('Invalid file signature');
+    raise Exception.Create('Invalid signature');
   SetLength(Result, t.Count);
   for i := 0 to t.Count - 1 do
     Result[i] := JSONToShape(
       (t as TJSONObject).Names[i], (t.Items[i] as TJSONObject));
   DeStreamer.Free;
-  t.Free;
+  d.Free;
 end;
 
 function SaveJSON(AShapes: TShapes): String;

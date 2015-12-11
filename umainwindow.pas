@@ -534,7 +534,7 @@ begin
   Result := True;
   if History.IsChanged then
     case MessageDlg('File is not saved! Save the file?', mtWarning,
-      [mbYes, mbNo, mbCancel], 0) of
+      mbYesNoCancel, 0) of
       mrYes:
         if FNameSet then
           Figures.Save(FName)

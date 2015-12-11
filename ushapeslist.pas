@@ -336,9 +336,9 @@ procedure TShapesList.Save(AFile: String);
 var
   f: Text;
 begin
-  Assign(f, AFile);
+  AssignFile(f, AFile);
   Rewrite(f);
-  WriteLn(f, SaveJSON(FShapes));
+  Write(f, SaveJSON(FShapes));
   Close(f);
   History.InformOfSave;
   OnUpdateFileStatus;
