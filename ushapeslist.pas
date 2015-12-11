@@ -55,6 +55,7 @@ type
       procedure UpdateHistory;
       procedure Copy;
       procedure Paste;
+      procedure LoadState(AString: String);
   end;
 
 var
@@ -217,6 +218,12 @@ var
   i: Integer;
 begin
   for i := 0 to High(FShapes) do
+    if FShapes[i].IsSelected then
+    begin
+      Inspector.LoadNew(nil);
+      break;
+    end;
+  for i := 0 to High(FShapes) do
   begin
     FShapes[i].IsSelected := False;
     FShapes[i].PrevSelected := False;
@@ -367,19 +374,18 @@ begin
   end;
   OnUpdateFileStatus;
   f.Free;
-  FOnZOrderSwitch(False);
 end;
 
 procedure TShapesList.New;
 var i: Integer;
 begin
+  UnSelect;
   for i := 0 to High(FShapes) do
     FShapes[i].Free;
   SetLength(FShapes, 0);
   VP.Scale := 1;
   VP.ViewPosition := VP.PortSize / 2;
   History.Clear(SaveJSON(FShapes));
-  FOnZOrderSwitch(False);
 end;
 
 procedure TShapesList.ExportToBMP(AFile: String);
@@ -411,30 +417,22 @@ end;
 
 procedure TShapesList.Undo;
 begin
-  FShapes := LoadJSON(History.Undo);
-  Inspector.LoadNew(nil);
-  FOnZOrderSwitch(False);
+  LoadState(History.Undo);
 end;
 
 procedure TShapesList.Redo;
 begin
-  FShapes := LoadJSON(History.Redo);
-  Inspector.LoadNew(nil);
-  FOnZOrderSwitch(False);
+  LoadState(History.Redo);
 end;
 
 procedure TShapesList.UndoAll;
 begin
-  FShapes := LoadJSON(History.UndoAll);
-  Inspector.LoadNew(nil);
-  FOnZOrderSwitch(False);
+  LoadState(History.UndoAll);
 end;
 
 procedure TShapesList.RedoAll;
 begin
-  FShapes := LoadJSON(History.RedoAll);
-  Inspector.LoadNew(nil);
-  FOnZOrderSwitch(False);
+  LoadState(History.RedoAll);
 end;
 
 procedure TShapesList.UpdateHistory;
@@ -461,8 +459,6 @@ end;
 
 procedure TShapesList.Paste;
 var
-  a: TFloatPoint;
-  r, p: TFloatRect;
   i: Integer;
   t: TShapes;
 begin
@@ -472,24 +468,15 @@ begin
     for i := Length(FShapes) - Length(t) to High(FShapes) do
       FShapes[i] := t[i - Length(FShapes) + Length(t)];
     if Length(t) > 0 then
-    begin
-      r := t[0].Rect;
-      for i := 1 to High(t) do
-      begin
-        p := t[i].Rect;
-        r.Left := Min(r.Left, p.Left);
-        r.Right := Max(r.Right, p.Right);
-        r.Top := Min(r.Top, p.Top);
-        r.Bottom := Max(r.Bottom, p.Bottom);
-      end;
-      a := FloatPoint(r.Right + r.Left, r.Bottom + r.Top) / 2;
-      for i:= 0 to High(t) do
-        t[i].Shift(UGeometry.Point((VP.ScreenToWorld(VP.PortSize div 2) - a) * VP.Scale));
       UpdateHistory;
-    end
   except
-    //well, it is ok to paste some unrelated text
   end;
+end;
+
+procedure TShapesList.LoadState(AString: String);
+begin
+  UnSelect;
+  FShapes := LoadJSON(AString);
 end;
 
 end.
