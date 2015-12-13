@@ -274,6 +274,10 @@ object MainWindow: TMainWindow
         ShortCut = 46
         OnClick = DeleteMIClick
       end
+      object ClearMI: TMenuItem
+        Caption = 'Clear'
+        OnClick = ClearMIClick
+      end
       object ZOrderMI: TMenuItem
         Caption = 'Z-order'
         Enabled = False

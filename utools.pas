@@ -548,6 +548,7 @@ begin
   begin
     FDrawingNow := false;
     Inspector.LoadNew(CreateShape);
+    Figures.UpdateHistory;
     Exit;
   end;
   if not FDrawingNow then
@@ -566,13 +567,16 @@ end;
 
 procedure TPolylineTool.MouseUp;
 begin
-  Figures.UpdateHistory;
   {Do not create new shape}
 end;
 
 procedure TPolylineTool.Leave;
 begin
-  FDrawingNow := false;
+  if FDrawingNow then
+  begin
+    Figures.UpdateHistory;
+    FDrawingNow := False;
+  end;
   inherited;
 end;
 

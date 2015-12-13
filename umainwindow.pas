@@ -16,6 +16,7 @@ type
   TMainWindow = class(TForm)
     ColorDialog: TColorDialog;
     ExportMI: TMenuItem;
+    ClearMI: TMenuItem;
     PasteMI: TMenuItem;
     CopyMI: TMenuItem;
     RedoAllMI: TMenuItem;
@@ -51,6 +52,7 @@ type
     StatusBar: TStatusBar;
     procedure AboutMIClick(Sender: TObject);
     procedure BottomMIClick(Sender: TObject);
+    procedure ClearMIClick(Sender: TObject);
     procedure CopyMIClick(Sender: TObject);
     procedure DeleteMIClick(Sender: TObject);
     procedure ExportMIClick(Sender: TObject);
@@ -107,6 +109,7 @@ type
     FNameSet: Boolean;
     FName: String;
     function ReadyToCloseFile: Boolean;
+    procedure UndoRedo(AString: String);
   public
     { public declarations }
   end;
@@ -129,6 +132,14 @@ end;
 procedure TMainWindow.BottomMIClick(Sender: TObject);
 begin
   Figures.ZBottom;
+  PaintBox.Invalidate;
+end;
+
+procedure TMainWindow.ClearMIClick(Sender: TObject);
+begin
+  ToolContainer.Tools[FCurrentToolIndex].Leave;
+  Inspector.LoadNew(ToolContainer.Tools[FCurrentToolIndex].CreateShape);
+  Figures.Clear;
   PaintBox.Invalidate;
 end;
 
@@ -228,28 +239,32 @@ end;
 
 procedure TMainWindow.CopyMIClick(Sender: TObject);
 begin
+  if FMousePressed then
+    Exit;
   Figures.Copy;
   PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.PasteMIClick(Sender: TObject);
 begin
+  if FMousePressed then
+    Exit;
   Figures.Paste;
   PaintBox.Invalidate;
 end;
 
 procedure TMainWindow.RedoAllMIClick(Sender: TObject);
 begin
-  Figures.RedoAll;
-  OnUpdateFileStatus;
-  PaintBox.Invalidate;
+  if FMousePressed then
+    Exit;
+  UndoRedo(History.RedoAll);
 end;
 
 procedure TMainWindow.RedoMIClick(Sender: TObject);
 begin
-  Figures.Redo;
-  OnUpdateFileStatus;
-  PaintBox.Invalidate;
+  if FMousePressed then
+    Exit;
+  UndoRedo(History.Redo);
 end;
 
 procedure TMainWindow.SaveAsMIClick(Sender: TObject);
@@ -295,16 +310,16 @@ end;
 
 procedure TMainWindow.UndoAllMIClick(Sender: TObject);
 begin
-  Figures.UndoAll;
-  OnUpdateFileStatus;
-  PaintBox.Invalidate;
+  if FMousePressed then
+    Exit;
+  UndoRedo(History.RedoAll);
 end;
 
 procedure TMainWindow.UndoMIClick(Sender: TObject);
 begin
-  Figures.Undo;
-  OnUpdateFileStatus;
-  PaintBox.Invalidate;
+  if FMousePressed then
+    Exit;
+  UndoRedo(History.Undo);
 end;
 
 procedure TMainWindow.DeleteMIClick(Sender: TObject);
@@ -362,7 +377,7 @@ end;
 
 procedure TMainWindow.NewMIClick(Sender: TObject);
 begin
-  if not ReadyToCloseFile then
+  if FMousePressed or (not ReadyToCloseFile) then
     Exit;
   Figures.New;
   FNameSet := False;
@@ -373,7 +388,7 @@ end;
 
 procedure TMainWindow.OpenMIClick(Sender: TObject);
 begin
-  if not ReadyToCloseFile then
+  if FMousePressed or (not ReadyToCloseFile) then
     Exit;
   if OpenDialog.Execute then
     if FileExists(OpenDialog.FileName) then
@@ -507,6 +522,7 @@ end;
 procedure TMainWindow.ZOrderSwitch(AEnabled: Boolean);
 begin
   ZOrderMI.Enabled := AEnabled;
+  DeleteMI.Enabled := AEnabled;
 end;
 
 procedure TMainWindow.EditStatusUpdate;
@@ -545,6 +561,13 @@ begin
       mrCancel:
         Result := False;
     end;
+end;
+
+procedure TMainWindow.UndoRedo(AString: String);
+begin
+  Figures.LoadState(AString);
+  OnUpdateFileStatus;
+  PaintBox.Invalidate;
 end;
 
 end.

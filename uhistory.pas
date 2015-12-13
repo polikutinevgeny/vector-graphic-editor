@@ -27,7 +27,7 @@ type
       function UndoAll: String;
       function RedoAll: String;
       procedure AddNew(AJSON: String);
-      procedure Clear(AJSON: String);
+      procedure StartNew(AJSON: String);
       procedure InformOfSave;
       property IsChanged: Boolean read GetChangeStatus;
     class var
@@ -99,14 +99,13 @@ begin
   CheckBounds;
 end;
 
-procedure THistory.Clear(AJSON: String);
+procedure THistory.StartNew(AJSON: String);
 begin
   SetLength(FLog, 1);
   FCurrentPosition := 0;
   FSave := 0;
   FLog[FCurrentPosition] := AJSON;
-  OnUndoSwitch(False);
-  OnRedoSwitch(False);
+  CheckBounds;
 end;
 
 procedure THistory.InformOfSave;

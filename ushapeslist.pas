@@ -18,6 +18,7 @@ type
       FShapes: array of TShape;
       FSelectionRectangle: TRectangle;
       function GetImageSize: TFloatRect;
+      procedure DeleteAll;
     public
       property SelectionRectangle: TRectangle read FSelectionRectangle
         write FSelectionRectangle;
@@ -48,14 +49,11 @@ type
       procedure New;
       procedure ExportToBMP(AFile: String);
       procedure ShowAll;
-      procedure Undo;
-      procedure Redo;
-      procedure UndoAll;
-      procedure RedoAll;
       procedure UpdateHistory;
       procedure Copy;
       procedure Paste;
       procedure LoadState(AString: String);
+      procedure Clear;
   end;
 
 var
@@ -81,6 +79,17 @@ begin
     end
   else
     Result := FloatRect(FloatPoint(0, 0), FloatPoint(0, 0));
+end;
+
+procedure TShapesList.DeleteAll;
+var i: Integer;
+begin
+  UnSelect;
+  for i := 0 to High(FShapes) do
+    FShapes[i].Free;
+  SetLength(FShapes, 0);
+  VP.Scale := 1;
+  VP.ViewPosition := VP.PortSize / 2;
 end;
 
 procedure TShapesList.Draw(ACanvas: TCanvas);
@@ -210,7 +219,7 @@ begin
     else
       FShapes[i].PrevSelected := False;
   Inspector.Load(a);
-  FOnZOrderSwitch(Length(a) >= 2);
+  FOnZOrderSwitch(Length(a) > 0);
 end;
 
 procedure TShapesList.UnSelect;
@@ -363,7 +372,7 @@ begin
     FShapes := LoadJSON(f.Text);
     if not IsEmpty then
       ShowAll;
-    History.Clear(SaveJSON(FShapes));
+    History.StartNew(SaveJSON(FShapes));
   except
     on E: Exception do
     begin
@@ -377,15 +386,9 @@ begin
 end;
 
 procedure TShapesList.New;
-var i: Integer;
 begin
-  UnSelect;
-  for i := 0 to High(FShapes) do
-    FShapes[i].Free;
-  SetLength(FShapes, 0);
-  VP.Scale := 1;
-  VP.ViewPosition := VP.PortSize / 2;
-  History.Clear(SaveJSON(FShapes));
+  DeleteAll;
+  History.StartNew(SaveJSON(FShapes));
 end;
 
 procedure TShapesList.ExportToBMP(AFile: String);
@@ -413,32 +416,6 @@ begin
   t := ImageSize;
   VP.ViewPosition := FloatPoint((t.Left + t.Right) / 2, (t.Top + t.Bottom) / 2);
   VP.ScaleTo(t);
-end;
-
-procedure TShapesList.Undo;
-begin
-  LoadState(History.Undo);
-end;
-
-procedure TShapesList.Redo;
-begin
-  LoadState(History.Redo);
-end;
-
-procedure TShapesList.UndoAll;
-begin
-  LoadState(History.UndoAll);
-end;
-
-procedure TShapesList.RedoAll;
-begin
-  LoadState(History.RedoAll);
-end;
-
-procedure TShapesList.UpdateHistory;
-begin
-  History.AddNew(SaveJSON(FShapes));
-  OnUpdateFileStatus;
 end;
 
 procedure TShapesList.Copy;
@@ -477,6 +454,18 @@ procedure TShapesList.LoadState(AString: String);
 begin
   UnSelect;
   FShapes := LoadJSON(AString);
+end;
+
+procedure TShapesList.Clear;
+begin
+  DeleteAll;
+  History.AddNew(SaveJSON(FShapes));
+end;
+
+procedure TShapesList.UpdateHistory;
+begin
+  History.AddNew(SaveJSON(FShapes));
+  OnUpdateFileStatus;
 end;
 
 end.
