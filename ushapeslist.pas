@@ -86,7 +86,7 @@ var i: Integer;
 begin
   UnSelect;
   for i := 0 to High(FShapes) do
-    FShapes[i].Free;
+    FreeAndNil(FShapes[i]);
   SetLength(FShapes, 0);
   VP.Scale := 1;
   VP.ViewPosition := VP.PortSize / 2;
@@ -186,7 +186,7 @@ begin
     if FShapes[i].IsSelected then
     begin
       c += 1;
-      FShapes[i].Free;
+      FreeAndNil(FShapes[i]);
     end
     else
       FShapes[i - c] := FShapes[i];
@@ -199,8 +199,7 @@ begin
   end;
   Inspector.LoadNew(nil);
   FOnZOrderSwitch(False);
-  History.AddNew(SaveJSON(FShapes));
-  OnUpdateFileStatus;
+  UpdateHistory;
 end;
 
 procedure TShapesList.LoadSelected;

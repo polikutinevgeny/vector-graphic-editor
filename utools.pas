@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, Graphics, UShapes, UBaseShape, UShapesList, UViewPort, UGeometry,
-  UInspector;
+  UInspector, sysutils;
 
 type
 
@@ -22,6 +22,7 @@ type
       procedure MouseMove(APoint: TPoint; Shift: TShiftState); virtual;
       procedure MouseUp; virtual;
       procedure Leave; virtual;
+      procedure Reset; virtual;
       function GetShape: TShape; virtual; abstract;
       function CreateShape: TShape; virtual; abstract;
       property Icon: TBitmap read FIcon;
@@ -71,6 +72,7 @@ type
       procedure MouseMove(APoint: TPoint; Shift: TShiftState); override;
       procedure MouseUp; override;
       procedure Leave; override;
+      procedure Reset; override;
     private
       FDrawingNow: boolean;
   end;
@@ -325,7 +327,7 @@ end;
 procedure TShapeTool.Leave;
 begin
   if FIsTemp then
-    FShape.Free;
+    FreeAndNil(FShape);
 end;
 
 { TRectangleZoomTool }
@@ -486,6 +488,11 @@ begin
   {This procedure is called on leaving the tool and does nothing by default}
 end;
 
+procedure TTool.Reset;
+begin
+  {This procedure is called to reset the tool state to default}
+end;
+
 { TRoundRectTool }
 
 constructor TRoundRectTool.Create;
@@ -546,9 +553,7 @@ procedure TPolylineTool.MouseClick(APoint: TPoint; Shift: TShiftState);
 begin
   if ssRight in Shift then
   begin
-    FDrawingNow := false;
-    Inspector.LoadNew(CreateShape);
-    Figures.UpdateHistory;
+    Reset;
     Exit;
   end;
   if not FDrawingNow then
@@ -567,6 +572,7 @@ end;
 
 procedure TPolylineTool.MouseUp;
 begin
+  Figures.UpdateHistory;
   {Do not create new shape}
 end;
 
@@ -578,6 +584,12 @@ begin
     FDrawingNow := False;
   end;
   inherited;
+end;
+
+procedure TPolylineTool.Reset;
+begin
+  FDrawingNow := false;
+  Inspector.LoadNew(CreateShape);
 end;
 
 { TLineTool }

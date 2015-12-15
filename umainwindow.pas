@@ -565,6 +565,7 @@ end;
 
 procedure TMainWindow.UndoRedo(AString: String);
 begin
+  ToolContainer.Tools[FCurrentToolIndex].Reset;
   Figures.LoadState(AString);
   OnUpdateFileStatus;
   PaintBox.Invalidate;
