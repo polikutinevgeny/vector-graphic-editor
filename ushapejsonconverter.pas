@@ -76,7 +76,7 @@ begin
   for i := 0 to High(AShapes) do
     data.Add(AShapes[i].ClassName, ShapePropsToJSON(AShapes[i]));
   root.Add('Vector graphics format by Polikutin Evgeny', data);
-  Result := root.FormatJSON;
+  Result := root.FormatJSON([foSingleLineArray]);
   root.Free;
   streamer.Free;
 end;

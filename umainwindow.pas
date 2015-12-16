@@ -360,6 +360,8 @@ begin
   if not ColorDialog.Execute then
     exit;
   TShape(Sender).Brush.Color := ColorDialog.Color;
+  OnMainColorUpdate(nil);
+  OnBrushColorUpdate(nil);
   PaintBox.Invalidate;
 end;
 

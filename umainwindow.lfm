@@ -256,7 +256,7 @@ object MainWindow: TMainWindow
       object RedoMI: TMenuItem
         Caption = 'Redo'
         Enabled = False
-        ShortCut = 24666
+        ShortCut = 16473
         OnClick = RedoMIClick
       end
       object UndoAllMI: TMenuItem
