@@ -47,7 +47,9 @@ type
       procedure Save(AFile: String);
       function Load(AFile: String): Boolean;
       procedure New;
-      procedure ExportToBMP(AFile: String);
+      procedure ExportToBMP(AFile: String; AWidth, AHeight: Integer);
+      procedure ExportToPNG(AFile: String; AWidth, AHeight: Integer);
+      procedure ExportToJPG(AFile: String; AWidth, AHeight: Integer);
       procedure ShowAll;
       procedure UpdateHistory;
       procedure Copy;
@@ -390,23 +392,67 @@ begin
   History.StartNew(SaveJSON(FShapes));
 end;
 
-procedure TShapesList.ExportToBMP(AFile: String);
+procedure TShapesList.ExportToBMP(AFile: String; AWidth, AHeight: Integer);
 var
   bmp: TBitmap;
   i: Integer;
   t: TFloatRect;
+  s: Double;
 begin
   bmp := TBitmap.Create;
   t := GetImageSize;
-  bmp.Height := round(t.Bottom - t.Top);
-  bmp.Width := round(t.Right - t.Left);
+  bmp.Height := AHeight;
+  bmp.Width := AWidth;
+  s := Min(AWidth / (t.Right - t.Left), AHeight / (t.Bottom - t.Top));
   bmp.Canvas.Brush.Color := clWhite;
   bmp.Canvas.FillRect(0, 0, bmp.Width, bmp.Height);
   for i := 0 to High(FShapes) do
-    FShapes[i].DrawBitmap(bmp.Canvas, UGeometry.Point(
-      UGeometry.FloatPoint(t.Left, t.Top)));
+    FShapes[i].DrawExport(bmp.Canvas, UGeometry.Point(
+      UGeometry.FloatPoint(t.Left, t.Top)), s);
   bmp.SaveToFile(AFile);
   bmp.Free;
+end;
+
+procedure TShapesList.ExportToPNG(AFile: String; AWidth, AHeight: Integer);
+var
+  png: TPortableNetworkGraphic;
+  i: Integer;
+  t: TFloatRect;
+  s: Double;
+begin
+  png := TPortableNetworkGraphic.Create;
+  t := GetImageSize;
+  png.Height := AHeight;
+  png.Width := AWidth;
+  s := Min(AWidth / (t.Right - t.Left), AHeight / (t.Bottom - t.Top));
+  png.Canvas.Brush.Color := clWhite;
+  png.Canvas.FillRect(0, 0, png.Width, png.Height);
+  for i := 0 to High(FShapes) do
+    FShapes[i].DrawExport(png.Canvas, UGeometry.Point(
+      UGeometry.FloatPoint(t.Left, t.Top)), s);
+  png.SaveToFile(AFile);
+  png.Free;
+end;
+
+procedure TShapesList.ExportToJPG(AFile: String; AWidth, AHeight: Integer);
+var
+  jpg: TJPEGImage;
+  i: Integer;
+  t: TFloatRect;
+  s: Double;
+begin
+  jpg := TJPEGImage.Create;
+  t := GetImageSize;
+  jpg.Height := AHeight;
+  jpg.Width := AWidth;
+  s := Min(AWidth / (t.Right - t.Left), AHeight / (t.Bottom - t.Top));
+  jpg.Canvas.Brush.Color := clWhite;
+  jpg.Canvas.FillRect(0, 0, jpg.Width, jpg.Height);
+  for i := 0 to High(FShapes) do
+    FShapes[i].DrawExport(jpg.Canvas, UGeometry.Point(
+      UGeometry.FloatPoint(t.Left, t.Top)), s);
+  jpg.SaveToFile(AFile);
+  jpg.Free;
 end;
 
 procedure TShapesList.ShowAll;

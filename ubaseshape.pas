@@ -38,7 +38,7 @@ type
     constructor Create; virtual;
     procedure SetPoint(APoint: TPoint); virtual;
     procedure Draw(ACanvas: TCanvas); virtual;
-    procedure DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint); virtual;
+    procedure DrawExport(ACanvas: TCanvas; TopLeft: TPoint; Scale: Double); virtual;
     procedure MovePoint(APoint: TPoint);
     procedure DrawSelection(ACanvas: TCanvas);
     function PointInShape(APoint: TPoint): Boolean; virtual; abstract;
@@ -190,9 +190,9 @@ begin
   ACanvas.Pen.Style := FPenStyle;
 end;
 
-procedure TShape.DrawBitmap(ACanvas: TCanvas; TopLeft: TPoint);
+procedure TShape.DrawExport(ACanvas: TCanvas; TopLeft: TPoint; Scale: Double);
 begin
-  ACanvas.Pen.Width := round(FPenWidth * VP.Scale);
+  ACanvas.Pen.Width := round(FPenWidth * Scale);
   ACanvas.Pen.Color := FPenColor;
   ACanvas.Pen.Style := FPenStyle;
 end;

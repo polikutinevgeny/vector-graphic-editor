@@ -226,7 +226,7 @@ object MainWindow: TMainWindow
         Caption = 'Save as'
         OnClick = SaveAsMIClick
       end
-      object ExportMI: TMenuItem
+      object ExportToRasterMI: TMenuItem
         Caption = 'Export'
         OnClick = ExportMIClick
       end
@@ -354,14 +354,6 @@ object MainWindow: TMainWindow
     InitialDir = 'C:\Users\polik_000\Documents\'
     Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
     left = 200
-    top = 88
-  end
-  object ExportDialog: TSaveDialog
-    Title = 'Export'
-    Filter = '*.bmp|*.bmp'
-    InitialDir = 'C:\Users\polik_000\Documents\'
-    Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
-    left = 240
     top = 88
   end
 end

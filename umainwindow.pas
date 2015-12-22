@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
   UTools, UShapesList, Buttons, StdCtrls, ComCtrls, Grids,
-  UViewPort, UGeometry, types, math, UInspector, UPaletteEditor, UHistory;
+  UViewPort, UGeometry, types, math, UInspector, UPaletteEditor, UHistory,
+  UExportWindow;
 
 type
 
@@ -15,7 +16,7 @@ type
 
   TMainWindow = class(TForm)
     ColorDialog: TColorDialog;
-    ExportMI: TMenuItem;
+    ExportToRasterMI: TMenuItem;
     ClearMI: TMenuItem;
     PasteMI: TMenuItem;
     CopyMI: TMenuItem;
@@ -24,7 +25,6 @@ type
     RedoMI: TMenuItem;
     UndoMI: TMenuItem;
     SaveAsMI: TMenuItem;
-    ExportDialog: TSaveDialog;
     SaveMI: TMenuItem;
     OpenMI: TMenuItem;
     NewMI: TMenuItem;
@@ -329,9 +329,18 @@ begin
 end;
 
 procedure TMainWindow.ExportMIClick(Sender: TObject);
+var img: TFloatRect;
 begin
-  if (not Figures.IsEmpty) and (ExportDialog.Execute) then
-    Figures.ExportToBMP(ExportDialog.FileName);
+  if (not Figures.IsEmpty) then
+  begin
+    img := Figures.ImageSize;
+    ExportDialog.AspectRatio := (img.Right - img.Left) / (img.Bottom - img.Top);
+    ExportDialog.ImgWidth := ceil(img.Right - img.Left);
+    ExportDialog.ImgHeight := ceil(img.Bottom - img.Top);
+    ExportDialog.WidthSE.Value := ceil(img.Right - img.Left);
+    ExportDialog.HeightSE.Value := ceil(img.Bottom - img.Top);
+    ExportDialog.Show;
+  end;
 end;
 
 procedure TMainWindow.FormCloseQuery(Sender: TObject; var CanClose: boolean);

@@ -36,7 +36,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="13">
+    <Units Count="14">
       <Unit0>
         <Filename Value="VectorGraphicEditor.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -104,6 +104,13 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="UHistory"/>
       </Unit12>
+      <Unit13>
+        <Filename Value="uexportwindow.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="ExportDialog"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="UExportWindow"/>
+      </Unit13>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
