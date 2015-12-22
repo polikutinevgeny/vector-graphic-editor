@@ -58,7 +58,7 @@ begin
   SetLength(Result, t.Count);
   for i := 0 to t.Count - 1 do
     Result[i] := JSONToShape(
-      (t as TJSONObject).Names[i], (t.Items[i] as TJSONObject));
+      (t as TJSONObject).Names[i], t.Items[i] as TJSONObject);
   DeStreamer.Free;
   d.Free;
 end;

@@ -32,7 +32,7 @@ type
       property IsChanged: Boolean read GetChangeStatus;
     class var
       OnUndoSwitch: TControlsSwitchEvent;
-      OnRedoSwitch: TControlsSwitchEvent
+      OnRedoSwitch: TControlsSwitchEvent;
   end;
 
 var
@@ -95,6 +95,8 @@ begin
     Exit;
   SetLength(FLog, FCurrentPosition + 2);
   FCurrentPosition += 1;
+  if FSave + 1 >= Length(FLog) then
+    FSave := -1;
   FLog[FCurrentPosition] := AJSON;
   CheckBounds;
 end;
